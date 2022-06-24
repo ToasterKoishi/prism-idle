@@ -13,12 +13,20 @@ module.exports = {
         options: { presets: ["@babel/env"] }
       },
       {
+        test: /\.tsx?$/,
+        loader: 'babel-loader',
+      },
+      {
         test: /\.css$/,
         use: ["style-loader", "css-loader"]
+      },
+      {
+        test: /\.(png|jpe?g|gif)$/i,
+        loader: "file-loader"
       }
     ]
   },
-  resolve: { extensions: ["*", ".js", ".jsx"] },
+  resolve: { extensions: ["*", ".js", ".jsx", ".tsx"] },
   output: {
     path: path.resolve(__dirname, "dist/"),
     publicPath: "/dist/",
