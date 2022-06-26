@@ -11,16 +11,27 @@ export class RenderGameObject extends React.Component {
   }
 
   render() {
+    const outerBaseStyle = {
+      position: "absolute",
+      left: this.props.position.x - this.state.spriteWidth / 2.0 + "px",
+      top: this.props.position.y - this.state.spriteHeight / 2.0 + "px",
+      animationFillMode: "forwards",
+      pointerEvents: "none"
+    };
+    const outerInheritedStyle = this.props.outerStyle;
+    const innerBaseStyle = {
+      width: this.state.spriteWidth,
+      height: this.state.spriteHeight,
+      animationFillMode: "forwards"
+    };
+    const innerInheritedStyle = this.props.innerStyle;
     return (
-      <img
-        src={this.state.sprite}
-        style={{
-          position: "absolute",
-          left: this.props.position.x - this.state.spriteWidth / 2.0 + "px",
-          top: this.props.position.y - this.state.spriteHeight / 2.0 + "px",
-          width: this.state.spriteWidth,
-          height: this.state.spriteHeight
-        }} />
+      <div style={{ ...outerBaseStyle, ...outerInheritedStyle }}>
+        <img
+          src={this.state.sprite}
+          style={{ ...innerBaseStyle, ...innerInheritedStyle }}
+        />
+      </div>
     );
   }
 }

@@ -2,7 +2,7 @@
   "name": "prism-idle",
   "version": "0.0.1",
   "scripts": {
-    "build": "webpack --mode development",
+    "build": "webpack --mode production",
     "serve": "webpack-dev-server --mode development"
   },
   "babel": {

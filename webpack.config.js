@@ -3,7 +3,6 @@ const webpack = require("webpack");
 
 module.exports = {
   entry: "./src/index.js",
-  mode: "development",
   module: {
     rules: [
       {
@@ -14,7 +13,8 @@ module.exports = {
       },
       {
         test: /\.tsx?$/,
-        loader: 'babel-loader',
+        exclude: /(node_modules|bower_components)/,
+        use: ["babel-loader"]
       },
       {
         test: /\.css$/,
