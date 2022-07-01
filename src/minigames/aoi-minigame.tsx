@@ -1,12 +1,12 @@
 import React from "react";
 import "../app.css";
-import { AOI_BOOST_PER_NFT, AOI_DOG_SPEED, BASE_AOI_SPEED, BASE_WCBONALDS_POSITION, COMPRESSED_NUGGIE_1_RATE, NUGGIE_HIT_RADIUS, NUGGIE_MAGNET_AREA_EACH, SCENE_SIZE, SMELL_WAFTER_MOVE_SPEED_BONUS_PERCENT } from "../const";
-import { GameState } from "../gamestate";
+import { AOI_BOOST_PER_NFT, AOI_DOG_SPEED, awowiName, BASE_AOI_SPEED, BASE_WCBONALDS_POSITION, COMPRESSED_NUGGIE_1_RATE, NUGGIE_HIT_RADIUS, NUGGIE_MAGNET_AREA_EACH, SCENE_SIZE, SMELL_WAFTER_MOVE_SPEED_BONUS_PERCENT } from "../const";
+import { GameState } from "../logic/game-state";
 import aoi from "../img/aoi.png";
 import dog from "../img/dog.png";
 import nuggies from "../img/nuggies.png";
 import { RenderGameObject } from "./render-game-object";
-import { degToRad, generateUUID, Vec2, vec2 } from "./util";
+import { degToRad, generateUUID, Vec2, vec2 } from "../util";
 
 class LogicNuggie {
   id = generateUUID();
@@ -199,7 +199,7 @@ export class AoiMinigameArea extends React.Component {
       state.awowi.boost -= boostTime;
       if (this.shouldMoveAoi) {
         const dist = this.mousePos.minus(state.awowi.position);
-        const boostedDistance = boostTime * Number(gameState.getCurrency("nuggieFlavorTechnique").getCurrentAmount()) * AOI_BOOST_PER_NFT;
+        const boostedDistance = boostTime * gameState.getCurrency("nuggieFlavorTechnique").getCurrentAmountShort() * AOI_BOOST_PER_NFT;
         const maxDistToMove = time * BASE_AOI_SPEED * (1.0 + (SMELL_WAFTER_MOVE_SPEED_BONUS_PERCENT / 100.0) * Number(gameState.getCurrency("smellWafter").getCurrentAmount())) + boostedDistance;
         if (dist.mag() <= maxDistToMove) {
           state.awowi.position.set(this.mousePos);
@@ -307,7 +307,7 @@ export class AoiMinigameArea extends React.Component {
       }
 
       // NFT (Nuggie Flavor Technique)
-      if (anyNuggieEaten) {
+      if (anyNuggieEaten && gameState.getCurrency("nuggieFlavorTechnique").getCurrentAmountShort() > 0) {
         state.awowi.boost = 0.1;
       }
 
@@ -394,52 +394,55 @@ export class AoiMinigameArea extends React.Component {
     const floatingNumbers = this.floatingNumbers.map((logicObject) => logicObject.renderObject);
 
     return (
-      <div
-        className="minigame-size aoi-minigame"
-        onMouseMove={this.handleOnMouseMove}
-        onMouseOver={this.handleOnMouseOver}
-        onMouseOut={this.handleOnMouseOut}
-      >
-        <img style={{ display: "none" }} src={nuggies} ref={this.nuggieSpritesheetRef} />
+      <div>
+        <p style={{ maxWidth: "960px", margin: "16pt auto 16pt", textAlign: "left" }}>Welcome to {awowiName}'s room! It is very messy, and {gameState.getCurrency("nuggie").i18n().namePlural} keep showing up in the most unexpected places. Use your mouse to guide {awowiName} to those delicious {gameState.getCurrency("nuggie").i18n().namePlural}! Unfortunately, {awowiName} is very :aoilazy: and moves frustratingly slow. We can probably find some way to motivate her... right...?</p>
+        <div
+          className="minigame-size aoi-minigame"
+          onMouseMove={this.handleOnMouseMove}
+          onMouseOver={this.handleOnMouseOver}
+          onMouseOut={this.handleOnMouseOut}
+        >
+          <img style={{ display: "none" }} src={nuggies} ref={this.nuggieSpritesheetRef} />
 
-        <div style={{
-          visibility: deliveryVisibility,
-          position: "absolute",
-          left: BASE_WCBONALDS_POSITION.left,
-          top: BASE_WCBONALDS_POSITION.top,
-          width: BASE_WCBONALDS_POSITION.width,
-          height: BASE_WCBONALDS_POSITION.height,
-          backgroundColor: this.isAoiInDeliveryArea() ? "green" : "brown",
-          outline: "1px solid black"
-        }} />
+          <div style={{
+            visibility: deliveryVisibility,
+            position: "absolute",
+            left: BASE_WCBONALDS_POSITION.left,
+            top: BASE_WCBONALDS_POSITION.top,
+            width: BASE_WCBONALDS_POSITION.width,
+            height: BASE_WCBONALDS_POSITION.height,
+            backgroundColor: this.isAoiInDeliveryArea() ? "green" : "brown",
+            outline: "1px solid black"
+          }} />
 
-        <canvas className="minigame-size" ref={this.canvasRef} />
-        <RenderGameObject
-          position={this.state.dog.position}
-          sprite={dog}
-          spriteWidth={64.0}
-          spriteHeight={64.0}
-          innerStyle={{ visibility: this.state.dog.enabled ? "visible" : "hidden" }}
-        />
-        <RenderGameObject
-          position={this.state.awowi.position}
-          sprite={aoi}
-          spriteWidth={64.0}
-          spriteHeight={64.0}
-          innerStyle={this.state.awowi.filter}
-        />
+          <canvas className="minigame-size" ref={this.canvasRef} />
+          <RenderGameObject
+            position={this.state.dog.position}
+            sprite={dog}
+            spriteWidth={64.0}
+            spriteHeight={64.0}
+            innerStyle={{ visibility: this.state.dog.enabled ? "visible" : "hidden" }}
+          />
+          <RenderGameObject
+            position={this.state.awowi.position}
+            sprite={aoi}
+            spriteWidth={64.0}
+            spriteHeight={64.0}
+            innerStyle={this.state.awowi.filter}
+          />
 
-        {floatingNumbers}
+          {floatingNumbers}
 
-        <div style={{
-          visibility: deliveryVisibility,
-          position: "absolute",
-          right: "10px",
-          top: "10px",
-          color: "black",
-          userSelect: "none"
-        }}>
-          <b>Time to next delivery: {this.state.timeToNextDelivery.toFixed(1)}</b>
+          <div style={{
+            visibility: deliveryVisibility,
+            position: "absolute",
+            right: "10px",
+            top: "10px",
+            color: "black",
+            userSelect: "none"
+          }}>
+            <b style={{ color: this.isAoiInDeliveryArea() ? "#00ff00" : ((this.state.timeToNextDelivery < 10 && this.state.timeToNextDelivery % 1 >= 0.5) || (this.state.timeToNextDelivery < 50 && this.state.timeToNextDelivery % 10 >= 9.5) ? "#ff0000" : "black") }}>Time to next delivery: {this.state.timeToNextDelivery.toFixed(1)}</b>
+          </div>
         </div>
       </div>
     );

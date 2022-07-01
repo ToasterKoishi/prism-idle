@@ -1,6 +1,7 @@
 :root {
   --scene-width: 960px;
   --scene-height: 540px;
+  --base-appear-time: 0.4s;
 }
 
 h1 {
@@ -9,10 +10,6 @@ h1 {
 
 p {
   margin: 0;
-}
-
-.tooltip-box {
-  background-color: white;
 }
 
 .tooltip-trigger .tooltip-box {
@@ -28,6 +25,18 @@ p {
   max-width: 282px;
   padding: 10px;
   border: 3px solid gray;
+  animation: shop-box-appear var(--base-appear-time) ;
+}
+
+@keyframes shop-box-appear {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
 }
 
 .shop-box.minigame-generator {
@@ -40,13 +49,48 @@ p {
   border: 3px outset lightgreen;
 }
 
+.shop-box.tier-two-unlock {
+  background: linear-gradient(90deg, aliceblue, lavender);
+  animation: tier-two-unlock-bg 2s infinite linear;
+}
+
+@keyframes tier-two-unlock-bg {
+  0% {
+    border: 3px outset lightpink;
+  }
+  33% {
+    border: 3px outset lavender;
+  }
+  67% {
+    border: 3px outset lightblue;
+  }
+  100% {
+    border: 3px outset lightpink;
+  }
+}
+
 .shop-box.out-of-stock {
   background: none;
   background-color: gray;
   border: 3px solid darkgray;
+  animation: none;
 }
 
-.shop-box.out-of-stock .tooltip-trigger:hover .tooltip-box {
+.shop-box .tooltip-box {
+  width: 250px;
+  position: absolute;
+  bottom: 18px;
+  right: 18px;
+  padding: 8px;
+  border: 1px solid gray;
+  background: radial-gradient(circle at top 20px left 12px,
+      #ffffff 59px, #c0ffff 60px, #ffffff 61px,
+      #ffffff 99px, #e0ffff 100px, #ffffff 101px,
+      #ffffff 139px, #f0ffff 140px, #ffffff 141px);
+}
+
+.shop-box.out-of-stock .tooltip-box {
+  background: none;
   background-color: lightgray;
 }
 
@@ -71,12 +115,10 @@ p {
   position: absolute;
   width: 200px;
   height: 40px;
-  animation: aoi-minigame-floating-number;
-  animation-duration: 1s;
-  animation-fill-mode: forwards;
+  animation: aoi-minigame-floating-number 1s;
 }
 
-.aoi-minigame .floating-number-inner {
+.aoi-minigame .floating-number-outer .floating-number-inner {
   text-align: center;
   line-height: 40px;
   padding: 0;
@@ -85,7 +127,7 @@ p {
   color: black;
 }
 
-.aoi-minigame .floating-number-inner-crit {
+.aoi-minigame .floating-number-outer .floating-number-inner-crit {
   text-align: center;
   line-height: 40px;
   padding: 0;
@@ -95,7 +137,7 @@ p {
   -webkit-text-stroke: 1px black;
 }
 
-.aoi-minigame .floating-number-inner-dog {
+.aoi-minigame .floating-number-outer .floating-number-inner-dog {
   text-align: center;
   line-height: 40px;
   padding: 0;
@@ -110,7 +152,6 @@ p {
     transform: none;
     opacity: 1;
   }
-
   to {
     transform: translateY(-20px);
     opacity: 0;

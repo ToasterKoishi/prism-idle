@@ -1,13 +1,14 @@
-import { AOI_DOG_AREA_EACH, AOI_DOG_SPEED, BASE_NUGGIE_TIMER, BASE_WCBONALDS_TIMER } from "./const";
+import { AOI_DOG_AREA_EACH, BASE_NUGGIE_TIMER, BASE_WCBONALDS_TIMER } from "../const";
 import { Currency } from "./currency";
-import { registerAoi } from "./currency-registry";
+import { registerAoiT1, registerAoiT2 } from "./currency-registry";
 
 export class GameState {
   currencies: Map<string, Currency> = new Map<string, Currency>();
 
   constructor() {
     // Declare all Currencies
-    registerAoi(this);
+    registerAoiT1(this);
+    registerAoiT2(this);
   }
 
   registerCurrency = (currency: Currency) => { this.currencies.set(currency.getId(), currency); }
@@ -18,10 +19,10 @@ export class GameState {
     return 1 + this.getCurrency("airFryer").getCurrentAmountShort() * (this.getCurrency("airFryer2").getCurrentAmountShort() + 1);
   }
   calculateNuggieCycleTime = () => {
-    return BASE_NUGGIE_TIMER - this.getCurrency("airFryer1").getCurrentAmountShort()*0.1;
+    return BASE_NUGGIE_TIMER - this.getCurrency("airFryer1").getCurrentAmountShort() * 0.1;
   }
   calculateNuggieDeliveryTime = () => {
-    return BASE_WCBONALDS_TIMER - this.getCurrency("wcbonalds1").getCurrentAmountShort()*5.0;
+    return BASE_WCBONALDS_TIMER - this.getCurrency("wcbonalds1").getCurrentAmountShort() * 5.0;
   }
   calculateNumNuggiesPerCompressedNuggie = () => {
     return this.getCurrency("compressedNuggies2").getNextPurchasedAmount() + 5n;

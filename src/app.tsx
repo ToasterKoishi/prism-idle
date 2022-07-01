@@ -1,9 +1,10 @@
 import React from "react";
-import { awowiName, GAME_TICK_TIME } from "./const";
-import { Currency, SimpleCurrencyPurchaseComponent } from "./currency";
-import { GameState } from "./gamestate";
+import { awowiName } from "./const";
+import { Currency } from "./logic/currency";
+import { GameState } from "./logic/game-state";
 import { AoiMinigameArea } from "./minigames/aoi-minigame";
 import "./app.css";
+import { SimpleCurrencyPurchaseComponent } from "./components/currency-purchase-component";
 
 class App extends React.Component {
   state: { gameState: GameState }
@@ -81,10 +82,11 @@ class App extends React.Component {
       "nuggieFlavorTechnique",
       "nuggieMagnet",
       "motivationResearch",
+      "aoiT2Unlock",
     ];
     const currenciesToShow = currencyIdsToShow.map((currency) => currencies.get(currency));
-    const soldOutCurrencies:Currency[] = [];
-    const inStockCurrencies:Currency[] = [];
+    const soldOutCurrencies: Currency[] = [];
+    const inStockCurrencies: Currency[] = [];
     currenciesToShow.forEach((currency) => {
       currency.isInStock() ? inStockCurrencies.push(currency) : soldOutCurrencies.push(currency);
     });
@@ -96,13 +98,11 @@ class App extends React.Component {
       <div style={{ fontFamily: "Verdana, Geneva, Tahoma, sans-serif", padding: "16px 0 500px", margin: "auto", backgroundColor: "aliceblue" }}>
         <div style={{ margin: "auto", textAlign: "center" }}>
           <h1 style={{}}>{awowiName}</h1>
-
-          <p style={{ maxWidth: "960px", margin: "16pt auto 16pt", textAlign: "left" }}>Welcome to {awowiName}'s room! It is very messy, and {nuggieNames.namePlural} keep showing up in the most unexpected places. Use your mouse to guide {awowiName} to those delicious {nuggieNames.namePlural}! Unfortunately, {awowiName} is very :aoilazy: and moves frustratingly slow. We can probably find some way to motivate her... right...?</p>
-
-          <AoiMinigameArea gameState={this.state.gameState} callbacks={this.aoiMinigameCallbacks} />
-
-          <p style={{ margin: "16pt auto 16pt" }}><b>Nuggies</b>: {Number(currencies.get("nuggie").getCurrentAmount())}</p>
         </div>
+
+        <AoiMinigameArea gameState={this.state.gameState} callbacks={this.aoiMinigameCallbacks} />
+
+        <p style={{ margin: "16pt auto 16pt", textAlign: "center" }}><b>Nuggies</b>: {Number(currencies.get("nuggie").getCurrentAmount())}</p>
 
         <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", alignItems: "flex-start", gap: "20px" }}>
           {componentsToShow}

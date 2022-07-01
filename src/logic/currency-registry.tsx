@@ -1,9 +1,9 @@
-import { awowiName, awowiFullName, SMELL_WAFTER_MOVE_SPEED_BONUS_PERCENT, COMPRESSED_NUGGIE_1_RATE } from "./const";
+import { awowiName, awowiFullName, SMELL_WAFTER_MOVE_SPEED_BONUS_PERCENT, COMPRESSED_NUGGIE_1_RATE } from "../const";
 import { Cost, Currency } from "./currency";
-import { GameState } from "./gamestate";
-import { costFuncEx } from "./minigames/util";
+import { GameState } from "./game-state";
+import { costFuncEx } from "../util";
 
-export const registerAoi = (gameState: GameState) => {
+export const registerAoiT1 = (gameState: GameState) => {
   // Basic stuff
 
   gameState.registerCurrency(new Currency(gameState, "nuggie")
@@ -66,9 +66,10 @@ export const registerAoi = (gameState: GameState) => {
         nameSingular: "air fryer",
         namePlural: "air fryers",
         indefArticle: "an",
-        shortEffectDescription: `Every ${gameState.calculateNuggieCycleTime()} seconds, spawn ${gameState.getCurrency("airFryer2").getCurrentAmount() + 1n} additional ${gameState.getCurrency("nuggie").getNameSingular()}`,
+        shortEffectDescription: `Every ${gameState.calculateNuggieCycleTime().toFixed(1)} seconds, spawn an additional ${gameState.getCurrency("nuggie").getNameAmount(gameState.getCurrency("airFryer2").getCurrentAmount() + 1n, false)}`,
         flavorText: `Install an additional air fryer in ${awowiName}'s apartment. It periodically drops a cooked nuggie on the floor.`,
         shopBoxClass: "minigame-generator"
+        
       }
     })
     .registerMaximumStock(30n)
@@ -232,7 +233,7 @@ export const registerAoi = (gameState: GameState) => {
         nameSingular: "NSD speed training",
         namePlural: "NSD speed training",
         indefArticle: "a",
-        shortEffectDescription: `Reduce NSD work cycle time by 0.5s (current: ${gameState.calculateNuggieDogCycleTime()}s)`,
+        shortEffectDescription: `Reduce NSD work cycle time by 0.5 seconds (current: ${gameState.calculateNuggieDogCycleTime().toFixed(1)}s)`,
         flavorText: `Advanced training courses for NSD increase her overall endurance.`,
         shopBoxClass: "minigame-buff"
       }
@@ -302,7 +303,29 @@ export const registerAoi = (gameState: GameState) => {
     ])
   );
 
+  gameState.registerCurrency(new Currency(gameState, "aoiT2Unlock")
+    .registerI18N(() => {
+      return {
+        nameSingular: "Unlock Tier II",
+        namePlural: "Unlock Tier II",
+        indefArticle: "",
+        shortEffectDescription: `Allows collection of ${awowiName}'s Tier II currency, Heckies.`,
+        flavorText: ``,
+        shopBoxClass: "tier-two-unlock"
+      }
+    })
+    .registerMaximumStock(1n)
+    .registerCostToPurchaseOne([
+      new Cost(gameState.getCurrency("nuggie"), (_) => 50000n)
+    ])
+    .registerCalculateIsRevealed(() => gameState.getCurrency("nuggie").getCurrentAmount() >= 10000n)
+    .registerOnAmountPurchased(() => {
+      gameState.getCurrency("heckie").setRevealed();
+    })
+  );
+
   // DEBUG STUFF
+  
   gameState.getCurrency("nuggie").addAmount(10000000000n);
   for (let i = 0; i < 10; i++) gameState.getCurrency("airFryer").tryPurchaseOne();
   gameState.getCurrency("wcbonalds").tryPurchaseOne();
@@ -311,5 +334,8 @@ export const registerAoi = (gameState: GameState) => {
   for (let i = 0; i < 4; i++) gameState.getCurrency("smellWafter").tryPurchaseOne();
   gameState.getCurrency("nuggieFlavorTechnique").tryPurchaseOne();
   gameState.getCurrency("nuggieDog").tryPurchaseOne();
+  
+}
 
+export const registerAoiT2 = (gameState: GameState) => {
 }

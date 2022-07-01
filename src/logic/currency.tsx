@@ -1,6 +1,5 @@
-import React from "react";
-import { GameState } from "./gamestate";
-import "./app.css";
+import { GameState } from "./game-state";
+import "../app.css";
 
 interface CurrencyI18N {
   nameSingular?: string,
@@ -69,9 +68,9 @@ export class Currency {
   getNameWithArticle = () => this.i18n().indefArticle + " " + this.i18n().nameSingular;
   getNameSingular = () => this.i18n().nameSingular;
   getNamePlural = () => this.i18n().namePlural;
-  getNameAmount = (amount: number | bigint) => {
-    if (amount === 1) {
-      return this.i18n().indefArticle + " " + this.i18n().nameSingular;
+  getNameAmount = (amount: number | bigint, useArticle: boolean = true) => {
+    if (amount == 1) {
+      return (useArticle ? this.i18n().indefArticle : 1) + " " + this.i18n().nameSingular;
     } else {
       return amount + " " + this.i18n().namePlural;
     }
@@ -155,69 +154,5 @@ export class Cost {
   constructor(currency: Currency, calculateCostFunc: (_: GameState) => bigint) {
     this.currency = currency;
     this.calculateCost = calculateCostFunc;
-  }
-}
-
-interface SimpleCurrencyPurchaseComponentProps {
-  currency: Currency;
-}
-
-interface SimpleCurrencyPurchaseComponentState {
-}
-
-export class SimpleCurrencyPurchaseComponent extends React.Component {
-  props: SimpleCurrencyPurchaseComponentProps;
-  state: SimpleCurrencyPurchaseComponentState;
-
-  constructor(props: SimpleCurrencyPurchaseComponentProps) {
-    super(props);
-  }
-
-  render() {
-    const currency = this.props.currency;
-
-    let ownAmountText = "";
-    if (currency.maximumStock === 1n) {
-      // Use one-shot unlock style
-      ownAmountText = currency.isInStock() ? "" : " (BOUGHT)";
-    } else {
-      ownAmountText = ` (Owned: ${currency.getCurrentAmount()}${currency.maximumStock > 0 ? "/" + currency.maximumStock : ""})`
-    }
-
-
-    if (currency.getIsRevealed()) {
-      const costAmount = Number(currency.costToPurchaseOne[0].calculateCost(currency.getGameState()));
-      const costCurrency = currency.costToPurchaseOne[0].currency;
-      const maybeCostNode = (
-        <div>
-          <p>Cost: {costCurrency.getNameAmount(costAmount)}</p>
-          <br />
-        </div>
-      );
-      return (
-        <div className={"shop-box " + (currency.isInStock() ? "" : "out-of-stock ") + currency.i18n().shopBoxClass}>
-          <div style={{ display: "flex", justifyContent: "space-between" }}>
-            <div>
-              <p>{currency.getNamePlural().toUpperCase()}</p>
-              <p>{ownAmountText}</p>
-            </div>
-            <button style={{ width: "50px" }} disabled={!currency.canPurchaseOne()} onClick={() => currency.tryPurchaseOne()}>
-              {currency.isInStock() ? "Buy 1" : "SOLD OUT"}
-            </button>
-          </div>
-          <br />
-          <p>{currency.isInStock() ? `Cost: ${costCurrency.getNameAmount(costAmount)}` : "Cost: -"}</p>
-          <br />
-          <div>
-            {currency.i18n().shortEffectDescription}
-            <span className="tooltip-trigger" style={{ position: "relative", float: "right" }}>[?]
-              <div className="tooltip-box" style={{ width: "250px", position: "absolute", bottom: "18px", right: "18px", padding: "5px", border: "1px solid black" }}>{currency.i18n().flavorText}</div>
-            </span>
-          </div>
-        </div>
-      );
-    } else {
-      return null;
-    }
   }
 }
