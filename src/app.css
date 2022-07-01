@@ -3,15 +3,51 @@
   --scene-height: 540px;
 }
 
+h1 {
+  margin: 0;
+}
+
+p {
+  margin: 0;
+}
+
+.tooltip-box {
+  background-color: white;
+}
+
+.tooltip-trigger .tooltip-box {
+  display: none;
+}
+
+.tooltip-trigger:hover .tooltip-box {
+  display: block;
+}
+
 .shop-box {
-  max-width: 285px;
+  width: 282px;
+  max-width: 282px;
   padding: 10px;
-  border: 1px solid black;
-  margin: 10px;
+  border: 3px solid gray;
+}
+
+.shop-box.minigame-generator {
+  background: linear-gradient(#add8e6, #c9e7f1);
+  border: 3px outset lightgray;
+}
+
+.shop-box.minigame-buff {
+  background: linear-gradient(#7fffd4, #a4ffe1);
+  border: 3px outset lightgreen;
 }
 
 .shop-box.out-of-stock {
+  background: none;
   background-color: gray;
+  border: 3px solid darkgray;
+}
+
+.shop-box.out-of-stock .tooltip-trigger:hover .tooltip-box {
+  background-color: lightgray;
 }
 
 .minigame-size {
@@ -24,8 +60,8 @@
 
 .aoi-minigame {
   padding: 0 0 0 0;
-  border: 1px solid black;
-  margin: 0 0 0 0;
+  border: 2px dotted black;
+  margin: 0 auto;
   overflow: hidden;
   background-color: cornflowerblue;
   user-select: none;
@@ -33,7 +69,7 @@
 
 .aoi-minigame .floating-number-outer {
   position: absolute;
-  width: 100px;
+  width: 200px;
   height: 40px;
   animation: aoi-minigame-floating-number;
   animation-duration: 1s;
@@ -56,6 +92,16 @@
   margin: 0;
   font-size: 20pt;
   color: orange;
+  -webkit-text-stroke: 1px black;
+}
+
+.aoi-minigame .floating-number-inner-dog {
+  text-align: center;
+  line-height: 40px;
+  padding: 0;
+  margin: 0;
+  font-size: 24pt;
+  color: white;
   -webkit-text-stroke: 1px black;
 }
 

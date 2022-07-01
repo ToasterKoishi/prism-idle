@@ -1,6 +1,14 @@
 export const degToRad = (deg: number) => Math.PI * deg / 180.0;
 export const radToDeg = (rad: number) => rad / Math.PI * 180.0;
 
+
+export const costFuncEx = (a: number, b: number, x: bigint | number, c: number, k: number | bigint = 0n) => {
+  /**
+   f(x) = a * b ^ (x / c) + k
+   */
+  return BigInt(Math.floor(a * Math.pow(b, Number(x) / c))) + BigInt(k);
+}
+
 // Vector factories
 export function vec2(x: number = 0.0, y: number = 0.0) {
   return new Vec2(x, y);

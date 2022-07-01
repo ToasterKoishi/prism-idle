@@ -1,6 +1,6 @@
 import React from "react";
 import { awowiName, GAME_TICK_TIME } from "./const";
-import { SimpleCurrencyPurchaseComponent } from "./currency";
+import { Currency, SimpleCurrencyPurchaseComponent } from "./currency";
 import { GameState } from "./gamestate";
 import { AoiMinigameArea } from "./minigames/aoi-minigame";
 import "./app.css";
@@ -30,10 +30,10 @@ class App extends React.Component {
     const f = (time: DOMHighResTimeStamp) => {
       if (this.previousFrameTime < 0) {
         this.previousFrameTime = time;
-      } else if (time-this.previousFrameTime === 0) {
+      } else if (time - this.previousFrameTime === 0) {
         // Do nothing
       } else {
-        this.gameTick((time-this.previousFrameTime) / 1000);
+        this.gameTick((time - this.previousFrameTime) / 1000);
         this.previousFrameTime = time;
       }
       requestAnimationFrame(f);
@@ -65,23 +65,47 @@ class App extends React.Component {
   render() {
     const currencies = this.state.gameState.currencies;
     const nuggieNames = currencies.get("nuggie").i18n();
+
+    const currencyIdsToShow = [
+      "airFryer",
+      "airFryer1",
+      "airFryer2",
+      "wcbonalds",
+      "wcbonalds1",
+      "compressedNuggies1",
+      "compressedNuggies2",
+      "smellWafter",
+      "nuggieDog",
+      "nuggieDog1",
+      "nuggieDog2",
+      "nuggieFlavorTechnique",
+      "nuggieMagnet",
+      "motivationResearch",
+    ];
+    const currenciesToShow = currencyIdsToShow.map((currency) => currencies.get(currency));
+    const soldOutCurrencies:Currency[] = [];
+    const inStockCurrencies:Currency[] = [];
+    currenciesToShow.forEach((currency) => {
+      currency.isInStock() ? inStockCurrencies.push(currency) : soldOutCurrencies.push(currency);
+    });
+    //const finalOrderedCurrenciesToShow = [...inStockCurrencies, ...soldOutCurrencies];
+    const finalOrderedCurrenciesToShow = currenciesToShow;
+    const componentsToShow = finalOrderedCurrenciesToShow.map((currency) => <SimpleCurrencyPurchaseComponent key={currency.getId()} currency={currency} />);
+
     return (
-      <div>
-        <h1>{awowiName}</h1>
+      <div style={{ fontFamily: "Verdana, Geneva, Tahoma, sans-serif", padding: "16px 0 500px", margin: "auto", backgroundColor: "aliceblue" }}>
+        <div style={{ margin: "auto", textAlign: "center" }}>
+          <h1 style={{}}>{awowiName}</h1>
 
-        <p>Welcome to {awowiName}'s room! It is very messy, and {nuggieNames.namePlural} keep showing up in the most unexpected places. Use your mouse to guide {awowiName} to those delicious {nuggieNames.namePlural}! Unfortunately, {awowiName} is very :aoilazy: and moves frustratingly slow. We can probably find some way to motivate her... right...?</p>
+          <p style={{ maxWidth: "960px", margin: "16pt auto 16pt", textAlign: "left" }}>Welcome to {awowiName}'s room! It is very messy, and {nuggieNames.namePlural} keep showing up in the most unexpected places. Use your mouse to guide {awowiName} to those delicious {nuggieNames.namePlural}! Unfortunately, {awowiName} is very :aoilazy: and moves frustratingly slow. We can probably find some way to motivate her... right...?</p>
 
-        <AoiMinigameArea gameState={this.state.gameState} callbacks={this.aoiMinigameCallbacks} />
+          <AoiMinigameArea gameState={this.state.gameState} callbacks={this.aoiMinigameCallbacks} />
 
-        <p><b>Nuggies</b>: {Number(currencies.get("nuggie").getCurrentAmount())}</p>
+          <p style={{ margin: "16pt auto 16pt" }}><b>Nuggies</b>: {Number(currencies.get("nuggie").getCurrentAmount())}</p>
+        </div>
 
-        <div style={{ display: "flex", flexWrap: "wrap" }}>
-        <SimpleCurrencyPurchaseComponent currency={currencies.get("airFryer")} />
-        <SimpleCurrencyPurchaseComponent currency={currencies.get("wcbonalds")} />
-        <SimpleCurrencyPurchaseComponent currency={currencies.get("compressedNuggies1")} />
-        <SimpleCurrencyPurchaseComponent currency={currencies.get("compressedNuggies2")} />
-        <SimpleCurrencyPurchaseComponent currency={currencies.get("smellWafter")} />
-        <SimpleCurrencyPurchaseComponent currency={currencies.get("motivationResearch")} />
+        <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", alignItems: "flex-start", gap: "20px" }}>
+          {componentsToShow}
         </div>
       </div>
     );

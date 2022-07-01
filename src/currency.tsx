@@ -2,13 +2,23 @@ import React from "react";
 import { GameState } from "./gamestate";
 import "./app.css";
 
+interface CurrencyI18N {
+  nameSingular?: string,
+  namePlural?: string,
+  indefArticle?: string,
+  shortEffectDescription?: string,
+  flavorText?: string,
+
+  shopBoxClass?: string,
+}
+
 /**
  * Currency represents all obtainables in this game.
  */
 export class Currency {
   // Display strings and stuff
   #id: string;
-  i18n: () => any = () => {
+  i18n: () => CurrencyI18N = () => {
     return {
       nameSingular: "",
       namePlural: "",
@@ -45,7 +55,7 @@ export class Currency {
   }
 
   // Factory
-  registerI18N = (v: () => any) => { this.i18n = v; return this; }
+  registerI18N = (v: () => CurrencyI18N) => { this.i18n = v; return this; }
   registerMaximumStock = (v: bigint) => { this.maximumStock = v; return this; }
   registerCostToPurchaseOne = (v: Cost[]) => { this.costToPurchaseOne = v; return this; }
   registerCanPurchaseOne = (f: () => boolean) => { this.canPurchaseOne = f; return this; }
@@ -59,6 +69,13 @@ export class Currency {
   getNameWithArticle = () => this.i18n().indefArticle + " " + this.i18n().nameSingular;
   getNameSingular = () => this.i18n().nameSingular;
   getNamePlural = () => this.i18n().namePlural;
+  getNameAmount = (amount: number | bigint) => {
+    if (amount === 1) {
+      return this.i18n().indefArticle + " " + this.i18n().nameSingular;
+    } else {
+      return amount + " " + this.i18n().namePlural;
+    }
+  }
 
   // Amount manipulation
   addAmount = (amount: bigint) => {
@@ -68,9 +85,11 @@ export class Currency {
     }
   };
   getCurrentAmount = () => this.#currentValues.amount;
+  getCurrentAmountShort = () => Number(this.#currentValues.amount);
   getCurrentPurchasedAmount = () => this.#currentValues.amountPurchased;
   getNextAmount = () => this.#nextValues.amount;
   getNextPurchasedAmount = () => this.#nextValues.amountPurchased;
+  getNextPurchasedAmountShort = () => Number(this.#nextValues.amountPurchased);
   getNextMaximumAmount = () => this.#nextValues.maximumAmount;
   swapFrameBuffer = () => {
     this.#currentValues.amount = this.#nextValues.amount;
@@ -162,25 +181,43 @@ export class SimpleCurrencyPurchaseComponent extends React.Component {
       // Use one-shot unlock style
       ownAmountText = currency.isInStock() ? "" : " (BOUGHT)";
     } else {
-      ownAmountText = ` (Owned: ${currency.getCurrentAmount()})`
+      ownAmountText = ` (Owned: ${currency.getCurrentAmount()}${currency.maximumStock > 0 ? "/" + currency.maximumStock : ""})`
     }
+
 
     if (currency.getIsRevealed()) {
       const costAmount = Number(currency.costToPurchaseOne[0].calculateCost(currency.getGameState()));
       const costCurrency = currency.costToPurchaseOne[0].currency;
+      const maybeCostNode = (
+        <div>
+          <p>Cost: {costCurrency.getNameAmount(costAmount)}</p>
+          <br />
+        </div>
+      );
       return (
-        <div className={"shop-box " + (currency.isInStock() ? "" : "out-of-stock ")}>
-          <p>{currency.getNamePlural().toUpperCase()}{ownAmountText}</p>
-          <p>Cost: {costAmount} {costCurrency.getNamePlural()}</p>
-          <p>{currency.i18n().flavorText}</p>
-          <p>{currency.i18n().shortEffectDescription}</p>
-          <p><button disabled={!currency.canPurchaseOne()} onClick={() => currency.tryPurchaseOne()}>
-            Buy 1
-          </button></p>
+        <div className={"shop-box " + (currency.isInStock() ? "" : "out-of-stock ") + currency.i18n().shopBoxClass}>
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <div>
+              <p>{currency.getNamePlural().toUpperCase()}</p>
+              <p>{ownAmountText}</p>
+            </div>
+            <button style={{ width: "50px" }} disabled={!currency.canPurchaseOne()} onClick={() => currency.tryPurchaseOne()}>
+              {currency.isInStock() ? "Buy 1" : "SOLD OUT"}
+            </button>
+          </div>
+          <br />
+          <p>{currency.isInStock() ? `Cost: ${costCurrency.getNameAmount(costAmount)}` : "Cost: -"}</p>
+          <br />
+          <div>
+            {currency.i18n().shortEffectDescription}
+            <span className="tooltip-trigger" style={{ position: "relative", float: "right" }}>[?]
+              <div className="tooltip-box" style={{ width: "250px", position: "absolute", bottom: "18px", right: "18px", padding: "5px", border: "1px solid black" }}>{currency.i18n().flavorText}</div>
+            </span>
+          </div>
         </div>
       );
     } else {
-      return <div />
+      return null;
     }
   }
 }
