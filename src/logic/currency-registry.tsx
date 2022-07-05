@@ -331,6 +331,7 @@ export const registerAoiT1 = (gameState: GameState) => {
 
   // DEBUG STUFF
 
+  /*
   //gameState.getCurrency("nuggie").addAmount(54350n);
   gameState.getCurrency("nuggie").addAmount(100000000n);
   for (let i = 0; i < 10; i++) gameState.getCurrency("airFryer").tryPurchaseOne();
@@ -340,6 +341,7 @@ export const registerAoiT1 = (gameState: GameState) => {
   for (let i = 0; i < 4; i++) gameState.getCurrency("smellWafter").tryPurchaseOne();
   gameState.getCurrency("nuggieFlavorTechnique").tryPurchaseOne();
   gameState.getCurrency("nuggieDog").tryPurchaseOne();
+  */
 
 }
 
@@ -458,8 +460,9 @@ export const registerAoiT2 = (gameState: GameState) => {
   );
 
   // DEBUG STUFF
-
+  /*
   gameState.getCurrency("aoiT2Unlock").tryPurchaseOne();
   gameState.getCurrency("heckieGenerator1").tryPurchaseOne();
   gameState.getCurrency("heckieGenerator1").tryPurchaseOne();
+  */
 }
