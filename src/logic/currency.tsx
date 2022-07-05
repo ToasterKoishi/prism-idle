@@ -1,5 +1,6 @@
 import { GameState } from "./game-state";
 import "../app.css";
+import { PURCHASE_WORDING_TYPE } from "../components/currency-purchase-component";
 
 interface CurrencyI18N {
   nameSingular?: string,
@@ -26,20 +27,25 @@ export class Currency {
       flavorText: ""
     }
   }
+  purchaseWordingType: number = 0;
 
   // Technical info
   #gameState: GameState;
   costToPurchaseOne: Cost[] = [];
+  #isUnlocked: boolean = true; // Things can be revealed but still locked, and show an unlock condiiton
+  unlockRequirements: Cost[] = [];
   #isRevealed: boolean = false;
   #isHidden: boolean = false; // Overrides isRevealed - if this is set, then it will never be shown
 
   // Lockstep values - the values of the next game tick will always be calculated from the current tick's values
   #currentValues = {
+    fractionalAmount: 0,
     amount: 0n,
     amountPurchased: 0n,
     maximumAmount: -1n
   };
   #nextValues = {
+    fractionalAmount: 0,
     amount: 0n,
     amountPurchased: 0n,
     maximumAmount: -1n
@@ -55,9 +61,11 @@ export class Currency {
 
   // Factory
   registerI18N = (v: () => CurrencyI18N) => { this.i18n = v; return this; }
+  registerPurchaseWordingType = (v: number) => { this.purchaseWordingType = v; return this; }
   registerMaximumStock = (v: bigint) => { this.maximumStock = v; return this; }
   registerCostToPurchaseOne = (v: Cost[]) => { this.costToPurchaseOne = v; return this; }
   registerCanPurchaseOne = (f: () => boolean) => { this.canPurchaseOne = f; return this; }
+  registerUnlockRequirements = (v: Cost[]) => { this.#isUnlocked = false; this.unlockRequirements = v; return this; }
   registerCalculateIsRevealed = (f: () => boolean) => { this.calculateIsRevealed = f; return this; }
   registerOnAmountPurchased = (f: () => void) => { this.onAmountPurchased = f; return this; }
 
@@ -69,18 +77,53 @@ export class Currency {
   getNameSingular = () => this.i18n().nameSingular;
   getNamePlural = () => this.i18n().namePlural;
   getNameAmount = (amount: number | bigint, useArticle: boolean = true) => {
-    if (amount == 1) {
-      return (useArticle ? this.i18n().indefArticle : 1) + " " + this.i18n().nameSingular;
-    } else {
-      return amount + " " + this.i18n().namePlural;
+    if (this.purchaseWordingType == PURCHASE_WORDING_TYPE.BUY) {
+      if (amount == 1) {
+        return (useArticle ? (this.i18n().indefArticle ? this.i18n().indefArticle + " " : "") : "1 ") + this.i18n().nameSingular;
+      } else {
+        return amount + " " + this.i18n().namePlural;
+      }
+    } else if (this.purchaseWordingType == PURCHASE_WORDING_TYPE.LEARN) {
+      return this.i18n().nameSingular + " Lv." + amount;
     }
   }
 
   // Amount manipulation
   addAmount = (amount: bigint) => {
+    if (amount < 0) {
+      throw new Error("Attempted to add negative bigint amount to currency");
+    }
     this.#nextValues.amount += amount;
     if (this.#nextValues.maximumAmount >= 0n && this.#nextValues.amount > this.#nextValues.maximumAmount) {
       this.#nextValues.amount = this.#nextValues.maximumAmount;
+    }
+  };
+  addFractionalAmount = (amount: number) => {
+    if (amount >= 0.0) {
+      this.#nextValues.fractionalAmount += amount;
+      if (this.#nextValues.fractionalAmount >= 1.0) {
+        const intAmount = BigInt(Math.floor(this.#nextValues.fractionalAmount));
+        const floatAmount = this.#nextValues.fractionalAmount % 1.0;
+        this.#nextValues.amount += intAmount;
+        this.#nextValues.fractionalAmount = floatAmount;
+      }
+      if (this.#nextValues.maximumAmount >= 0n && this.#nextValues.amount >= this.#nextValues.maximumAmount) {
+        this.#nextValues.amount = this.#nextValues.maximumAmount;
+        this.#nextValues.fractionalAmount = 0.0;
+      }
+    } else {
+      this.#nextValues.fractionalAmount += amount;
+      if (this.#nextValues.fractionalAmount < 0.0) {
+        const intAmount = BigInt(Math.ceil(this.#nextValues.fractionalAmount) + 1);
+        const floatAmount = (this.#nextValues.fractionalAmount % 1.0) + 1;
+        this.#nextValues.amount -= intAmount;
+        if (this.#nextValues.amount < 0) {
+          this.#nextValues.amount = 0n;
+          this.#nextValues.fractionalAmount = 0.0;
+        } else {
+          this.#nextValues.fractionalAmount = floatAmount;
+        }
+      }
     }
   };
   getCurrentAmount = () => this.#currentValues.amount;
@@ -91,6 +134,7 @@ export class Currency {
   getNextPurchasedAmountShort = () => Number(this.#nextValues.amountPurchased);
   getNextMaximumAmount = () => this.#nextValues.maximumAmount;
   swapFrameBuffer = () => {
+    this.#currentValues.fractionalAmount = this.#nextValues.fractionalAmount;
     this.#currentValues.amount = this.#nextValues.amount;
     this.#currentValues.amountPurchased = this.#nextValues.amountPurchased;
     this.#currentValues.maximumAmount = this.#nextValues.maximumAmount;
@@ -125,6 +169,29 @@ export class Currency {
   };
 
   // Revealed / hidden stuff
+  calculateIsUnlocked = () => {
+    for (const cost of this.unlockRequirements) {
+      if (cost.currency.getNextAmount() < cost.calculateCost(this.#gameState)) {
+        return false;
+      }
+    }
+    if (this.maximumStock >= 0 && this.#nextValues.amount >= this.maximumStock) {
+      return false;
+    }
+    return true;
+  };
+  getIsUnlocked = () => {
+    if (this.#isUnlocked) {
+      return true;
+    } else {
+      if (this.calculateIsUnlocked()) {
+        this.#isUnlocked = true;
+        return true;
+      } else {
+        return false;
+      }
+    }
+  }
   calculateIsRevealed = () => false; // For use by things that reveal themselves on a condition
   setRevealed = () => { this.#isRevealed = true; }
   setHidden = () => { this.#isHidden = true; }

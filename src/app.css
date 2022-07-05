@@ -12,6 +12,13 @@ p {
   margin: 0;
 }
 
+/* Apparently this is some thingy that makes elements containing a float adjust their height to include the floated element */
+.clearfix::after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
 .tooltip-trigger .tooltip-box {
   display: none;
 }
@@ -20,12 +27,64 @@ p {
   display: block;
 }
 
-.shop-box {
-  width: 282px;
-  max-width: 282px;
-  padding: 10px;
-  border: 3px solid gray;
-  animation: shop-box-appear var(--base-appear-time) ;
+@keyframes small-pulsate-0 {
+  0% {
+    opacity: 1;
+    animation-timing-function: ease-in-out;
+  }
+
+  50% {
+    opacity: 0;
+    animation-timing-function: ease-in-out;
+  }
+
+  100% {
+    opacity: 1;
+    animation-timing-function: ease-in-out;
+  }
+}
+
+@keyframes small-pulsate-1 {
+  0% {
+    opacity: 0.5;
+    animation-timing-function: ease-out;
+  }
+
+  25% {
+    opacity: 1;
+    animation-timing-function: ease-in-out;
+  }
+
+  75% {
+    opacity: 0;
+    animation-timing-function: ease-in-out;
+  }
+
+  100% {
+    opacity: 0.5;
+    animation-timing-function: ease-in;
+  }
+}
+
+@keyframes small-pulsate-2 {
+  0% {
+    opacity: 0;
+    animation-timing-function: ease-in-out;
+  }
+
+  50% {
+    opacity: 1;
+    animation-timing-function: ease-in-out;
+  }
+
+  100% {
+    opacity: 0;
+    animation-timing-function: ease-in-out;
+  }
+}
+
+.shop-box-outer {
+  animation: shop-box-appear var(--base-appear-time);
 }
 
 @keyframes shop-box-appear {
@@ -33,10 +92,19 @@ p {
     transform: translateY(20px);
     opacity: 0;
   }
+
   to {
     transform: none;
     opacity: 1;
   }
+}
+
+.shop-box {
+  position: relative;
+  width: 282px;
+  max-width: 282px;
+  padding: 10px;
+  border: 3px solid gray;
 }
 
 .shop-box.minigame-generator {
@@ -58,15 +126,25 @@ p {
   0% {
     border: 3px outset lightpink;
   }
+
   33% {
     border: 3px outset lavender;
   }
+
   67% {
     border: 3px outset lightblue;
   }
+
   100% {
     border: 3px outset lightpink;
   }
+}
+
+.shop-box.not-unlocked {
+  background: none;
+  background-color: white;
+  border: 3px outset lightgray;
+  animation: none;
 }
 
 .shop-box.out-of-stock {
@@ -152,6 +230,7 @@ p {
     transform: none;
     opacity: 1;
   }
+
   to {
     transform: translateY(-20px);
     opacity: 0;

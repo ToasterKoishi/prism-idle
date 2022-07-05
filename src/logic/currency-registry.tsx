@@ -1,7 +1,9 @@
-import { awowiName, awowiFullName, SMELL_WAFTER_MOVE_SPEED_BONUS_PERCENT, COMPRESSED_NUGGIE_1_RATE } from "../const";
+import { awowiName, awowiFullName, SMELL_WAFTER_MOVE_SPEED_BONUS_PERCENT, COMPRESSED_NUGGIE_1_RATE, VIRTUAL_BASE_AMOUNT } from "../const";
 import { Cost, Currency } from "./currency";
-import { GameState } from "./game-state";
+import { ResolvedValue, GENERATION_TYPE } from "./resolved-value";
+import { CurrencyGenerator, GameState } from "./game-state";
 import { costFuncEx } from "../util";
+import { PURCHASE_WORDING_TYPE } from "../components/currency-purchase-component";
 
 export const registerAoiT1 = (gameState: GameState) => {
   // Basic stuff
@@ -69,7 +71,7 @@ export const registerAoiT1 = (gameState: GameState) => {
         shortEffectDescription: `Every ${gameState.calculateNuggieCycleTime().toFixed(1)} seconds, spawn an additional ${gameState.getCurrency("nuggie").getNameAmount(gameState.getCurrency("airFryer2").getCurrentAmount() + 1n, false)}`,
         flavorText: `Install an additional air fryer in ${awowiName}'s apartment. It periodically drops a cooked nuggie on the floor.`,
         shopBoxClass: "minigame-generator"
-        
+
       }
     })
     .registerMaximumStock(30n)
@@ -321,12 +323,16 @@ export const registerAoiT1 = (gameState: GameState) => {
     .registerCalculateIsRevealed(() => gameState.getCurrency("nuggie").getCurrentAmount() >= 10000n)
     .registerOnAmountPurchased(() => {
       gameState.getCurrency("heckie").setRevealed();
+      gameState.getCurrency("heckieGenerator1").setRevealed();
+      gameState.getCurrency("heckieGenerator2").setRevealed();
+      gameState.getCurrency("heckieGenerator3").setRevealed();
     })
   );
 
   // DEBUG STUFF
-  
-  gameState.getCurrency("nuggie").addAmount(10000000000n);
+
+  //gameState.getCurrency("nuggie").addAmount(54350n);
+  gameState.getCurrency("nuggie").addAmount(100000000n);
   for (let i = 0; i < 10; i++) gameState.getCurrency("airFryer").tryPurchaseOne();
   gameState.getCurrency("wcbonalds").tryPurchaseOne();
   for (let i = 0; i < 4; i++) gameState.getCurrency("compressedNuggies1").tryPurchaseOne();
@@ -334,8 +340,126 @@ export const registerAoiT1 = (gameState: GameState) => {
   for (let i = 0; i < 4; i++) gameState.getCurrency("smellWafter").tryPurchaseOne();
   gameState.getCurrency("nuggieFlavorTechnique").tryPurchaseOne();
   gameState.getCurrency("nuggieDog").tryPurchaseOne();
-  
+
 }
 
 export const registerAoiT2 = (gameState: GameState) => {
+  gameState.registerCurrency(new Currency(gameState, "heckie")
+    .registerI18N(() => {
+      return {
+        nameSingular: "heckie",
+        namePlural: "heckies",
+        indefArticle: "a",
+        shortEffectDescription: "",
+        flavorText: ""
+      }
+    })
+  );
+  gameState.registerResolvedValue(new ResolvedValue(gameState, "heckie",
+    ["heckieGenerator1", "heckieGenerator2", "heckieGenerator3", "hiGuys"],
+    [],
+    (currencies, values) => {
+      const amount =
+        currencies.get("heckieGenerator1") * (currencies.get("hiGuys") + 1n) +
+        currencies.get("heckieGenerator2") +
+        currencies.get("heckieGenerator3");
+      return {
+        amount: Number(amount),
+        explanation: ""
+      };
+    }));
+  gameState.registerGenerator(new CurrencyGenerator(gameState, "heckie",
+    [{ currency: "nuggie", resolvedValue: "heckie" }],
+    [{ currency: "heckie", resolvedValue: "heckie" }]
+  ));
+
+  gameState.registerCurrency(new Currency(gameState, "heckieGenerator1")
+    .registerI18N(() => {
+      return {
+        nameSingular: "Endless Zatsudan",
+        namePlural: "Endless Zatsudan",
+        indefArticle: "",
+        shortEffectDescription: `Per level: Increase Heckie generation by 1 per second`,
+        flavorText: `${awowiName}'s ability to talk forever (usually about food) despite all circumstances surely brings a heckie to her Timekeepers' lips.`,
+        shopBoxClass: "minigame-generator"
+      }
+    })
+    .registerPurchaseWordingType(PURCHASE_WORDING_TYPE.LEARN)
+    .registerMaximumStock(99n)
+    .registerCostToPurchaseOne([
+      new Cost(gameState.getCurrency("nuggie"), (gameState) => {
+        return costFuncEx(1000, 10, gameState.getCurrency("heckieGenerator1").getNextPurchasedAmountShort(), 9.9);
+      })
+    ])
+  );
+
+  gameState.registerCurrency(new Currency(gameState, "heckieGenerator2")
+    .registerI18N(() => {
+      return {
+        nameSingular: "Timekeeping",
+        namePlural: "Timekeeping",
+        indefArticle: "",
+        shortEffectDescription: `Per level: Increase Heckie generation by 1 per second`,
+        flavorText: `The art of keeping time is one of the arts of all time. Unfortunately, it seems that it is not one that ${awowiName} is aware of.`,
+        shopBoxClass: "minigame-generator"
+      }
+    })
+    .registerPurchaseWordingType(PURCHASE_WORDING_TYPE.LEARN)
+    .registerMaximumStock(99n)
+    .registerCostToPurchaseOne([
+      new Cost(gameState.getCurrency("nuggie"), (gameState) => {
+        return costFuncEx(1000, 10, gameState.getCurrency("heckieGenerator2").getNextPurchasedAmountShort(), 9.9);
+      })
+    ])
+  );
+
+  gameState.registerCurrency(new Currency(gameState, "heckieGenerator3")
+    .registerI18N(() => {
+      return {
+        nameSingular: "Negative Gaming Skill",
+        namePlural: "Negative Gaming Skill",
+        indefArticle: "",
+        shortEffectDescription: `Per level: Increase Heckie generation by 1 per second`,
+        flavorText: `If one is good at being bad at something, does that mean that you are simply bad at something, or does the fact that you are good at being bad mean that you are actually good at something? Semanticists continue to argue about this, and a billion other useless things, every day.`,
+        shopBoxClass: "minigame-generator"
+      }
+    })
+    .registerPurchaseWordingType(PURCHASE_WORDING_TYPE.LEARN)
+    .registerMaximumStock(99n)
+    .registerCostToPurchaseOne([
+      new Cost(gameState.getCurrency("nuggie"), (gameState) => {
+        return costFuncEx(1000, 10, gameState.getCurrency("heckieGenerator3").getNextPurchasedAmountShort(), 9.9);
+      })
+    ])
+  );
+
+  gameState.registerCurrency(new Currency(gameState, "hiGuys")
+    .registerI18N(() => {
+      return {
+        nameSingular: "Hi guys!",
+        namePlural: "Hi guys!",
+        indefArticle: "",
+        shortEffectDescription: `Per level: Increase generation of each level of ${gameState.getCurrency("heckieGenerator1").getNameSingular()} by 1/s`,
+        flavorText: ``,
+        shopBoxClass: "minigame-buff"
+      }
+    })
+    .registerPurchaseWordingType(PURCHASE_WORDING_TYPE.LEARN)
+    .registerMaximumStock(10n)
+    .registerCostToPurchaseOne([
+      new Cost(gameState.getCurrency("heckie"), (gameState) => {
+        return costFuncEx(500, 100, gameState.getCurrency("hiGuys").getNextPurchasedAmountShort(), 4.9);
+      })
+    ])
+    .registerUnlockRequirements([
+      new Cost(gameState.getCurrency("heckieGenerator1"), (_) => 10n)
+    ])
+    .registerCalculateIsRevealed(() => gameState.getCurrency("heckieGenerator1").getCurrentAmount() >= 1)
+  );
+
+  // DEBUG STUFF
+
+  gameState.getCurrency("aoiT2Unlock").tryPurchaseOne();
+  gameState.getCurrency("heckieGenerator1").tryPurchaseOne();
+  gameState.getCurrency("heckieGenerator1").tryPurchaseOne();
 }

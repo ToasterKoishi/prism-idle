@@ -1,16 +1,35 @@
 import React from "react";
 import { Currency } from "../logic/currency";
 
+export const PURCHASE_WORDING_TYPE = {
+  BUY: 0,
+  LEARN: 1,
+  GRANT: 2,
+};
+
+const PURCHASE_WORDING_I18N = {
+  0: {
+    oneshotBought: "BOUGHT",
+    owned: "Owned",
+    buyOne: "Buy 1",
+    buyOnly: "Buy 1",
+    soldOut: "SOLD OUT"
+  },
+  1: {
+    oneshotBought: "LEARNED",
+    owned: "Level",
+    buyOne: "Level Up",
+    buyOnly: "Learn",
+    soldOut: "MAX LVL"
+  }
+}
+
 interface SimpleCurrencyPurchaseComponentProps {
   currency: Currency;
 }
 
-interface SimpleCurrencyPurchaseComponentState {
-}
-
 export class SimpleCurrencyPurchaseComponent extends React.Component {
   props: SimpleCurrencyPurchaseComponentProps;
-  state: SimpleCurrencyPurchaseComponentState;
 
   constructor(props: SimpleCurrencyPurchaseComponentProps) {
     super(props);
@@ -18,13 +37,14 @@ export class SimpleCurrencyPurchaseComponent extends React.Component {
 
   render() {
     const currency = this.props.currency;
+    const purchaseWording = PURCHASE_WORDING_I18N[currency.purchaseWordingType];
 
     let ownAmountText = "";
     if (currency.maximumStock === 1n) {
       // Use one-shot unlock style
-      ownAmountText = currency.isInStock() ? "" : " (BOUGHT)";
+      ownAmountText = currency.isInStock() ? "" : ` (${purchaseWording.oneshotBought})`;
     } else {
-      ownAmountText = ` (Owned: ${currency.getCurrentAmount()}${currency.maximumStock > 0 ? "/" + currency.maximumStock : ""})`
+      ownAmountText = ` (${purchaseWording.owned}: ${currency.getCurrentAmount()}${currency.maximumStock > 0 ? "/" + currency.maximumStock : ""})`
     }
 
 
@@ -33,27 +53,33 @@ export class SimpleCurrencyPurchaseComponent extends React.Component {
       const costCurrency = currency.costToPurchaseOne[0].currency;
       const flavorText = currency.i18n().flavorText;
       const maybeFlavorBox = (
-        <span className="tooltip-trigger" style={{ position: "relative", float: "right" }}>[?]
+        <div className="tooltip-trigger" style={{ position: "relative", float: "right" }}>[?]
           <div className="tooltip-box">{flavorText}</div>
-        </span>
+        </div>
       );
       return (
-        <div className={"shop-box " + (currency.isInStock() ? "" : "out-of-stock ") + currency.i18n().shopBoxClass}>
-          <div style={{ display: "flex", justifyContent: "space-between" }}>
-            <div>
-              <p>{currency.getNamePlural().toUpperCase()}</p>
-              <p>{ownAmountText}</p>
+        <div className="shop-box-outer">
+          <div className={"shop-box " + (currency.getIsUnlocked() ? "" : "not-unlocked ") + (currency.isInStock() ? "" : "out-of-stock ") + currency.i18n().shopBoxClass}>
+            <div style={{ display: "flex", justifyContent: "space-between" }}>
+              <div>
+                <p>{currency.getNamePlural().toUpperCase()}</p>
+                <p>{ownAmountText}</p>
+              </div>
+              <button style={{ width: "50px" }} disabled={!currency.canPurchaseOne()} onClick={() => currency.tryPurchaseOne()}>
+                {currency.isInStock() ? (currency.maximumStock > 1 ? purchaseWording.buyOne : purchaseWording.buyOnly) : purchaseWording.soldOut}
+              </button>
             </div>
-            <button style={{ width: "50px" }} disabled={!currency.canPurchaseOne()} onClick={() => currency.tryPurchaseOne()}>
-              {currency.isInStock() ? "Buy 1" : "SOLD OUT"}
-            </button>
-          </div>
-          <br />
-          <p>{currency.isInStock() ? `Cost: ${costCurrency.getNameAmount(costAmount)}` : "Cost: -"}</p>
-          <br />
-          <div>
-            {currency.i18n().shortEffectDescription}
-            {flavorText === "" ? null : maybeFlavorBox}
+            <br />
+            <p>{
+              currency.getIsUnlocked() ?
+                (currency.isInStock() ? `Cost: ${currency.getGameState().renderCosts(currency.costToPurchaseOne)}` : "Cost: -") :
+                (`Requires: ${currency.getGameState().renderCosts(currency.unlockRequirements)}`)
+            }</p>
+            <br />
+            <div className="clearfix">
+              {currency.i18n().shortEffectDescription}
+              {flavorText === "" ? null : maybeFlavorBox}
+            </div>
           </div>
         </div>
       );

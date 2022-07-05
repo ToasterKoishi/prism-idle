@@ -1,10 +1,9 @@
 import React from "react";
 import { awowiName } from "./const";
-import { Currency } from "./logic/currency";
 import { GameState } from "./logic/game-state";
 import { AoiMinigameArea } from "./minigames/aoi-minigame";
+import { ShopAreaComponent } from "./components/shop-area-component";
 import "./app.css";
-import { SimpleCurrencyPurchaseComponent } from "./components/currency-purchase-component";
 
 class App extends React.Component {
   state: { gameState: GameState }
@@ -49,12 +48,8 @@ class App extends React.Component {
   gameTick = (time: number) => {
     const currencies = this.state.gameState.currencies;
 
-    // Lockstep update
-    currencies.forEach((currency) => {
-      currency.swapFrameBuffer();
-    });
-
     this.aoiMinigameCallbacks.gameTick(time);
+    this.gameState.gameTick(time);
 
     // Tell ReactJS to render
     this.setState(state => {
@@ -64,10 +59,7 @@ class App extends React.Component {
   }
 
   render() {
-    const currencies = this.state.gameState.currencies;
-    const nuggieNames = currencies.get("nuggie").i18n();
-
-    const currencyIdsToShow = [
+    const aoiT1Currencies = [
       "airFryer",
       "airFryer1",
       "airFryer2",
@@ -84,15 +76,44 @@ class App extends React.Component {
       "motivationResearch",
       "aoiT2Unlock",
     ];
-    const currenciesToShow = currencyIdsToShow.map((currency) => currencies.get(currency));
-    const soldOutCurrencies: Currency[] = [];
-    const inStockCurrencies: Currency[] = [];
-    currenciesToShow.forEach((currency) => {
-      currency.isInStock() ? inStockCurrencies.push(currency) : soldOutCurrencies.push(currency);
-    });
-    //const finalOrderedCurrenciesToShow = [...inStockCurrencies, ...soldOutCurrencies];
-    const finalOrderedCurrenciesToShow = currenciesToShow;
-    const componentsToShow = finalOrderedCurrenciesToShow.map((currency) => <SimpleCurrencyPurchaseComponent key={currency.getId()} currency={currency} />);
+
+    const aoiT2Currencies = [
+      "heckieGenerator1",
+      "heckieGenerator2",
+      "heckieGenerator3",
+    ];
+
+    const aoiT2Skills = [
+      "hiGuys",
+    ];
+
+    const heckieGeneratorEnabled = this.gameState.getGenerator("heckie").enabled;
+
+    const maybeT2Area = (
+      <div>
+        <div style={{ width: "600px", height: "1px", backgroundColor: "gray", margin: "50px auto 40px" }} />
+
+        <div style={{ display: "flex", justifyContent: "center", gap: "8px", margin: "16px auto 16px" }}>
+          <p style={{ textAlign: "right", flexBasis: "0", flexGrow: "1" }}>{this.state.gameState.getCurrency("nuggie").getCurrentAmountShort()} | <b>NUGGIES</b></p>
+          <div>
+            <span style={{ animation: heckieGeneratorEnabled ? "small-pulsate-0 1.5s infinite" : "" }}>{">"}</span>
+            <span style={{ animation: heckieGeneratorEnabled ? "small-pulsate-1 1.5s infinite" : "" }}>{">"}</span>
+            <span style={{ animation: heckieGeneratorEnabled ? "small-pulsate-2 1.5s infinite" : "" }}>{">"}</span>
+          </div>
+          <button style={{ width: "45px" }} onClick={() => this.gameState.getGenerator("heckie").enabled = !heckieGeneratorEnabled}>
+            {heckieGeneratorEnabled ? "ON" : "OFF"}
+          </button>
+          <div>
+            <span style={{ animation: heckieGeneratorEnabled ? "small-pulsate-0 1.5s infinite" : "" }}>{">"}</span>
+            <span style={{ animation: heckieGeneratorEnabled ? "small-pulsate-1 1.5s infinite" : "" }}>{">"}</span>
+            <span style={{ animation: heckieGeneratorEnabled ? "small-pulsate-2 1.5s infinite" : "" }}>{">"}</span>
+          </div>
+          <p style={{ textAlign: "left", flexBasis: "0", flexGrow: "1" }}><b>HECKIES</b> | {this.state.gameState.getCurrency("heckie").getCurrentAmountShort()}</p>
+        </div>
+        <ShopAreaComponent gameState={this.state.gameState} currencyIdsToShow={aoiT2Currencies} />
+        <ShopAreaComponent gameState={this.state.gameState} currencyIdsToShow={aoiT2Skills} />
+      </div>
+    );
 
     return (
       <div style={{ fontFamily: "Verdana, Geneva, Tahoma, sans-serif", padding: "16px 0 500px", margin: "auto", backgroundColor: "aliceblue" }}>
@@ -102,11 +123,13 @@ class App extends React.Component {
 
         <AoiMinigameArea gameState={this.state.gameState} callbacks={this.aoiMinigameCallbacks} />
 
-        <p style={{ margin: "16pt auto 16pt", textAlign: "center" }}><b>Nuggies</b>: {Number(currencies.get("nuggie").getCurrentAmount())}</p>
+        <p style={{ margin: "16pt auto 16pt", textAlign: "center" }}>
+          <b>Nuggies</b>: {this.state.gameState.getCurrency("nuggie").getCurrentAmountShort()}
+        </p>
 
-        <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", alignItems: "flex-start", gap: "20px" }}>
-          {componentsToShow}
-        </div>
+        <ShopAreaComponent gameState={this.state.gameState} currencyIdsToShow={aoiT1Currencies} />
+
+        {this.state.gameState.getCurrency("heckie").getIsRevealed() ? maybeT2Area : false}
       </div>
     );
   }

@@ -1,5 +1,5 @@
 import React from "react";
-import { Vec2 } from "./util";
+import { Vec2 } from "../util";
 
 interface RenderGameObjectProps {
   position: Vec2,
