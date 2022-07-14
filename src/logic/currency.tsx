@@ -114,9 +114,9 @@ export class Currency {
     } else {
       this.#nextValues.fractionalAmount += amount;
       if (this.#nextValues.fractionalAmount < 0.0) {
-        const intAmount = BigInt(Math.ceil(this.#nextValues.fractionalAmount) + 1);
+        const intAmount = BigInt(Math.ceil(this.#nextValues.fractionalAmount) - 1);
         const floatAmount = (this.#nextValues.fractionalAmount % 1.0) + 1;
-        this.#nextValues.amount -= intAmount;
+        this.#nextValues.amount += intAmount;
         if (this.#nextValues.amount < 0) {
           this.#nextValues.amount = 0n;
           this.#nextValues.fractionalAmount = 0.0;
@@ -145,6 +145,9 @@ export class Currency {
     return this.maximumStock < 0 || this.#nextValues.amount < this.maximumStock;
   }
   canPurchaseOne = () => {
+    if (!this.calculateIsUnlocked()) {
+      return false;
+    }
     for (const cost of this.costToPurchaseOne) {
       if (cost.currency.getNextAmount() < cost.calculateCost(this.#gameState)) {
         return false;

@@ -1,7 +1,6 @@
-import { Currency } from "./currency";
 import { GameState } from "./game-state";
 
-type ResolutionFunction = (currencies: Map<string, bigint>, values: Map<string, number>) => { amount: number, explanation: string };
+type ResolutionFunction = (currencies: Map<string, bigint>, values: Map<string, number>, explains?: Map<string, string>) => { amount: number, explanation: string };
 
 export const GENERATION_TYPE = {
   BASE_AMOUNT: 0,
@@ -37,13 +36,15 @@ export class ResolvedValue {
   #recalculate = () => {
     const currencies = new Map<string, bigint>();
     const values = new Map<string, number>();
+    const explains = new Map<string, string>();
     this.#dependentCurrencies.forEach((currency) => {
       currencies.set(currency, this.#gameState.getCurrency(currency).getCurrentAmount());
     });
     this.#dependentValues.forEach((value) => {
       values.set(value, this.#gameState.getResolvedValue(value).resolve());
+      explains.set(value, this.#gameState.getResolvedValue(value).explain());
     });
-    const retval = this.#resolutionFunction(currencies, values);
+    const retval = this.#resolutionFunction(currencies, values, explains);
 
     this.#value = retval.amount;
     this.#explanation = retval.explanation;

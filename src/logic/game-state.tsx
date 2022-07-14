@@ -76,18 +76,6 @@ export class GameState {
   }
 
   // Aoi related stuff
-  calculateNuggiesPerCycle = () => {
-    return 1 + this.getCurrency("airFryer").getCurrentAmountShort() * (this.getCurrency("airFryer2").getCurrentAmountShort() + 1);
-  }
-  calculateNuggieCycleTime = () => {
-    return BASE_NUGGIE_TIMER - this.getCurrency("airFryer1").getCurrentAmountShort() * 0.1;
-  }
-  calculateNuggieDeliveryTime = () => {
-    return BASE_WCBONALDS_TIMER - this.getCurrency("wcbonalds1").getCurrentAmountShort() * 5.0;
-  }
-  calculateNumNuggiesPerCompressedNuggie = () => {
-    return this.getCurrency("compressedNuggies2").getNextPurchasedAmount() + 5n;
-  }
   calculateNuggieDogCycleTime = () => {
     return 8.0 - 0.5 * this.getCurrency("nuggieDog1").getCurrentAmountShort();
   }

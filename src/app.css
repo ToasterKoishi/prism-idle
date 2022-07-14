@@ -10,6 +10,34 @@ h1 {
 
 p {
   margin: 0;
+  font-size: 12pt;
+}
+
+button {
+  position: relative;
+  top: -1px;
+  border: 1px solid gray;
+  border-radius: 2px;
+  font-size: 11pt;
+  box-shadow: 0 2px #00000040;
+}
+
+button:hover {
+  cursor: pointer;
+  background-color: white;
+}
+
+button:active {
+  background-color: darkgray;
+  box-shadow: 0 0;
+  top: 1px;
+}
+
+button:disabled {
+  cursor: default;
+  background-color: darkgray;
+  top: 0;
+  box-shadow: 0 2px;
 }
 
 /* Apparently this is some thingy that makes elements containing a float adjust their height to include the floated element */
@@ -19,12 +47,31 @@ p {
   clear: both;
 }
 
+.tooltip-trigger {
+  position: relative;
+}
+
 .tooltip-trigger .tooltip-box {
   display: none;
 }
 
 .tooltip-trigger:hover .tooltip-box {
   display: block;
+}
+
+.tooltip-box {
+  width: max-content;
+  position: absolute;
+  bottom: 18px;
+  right: 18px;
+  padding: 8px;
+  border: 1px solid gray;
+  color: black;
+  background: radial-gradient(circle at top 20px left 12px,
+      #ffffff 59px, #c0ffff 60px, #ffffff 61px,
+      #ffffff 99px, #e0ffff 100px, #ffffff 101px,
+      #ffffff 139px, #f0ffff 140px, #ffffff 141px);
+  box-shadow: 3px 3px #00000040;
 }
 
 @keyframes small-pulsate-0 {
@@ -81,6 +128,13 @@ p {
     opacity: 0;
     animation-timing-function: ease-in-out;
   }
+}
+
+.shop-divider {
+  width: 600px;
+  height: 1px;
+  background-color: gray;
+  margin: 32px auto;
 }
 
 .shop-box-outer {
@@ -156,15 +210,6 @@ p {
 
 .shop-box .tooltip-box {
   width: 250px;
-  position: absolute;
-  bottom: 18px;
-  right: 18px;
-  padding: 8px;
-  border: 1px solid gray;
-  background: radial-gradient(circle at top 20px left 12px,
-      #ffffff 59px, #c0ffff 60px, #ffffff 61px,
-      #ffffff 99px, #e0ffff 100px, #ffffff 101px,
-      #ffffff 139px, #f0ffff 140px, #ffffff 141px);
 }
 
 .shop-box.out-of-stock .tooltip-box {

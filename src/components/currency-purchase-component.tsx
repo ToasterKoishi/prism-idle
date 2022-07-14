@@ -65,7 +65,7 @@ export class SimpleCurrencyPurchaseComponent extends React.Component {
                 <p>{currency.getNamePlural().toUpperCase()}</p>
                 <p>{ownAmountText}</p>
               </div>
-              <button style={{ width: "50px" }} disabled={!currency.canPurchaseOne()} onClick={() => currency.tryPurchaseOne()}>
+              <button style={{ width: "55px", height: "38px", flexShrink: "0" }} disabled={!currency.canPurchaseOne()} onClick={() => currency.tryPurchaseOne()}>
                 {currency.isInStock() ? (currency.maximumStock > 1 ? purchaseWording.buyOne : purchaseWording.buyOnly) : purchaseWording.soldOut}
               </button>
             </div>
