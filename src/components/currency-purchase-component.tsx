@@ -1,3 +1,4 @@
+import { t } from "i18next";
 import React from "react";
 import { Currency } from "../logic/currency";
 
@@ -49,9 +50,8 @@ export class SimpleCurrencyPurchaseComponent extends React.Component {
 
 
     if (currency.getIsRevealed()) {
-      const costAmount = Number(currency.costToPurchaseOne[0].calculateCost(currency.getGameState()));
-      const costCurrency = currency.costToPurchaseOne[0].currency;
-      const flavorText = currency.i18n().flavorText;
+      const interpolations = currency.i18n.interpolations();
+      const flavorText = t("currency." + currency.getId() + ".flavorText");
       const maybeFlavorBox = (
         <div className="tooltip-trigger" style={{ position: "relative", float: "right" }}>[?]
           <div className="tooltip-box">{flavorText}</div>
@@ -59,7 +59,7 @@ export class SimpleCurrencyPurchaseComponent extends React.Component {
       );
       return (
         <div className="shop-box-outer">
-          <div className={"shop-box " + (currency.getIsUnlocked() ? "" : "not-unlocked ") + (currency.isInStock() ? "" : "out-of-stock ") + currency.i18n().shopBoxClass}>
+          <div className={"shop-box " + (currency.getIsUnlocked() ? "" : "not-unlocked ") + (currency.isInStock() ? "" : "out-of-stock ") + currency.i18n.shopBoxClass}>
             <div style={{ display: "flex", justifyContent: "space-between" }}>
               <div>
                 <p>{currency.getNamePlural().toUpperCase()}</p>
@@ -77,7 +77,7 @@ export class SimpleCurrencyPurchaseComponent extends React.Component {
             }</p>
             <br />
             <div className="clearfix">
-              {currency.i18n().shortEffectDescription}
+              {t("currency." + currency.getId() + ".shortEffectDescription", interpolations)}
               {flavorText === "" ? null : maybeFlavorBox}
             </div>
           </div>

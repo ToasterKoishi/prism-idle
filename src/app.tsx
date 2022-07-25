@@ -1,9 +1,11 @@
+import i18next, { t } from 'i18next';
 import React from "react";
-import { awowiFullName, awowiName } from "./const";
+import { initReactI18next } from "react-i18next";
+import "./app.css";
+import { ShopAreaComponent } from "./components/shop-area-component";
+import { default as i18nEN } from "./i18n/en.json";
 import { GameState } from "./logic/game-state";
 import { AoiMinigameArea } from "./minigames/aoi-minigame";
-import { ShopAreaComponent } from "./components/shop-area-component";
-import "./app.css";
 
 // Debug stuff
 const TOTER_DEBUG: boolean = false;
@@ -17,13 +19,29 @@ class App extends React.Component {
     t2Open: boolean,
   }
 
-  gameState: GameState = new GameState();
+  gameState: GameState = null;
   previousFrameTime: DOMHighResTimeStamp = -1;
   //gameTickId: NodeJS.Timer;
   aoiMinigameCallbacks: { gameTick: (_: number) => void };
 
   constructor(props) {
     super(props);
+
+    i18next
+      .use(initReactI18next)
+      .init({
+        lng: 'en',
+        debug: TOTER_DEBUG,
+        resources: {
+          en: {
+            translation: i18nEN
+          },
+          jp: {
+            translation: {}
+          }
+        }
+      });
+    this.gameState = new GameState();
 
     this.state = {
       gameState: this.gameState,
@@ -94,9 +112,7 @@ class App extends React.Component {
     if (TOTER_DEBUG) {
       time *= timeStep;
       secondsPassed += time;
-      console.log(this.gameState.getResolvedValue("nuggieGenerator").explain());
     }
-
 
     this.aoiMinigameCallbacks.gameTick(time);
     this.gameState.gameTick(time);
@@ -156,7 +172,7 @@ class App extends React.Component {
         <AoiMinigameArea gameState={this.state.gameState} callbacks={this.aoiMinigameCallbacks} />
 
         <div style={{ textAlign: "center", margin: "16px auto" }}>
-          <b>{awowiFullName}</b> Tier I Upgrades <button onClick={() => { this.state.t1Open = !this.state.t1Open; this.setState(this.state); }}>{this.state.t1Open ? "Hide" : "Show"}</button>
+          <b>{t("character.aoi.nameFull")}</b> Tier I Upgrades <button onClick={() => { this.state.t1Open = !this.state.t1Open; this.setState(this.state); }}>{this.state.t1Open ? "Hide" : "Show"}</button>
         </div>
 
         <div style={{ textAlign: "center", margin: "16px auto" }}>
@@ -174,13 +190,13 @@ class App extends React.Component {
         {this.state.gameState.getCurrency("heckie").getIsRevealed() ? (
           <div>
             <div style={{ textAlign: "center", margin: "16px auto" }}>
-              <b>{awowiFullName}</b> Tier II Upgrades <button onClick={() => { this.state.t2Open = !this.state.t2Open; this.setState(this.state); }}>{this.state.t2Open ? "Close" : "Open"}</button>
+              <b>{t("character.aoi.nameFull")}</b> Tier II Upgrades <button onClick={() => { this.state.t2Open = !this.state.t2Open; this.setState(this.state); }}>{this.state.t2Open ? "Close" : "Open"}</button>
             </div>
 
             <div>
               <div style={{ display: "flex", justifyContent: "center", gap: "8px", margin: "16px auto 0px" }}>
                 <p style={{ textAlign: "right", flexBasis: "0", flexGrow: "1" }}>{this.state.gameState.getCurrency("nuggie").getCurrentAmountShort()} | <b>NUGGIES</b></p>
-                <div style={{ visibility: heckieGeneratorEnabled ? "visible" : "hidden"}}>
+                <div style={{ visibility: heckieGeneratorEnabled ? "visible" : "hidden" }}>
                   <span style={{ animation: "small-pulsate-0 1.5s infinite" }}>{">"}</span>
                   <span style={{ animation: "small-pulsate-1 1.5s infinite" }}>{">"}</span>
                   <span style={{ animation: "small-pulsate-2 1.5s infinite" }}>{">"}</span>
@@ -188,7 +204,7 @@ class App extends React.Component {
                 <button style={{ width: "45px" }} onClick={() => { this.gameState.getGenerator("heckie").enabled = !heckieGeneratorEnabled; this.setState(this.state); }}>
                   {heckieGeneratorEnabled ? "ON" : "OFF"}
                 </button>
-                <div style={{ visibility: heckieGeneratorEnabled ? "visible" : "hidden"}}>
+                <div style={{ visibility: heckieGeneratorEnabled ? "visible" : "hidden" }}>
                   <span style={{ animation: "small-pulsate-0 1.5s infinite" }}>{">"}</span>
                   <span style={{ animation: "small-pulsate-1 1.5s infinite" }}>{">"}</span>
                   <span style={{ animation: "small-pulsate-2 1.5s infinite" }}>{">"}</span>
@@ -210,7 +226,7 @@ class App extends React.Component {
           </div>
         ) : null}
 
-        <p style={{ fontSize: "8pt", position: "absolute", bottom: "0", left: "0", margin: "8px" }}>Version 2022-07-13</p>
+        <p style={{ fontSize: "8pt", position: "absolute", bottom: "0", left: "0", margin: "8px" }}>Version 2022-07-25</p>
         <p style={{ fontSize: "8pt", position: "absolute", bottom: "0", right: "0", margin: "8px" }}>PRISM Idle by <a href="https://twitter.com/ToasterKoishi">Toaster</a></p>
 
         {TOTER_DEBUG ? (
@@ -227,3 +243,4 @@ class App extends React.Component {
 }
 
 export { App as default };
+

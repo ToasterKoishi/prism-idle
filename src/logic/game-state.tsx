@@ -1,7 +1,7 @@
-import { AOI_DOG_AREA_EACH, BASE_NUGGIE_TIMER, BASE_WCBONALDS_TIMER, VIRTUAL_BASE_AMOUNT } from "../const";
+import { AOI_DOG_AREA_EACH } from "../const";
 import { Cost, Currency } from "./currency";
-import { ResolvedValue } from "./resolved-value";
 import { registerAoiT1, registerAoiT2 } from "./currency-registry";
+import { ResolvedValue } from "./resolved-value";
 
 export class GameState {
   currencies: Map<string, Currency> = new Map<string, Currency>();
@@ -10,17 +10,6 @@ export class GameState {
 
   constructor() {
     // Declare all Currencies
-    this.registerCurrency(new Currency(this, VIRTUAL_BASE_AMOUNT)
-      .registerI18N(() => {
-        return {
-          nameSingular: "base amount",
-          namePlural: "base amount",
-          indefArticle: "",
-        }
-      })
-    );
-    this.getCurrency(VIRTUAL_BASE_AMOUNT).addAmount(1n);
-
     registerAoiT1(this);
     registerAoiT2(this);
   }

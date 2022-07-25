@@ -1,14 +1,10 @@
-import { GameState } from "./game-state";
+import { t } from "i18next";
 import "../app.css";
 import { PURCHASE_WORDING_TYPE } from "../components/currency-purchase-component";
+import { GameState } from "./game-state";
 
 interface CurrencyI18N {
-  nameSingular?: string,
-  namePlural?: string,
-  indefArticle?: string,
-  shortEffectDescription?: string,
-  flavorText?: string,
-
+  interpolations?: () => Object,
   shopBoxClass?: string,
 }
 
@@ -18,14 +14,8 @@ interface CurrencyI18N {
 export class Currency {
   // Display strings and stuff
   #id: string;
-  i18n: () => CurrencyI18N = () => {
-    return {
-      nameSingular: "",
-      namePlural: "",
-      indefArticle: "",
-      shortEffectDescription: "",
-      flavorText: ""
-    }
+  i18n: CurrencyI18N = {
+    interpolations: () => { return {} }
   }
   purchaseWordingType: number = 0;
 
@@ -60,7 +50,7 @@ export class Currency {
   }
 
   // Factory
-  registerI18N = (v: () => CurrencyI18N) => { this.i18n = v; return this; }
+  registerI18N = (v: CurrencyI18N) => { this.i18n = { ...this.i18n, ...v }; return this; }
   registerPurchaseWordingType = (v: number) => { this.purchaseWordingType = v; return this; }
   registerMaximumStock = (v: bigint) => { this.maximumStock = v; return this; }
   registerCostToPurchaseOne = (v: Cost[]) => { this.costToPurchaseOne = v; return this; }
@@ -73,18 +63,18 @@ export class Currency {
   getGameState = () => this.#gameState;
 
   // i18n helpers
-  getNameWithArticle = () => this.i18n().indefArticle + " " + this.i18n().nameSingular;
-  getNameSingular = () => this.i18n().nameSingular;
-  getNamePlural = () => this.i18n().namePlural;
+  getNameWithArticle = () => t("currency." + this.#id + ".indefArticle") + " " + t("currency." + this.#id + ".name", { count: 1 });
+  getNameSingular = () => t("currency." + this.#id + ".name", { count: 1 });
+  getNamePlural = () => t("currency." + this.#id + ".name", { count: 0 });
   getNameAmount = (amount: number | bigint, useArticle: boolean = true) => {
     if (this.purchaseWordingType == PURCHASE_WORDING_TYPE.BUY) {
       if (amount == 1) {
-        return (useArticle ? (this.i18n().indefArticle ? this.i18n().indefArticle + " " : "") : "1 ") + this.i18n().nameSingular;
+        return (useArticle ? (t("currency." + this.#id + ".indefArticle") ? t("currency." + this.#id + ".indefArticle") + " " : "") : "1 ") + t("currency." + this.#id + ".name", { count: 1 });
       } else {
-        return amount + " " + this.i18n().namePlural;
+        return amount + " " + t("currency." + this.#id + ".name", { count: 0 });
       }
     } else if (this.purchaseWordingType == PURCHASE_WORDING_TYPE.LEARN) {
-      return this.i18n().nameSingular + " Lv." + amount;
+      return t("currency." + this.#id + ".name", { count: 1 }) + " Lv." + amount;
     }
   }
 

@@ -1,0 +1,221 @@
+{
+  "character": {
+    "aoi": {
+      "name": "Aoi",
+      "nameFull": "Aoi Tokimori"
+    }
+  },
+  "minigame": {
+    "aoi": {
+      "name": "$t(character.aoi.name)'s Room",
+      "description": "Welcome to $t(character.aoi.name)'s room! It is very messy, and nuggies keep showing up in the most unexpected places. Use your mouse to guide $t(character.aoi.name) to those delicious nuggies! Unfortunately, $t(character.aoi.name) is very :aoilazy: and moves frustratingly slow. We can probably find some way to motivate her... right...?"
+    }
+  },
+  "currency": {
+    "nuggie": {
+      "name_one": "nuggie",
+      "name_other": "nuggies",
+      "nameCount_one": "1 nuggie",
+      "nameCount_other": "{{count}} nuggies",
+      "indefArticle": "a",
+      "shortEffectDescription": "",
+      "flavorText": ""
+    },
+    "compressedNuggies1": {
+      "name": "Compressed Nuggies",
+      "indefArticle": "",
+      "shortEffectDescription": "Each nuggie has an additional {{rate}} chance of being compressed (counts as $t(currency.nuggie.nameCount, {'count':{{amount}}}))",
+      "flavorText": "If you try hard enough, you could argue that a nuggie is actually just multiple nuggies that are superglued together."
+    },
+    "compressedNuggies2": {
+      "name": "Nuggie Topology",
+      "indefArticle": "",
+      "shortEffectDescription": "Each compressed nuggie counts as 1 additional nuggie",
+      "flavorText": "Studies in advanced topology allow us to argue that compressed nuggies are, in fact, an increasingly large number of nuggies superglued together."
+    },
+    "airFryer": {
+      "name_one": "air fryer",
+      "name_other": "air fryers",
+      "indefArticle": "an",
+      "shortEffectDescription": "Every {{rate}} seconds, spawn an additional $t(currency.nuggie.nameCount, {'count': {{amount}}})",
+      "flavorText": "Install an additional air fryer in $t(character.aoi.name)'s apartment. It periodically drops a cooked nuggie on the floor."
+    },
+    "airFryer1": {
+      "name": "air fryer efficiency",
+      "indefArticle": "",
+      "shortEffectDescription": "Decrease air fryer time to spawn nuggies by 0.1 seconds",
+      "flavorText": "Better air fryer brands require less maintenance between cooking cycles."
+    },
+    "airFryer2": {
+      "name": "batch cooking",
+      "indefArticle": "",
+      "shortEffectDescription": "Increase nuggies spawned by air fryers by 1",
+      "flavorText": "In the middle of the night, you were awoken by an eldritch thought. What if... instead of cooking one nuggie at a time in an air fryer... we cooked multiple? Each air fryer, could, in fact, hold up to 12 nuggies. Intense training will be required for each additional nuggie we put in."
+    },
+    "wcbonalds": {
+      "name_one": "WcBonalds delivery",
+      "name_other": "WcBonalds deliveries",
+      "indefArticle": "a",
+      "shortEffectDescription": "Every {{rate}} seconds, if $t(character.aoi.name) is at the door, delivers $t(currency.nuggie.nameCount, {'count': 50})",
+      "flavorText": "Constantly call for BooberYeets of 50-piece WcNuggies Combos to $t(character.aoi.name)'s apartment. However, $t(character.aoi.name) needs to be at the door when they arrive or else they won't deliver!"
+    },
+    "wcbonalds1": {
+      "name": "delivery speed",
+      "indefArticle": "",
+      "shortEffectDescription": "Decrease time between deliveries by 5 seconds",
+      "flavorText": "Make backdoor deals with BooberYeets and convince them to break the speed limit. Just slightly."
+    },
+    "motivationResearch": {
+      "name": "motivation research",
+      "indefArticle": "",
+      "shortEffectDescription": "Unlock motivation-boosting items",
+      "flavorText": "The mind of $t(character.aoi.nameFull) is a mystery. By consuming $t(currency.nuggie.name_other), we are able to get closer to her mindset, and gain insight into what we might to do motivate her to move faster."
+    },
+    "smellWafter": {
+      "name_one": "smell wafter",
+      "name_other": "smell wafters",
+      "indefArticle": "a",
+      "shortEffectDescription": "Increase move speed by {{amount}}%",
+      "flavorText": "Strategic placement of fans wafts the smell of nuggies towards $t(character.aoi.name), increasing her motivation to move towards them."
+    },
+    "nuggieDog": {
+      "name": "Nuggie Support Dog",
+      "indefArticle": "a",
+      "shortEffectDescription": "Hire a Nuggie Support Dog (NSD)",
+      "flavorText": "We've trained a dog to pick up nuggies and bring them back to $t(character.aoi.name). Her name is NSD (Nuggie Support Dog), and she's fast, smart, and works completely automatically!"
+    },
+    "nuggieDog1": {
+      "name": "NSD speed training",
+      "indefArticle": "",
+      "shortEffectDescription": "Decrease NSD work cycle time by 0.5 seconds (Current: {{amount}}s)",
+      "flavorText": "Advanced training courses for NSD increase her overall endurance."
+    },
+    "nuggieDog2": {
+      "name": "NSD area training",
+      "indefArticle": "",
+      "shortEffectDescription": "Increase area of NSD collection",
+      "flavorText": "Advanced training courses for NSD increases the length of her legs. Yeah, don't ask how that works, we don't know and neither does NSD."
+    },
+    "nuggieFlavorTechnique": {
+      "name": "Nuggie Flavorization Techniques",
+      "indefArticle": "",
+      "shortEffectDescription": "Eating a nuggie provides a small burst of speed",
+      "flavorText": "Research into NFTs (Nuggie Flavorization Techniques) has proven lucrative, and we have found ways to pack so much flavor into nuggies that it motivates $t(character.aoi.name) to move faster for a split second."
+    },
+    "nuggieMagnet": {
+      "name": "nuggie magnetization",
+      "indefArticle": "",
+      "shortEffectDescription": "Increase area of nuggie magnetization",
+      "flavorText": "$t(character.aoi.name) is notoriously difficult to motivate. So difficult, in fact, that it's been determined that it would be cheaper and more effective to find ways to bring the nuggies to her, than to bring her to the nuggies. To this end, a special suit tuned to the magnetic frequency of nuggies has been developed and stealthily strapped to $t(character.aoi.name)."
+    },
+    "aoiT2Unlock": {
+      "name": "Unlock Tier II",
+      "indefArticle": "",
+      "shortEffectDescription": "Allows collection of $t(character.aoi.name)'s Tier II currency, heckies. Also allows toggling passive mode for $t(minigame.aoi.name).",
+      "flavorText": ""
+    },
+    "heckie": {
+      "name_one": "heckie",
+      "name_other": "heckies",
+      "indefArticle": "a",
+      "shortEffectDescription": "",
+      "flavorText": ""
+    },
+    "heckieGenerator1": {
+      "name": "Endless Zatsudan",
+      "indefArticle": "",
+      "shortEffectDescription": "Per level: Increase heckie conversion rate by {{amount}} per second",
+      "flavorText": "$t(character.aoi.name)'s ability to talk forever (usually about food) despite all circumstances surely brings a heckie to her Timekeepers' lips."
+    },
+    "heckieGenerator2": {
+      "name": "Timekeeping",
+      "indefArticle": "",
+      "shortEffectDescription": "Per level: Increase heckie conversion rate by {{amount}} per second",
+      "flavorText": "The art of keeping time is one of the arts of all time. Fortunately for Timekeepers, $t(character.aoi.name) is extremely good at it."
+    },
+    "heckieGenerator3": {
+      "name": "Negative Gaming Skill",
+      "indefArticle": "",
+      "shortEffectDescription": "Per level: Increase heckie conversion rate by {{amount}} per second",
+      "flavorText": "If one is good at being bad at something, does that mean that you are simply bad at something, or does the fact that you are good at being bad mean that you are actually good at something? Semanticists continue to argue about this, and a billion other useless things, every day."
+    },
+    "hiGuys": {
+      "name": "Hi guys!",
+      "indefArticle": "",
+      "shortEffectDescription": "Per level: Increase conversion rate of each level of $t(currency.heckieGenerator1.name) by {{amount}}/s",
+      "flavorText": "Who is Guys and why are they Hi?"
+    },
+    "konkonmori": {
+      "name": "Konkonmori",
+      "indefArticle": "",
+      "shortEffectDescription": "Per level: Increase conversion rate granted by each level of $t(currency.hiGuys.name) by 1/s",
+      "flavorText": ""
+    },
+    "aoiStreamDelay": {
+      "name": "Stream Delaying",
+      "indefArticle": "",
+      "shortEffectDescription": "Increase conversion rate of each level of $t(currency.heckieGenerator2.name) by the level of $t(currency.heckieGenerator2.name)",
+      "flavorText": "Delaying the start of a stream really sells it to Timekeepers just how good $t(character.aoi.name) is at keeping (the amount of) time (that is being delayed a high number)."
+    },
+    "aoiStreamDelay2": {
+      "name": "Schedule Delaying",
+      "indefArticle": "",
+      "shortEffectDescription": "Increase conversion rate of each level of $t(currency.heckieGenerator2.name) by the sum of levels of $t(currency.heckieGenerator1.name), $t(currency.heckieGenerator2.name), and $t(currency.heckieGenerator3.name)",
+      "flavorText": "Further confuse and confound Timekeepers by delaying schedule posts so much that they come out after some of this week's streams have already been streamed. Even better, put up a schedule after every stream already happened!"
+    },
+    "aoiStreamDelay3": {
+      "name": "Life-Saving Medication Delaying",
+      "indefArticle": "",
+      "shortEffectDescription": "Increase conversion rate of each level of $t(currency.heckieGenerator2.name) by the sum of the total conversion rate of all levels of $t(currency.heckieGenerator1.name) and $t(currency.heckieGenerator3.name)",
+      "flavorText": "In a display of ultimate dominance over her ability to keep time, $t(character.aoi.name) simply refuses to obtain medication for an allergy that could end her life. After all, one who keeps the time can simply keep it so still as to infinitely delay any inevitability."
+    },
+    "aoiBackseating": {
+      "name": "Backseating",
+      "indefArticle": "",
+      "shortEffectDescription": "Per level: Increase $t(minigame.aoi.name) passive motivation multiplier by 0.02",
+      "flavorText": "While $t(character.aoi.name)'s success (or lack thereof) still largely depends on her own gaming skill, having a dedicated team of backseating Timekeepers definitely helps her get things done slightly more efficiently."
+    },
+    "aoiKaraoke": {
+      "name": "Queen of Song",
+      "indefArticle": "",
+      "shortEffectDescription": "Per level: Increase heckie output rate by 10%",
+      "flavorText": ""
+    },
+    "aoiBullying": {
+      "name": "Chat Bullies",
+      "indefArticle": "",
+      "shortEffectDescription": "Per level: Increase heckie conversion rate by 25%",
+      "flavorText": ""
+    },
+    "aoiRhythmGames": {
+      "name": "Pro Rhythm Gamer",
+      "indefArticle": "",
+      "shortEffectDescription": "Enables combo system in $t(minigame.aoi.name); Per level: Per combo, each floor nuggie is worth +0.01x nuggies. Passive mode treats combo as always being 5",
+      "flavorText": ""
+    },
+    "aoiMunchies": {
+      "name": "Post-Stream Munchies",
+      "indefArticle": "",
+      "shortEffectDescription": "Per level: Increase nuggies gained from all sources by 25%",
+      "flavorText": ""
+    },
+    "aoiMunchies2": {
+      "name": "Mid-Stream Munchies",
+      "indefArticle": "",
+      "shortEffectDescription": "Per level: Decrease time between $t(currency.wcbonalds.name, {'count': 0}) by 2.5s, and increase nuggies gained from all sources by 10%",
+      "flavorText": ""
+    },
+    "aoiMunchies3": {
+      "name": "Pre-Stream Munchies",
+      "indefArticle": "",
+      "shortEffectDescription": "Per level: Decrease nuggie input rate by 5% (Current: x{{amount}})",
+      "flavorText": ""
+    },
+    "aoiT3Unlock": {
+      "name": "Unlock Tier III",
+      "indefArticle": "",
+      "shortEffectDescription": "",
+      "flavorText": ""
+    }
+  }
+}

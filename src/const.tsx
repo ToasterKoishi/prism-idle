@@ -3,11 +3,6 @@ import { vec2 } from "./util";
 export const GAME_TICK_TIME = 1000.0 / 60.0;
 export const SCENE_SIZE = vec2(960.0, 540.0);
 
-export const VIRTUAL_BASE_AMOUNT = "virtual_baseAmount";
-
-export const awowiName = "Awowi";
-export const awowiFullName = "Awowi Towokimowi";
-
 export const BASE_NUGGIE_TIMER = 5.0;
 export const BASE_WCBONALDS_TIMER = 60.0;
 export const BASE_WCBONALDS_POSITION = {

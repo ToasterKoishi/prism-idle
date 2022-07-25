@@ -1,12 +1,13 @@
+import { t } from "i18next";
 import React from "react";
 import "../app.css";
-import { AOI_BOOST_PER_NFT, AOI_DOG_SPEED, awowiFullName, awowiName, BASE_AOI_SPEED, BASE_WCBONALDS_POSITION, COMPRESSED_NUGGIE_1_RATE, NUGGIE_HIT_RADIUS, NUGGIE_MAGNET_AREA_EACH, SCENE_SIZE, SMELL_WAFTER_MOVE_SPEED_BONUS_PERCENT } from "../const";
-import { GameState } from "../logic/game-state";
+import { AOI_BOOST_PER_NFT, AOI_DOG_SPEED, BASE_AOI_SPEED, BASE_WCBONALDS_POSITION, NUGGIE_HIT_RADIUS, NUGGIE_MAGNET_AREA_EACH, SCENE_SIZE, SMELL_WAFTER_MOVE_SPEED_BONUS_PERCENT } from "../const";
 import aoi from "../img/aoi.png";
 import dog from "../img/dog.png";
 import nuggies from "../img/nuggies.png";
-import { RenderGameObject } from "./render-game-object";
+import { GameState } from "../logic/game-state";
 import { degToRad, generateUUID, Vec2, vec2 } from "../util";
+import { RenderGameObject } from "./render-game-object";
 
 const RHYTHM_GAME_TIMING_WINDOW = 0.2;
 
@@ -439,7 +440,7 @@ export class AoiMinigameArea extends React.Component {
           context.globalAlpha = 1.0;
           context.fillStyle = state.rhythmGame.flickerTime > 0 ? state.rhythmGame.flickerColor : "#000000";
           context.strokeStyle = context.fillStyle;
-          
+
           context.fillRect(10, canvas.height - 15, canvas.width - 20, 1);
 
           context.beginPath();
@@ -489,7 +490,7 @@ export class AoiMinigameArea extends React.Component {
     return (
       <div style={{ maxWidth: "960px", margin: "0 auto" }}>
         <div style={{ margin: "auto", textAlign: "center" }}>
-          <h1 style={{}}>{awowiName}'s Room</h1>
+          <h1 style={{}}>{t("character.aoi.name")}'s Room</h1>
           {gameState.getCurrency("aoiT2Unlock").getCurrentAmount() ? (
             <div style={{ display: "flex", justifyContent: "center", gap: "8px", margin: "16px auto 0px" }}>
               <p style={{ textAlign: "right", flexBasis: "0", flexGrow: "1", color: isActiveMode ? "black" : "lightgray" }}>Play minigame <b>| ACTIVE MODE</b></p>
@@ -506,7 +507,8 @@ export class AoiMinigameArea extends React.Component {
 
           {isActiveMode ? (
             <div>
-              <p style={{ margin: "16pt auto 16pt", textAlign: "left" }}>Welcome to {awowiName}'s room! It is very messy, and {gameState.getCurrency("nuggie").i18n().namePlural} keep showing up in the most unexpected places. Use your mouse to guide {awowiName} to those delicious {gameState.getCurrency("nuggie").i18n().namePlural}! Unfortunately, {awowiName} is very :aoilazy: and moves frustratingly slow. We can probably find some way to motivate her... right...?</p>
+              <p style={{ margin: "16pt auto 16pt", textAlign: "left" }}>
+                {t("minigame.aoi.description")}</p>
               <div
                 className="minigame-size aoi-minigame"
                 onMouseMove={this.handleOnMouseMove}
