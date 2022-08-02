@@ -3,6 +3,22 @@ import { vec2 } from "./util";
 export const GAME_TICK_TIME = 1000.0 / 60.0;
 export const SCENE_SIZE = vec2(960.0, 540.0);
 
+export const SORTED_CHARACTER_IDS = ["iku", "aoi", "meno"];
+export const COLOR_SCHEMES = {
+  iku: {
+    backgroundColor: "mistyrose",
+    textColor: "orchid",
+  },
+  aoi: {
+    backgroundColor: "aliceblue",
+    textColor: "cornflowerblue",
+  },
+  meno: {
+    backgroundColor: "lavender",
+    textColor: "mediumpurple",
+  }
+};
+
 export const BASE_NUGGIE_TIMER = 5.0;
 export const BASE_WCBONALDS_TIMER = 60.0;
 export const BASE_WCBONALDS_POSITION = {

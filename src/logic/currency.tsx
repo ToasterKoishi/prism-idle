@@ -28,6 +28,7 @@ export class Currency {
   #isHidden: boolean = false; // Overrides isRevealed - if this is set, then it will never be shown
 
   // Lockstep values - the values of the next game tick will always be calculated from the current tick's values
+  #isDirty: boolean = true;
   #currentValues = {
     fractionalAmount: 0,
     amount: 0n,
@@ -61,6 +62,8 @@ export class Currency {
 
   getId = () => this.#id;
   getGameState = () => this.#gameState;
+  isDirty = () => this.#isDirty;
+  clean = () => { this.#isDirty = false; }
 
   // i18n helpers
   getNameWithArticle = () => t("currency." + this.#id + ".indefArticle") + " " + t("currency." + this.#id + ".name", { count: 1 });
@@ -124,6 +127,17 @@ export class Currency {
   getNextPurchasedAmountShort = () => Number(this.#nextValues.amountPurchased);
   getNextMaximumAmount = () => this.#nextValues.maximumAmount;
   swapFrameBuffer = () => {
+    if (
+      this.#currentValues.fractionalAmount != this.#nextValues.fractionalAmount ||
+      this.#currentValues.amount != this.#nextValues.amount ||
+      this.#currentValues.amountPurchased != this.#nextValues.amountPurchased ||
+      this.#currentValues.maximumAmount != this.#nextValues.maximumAmount) {
+      this.#isDirty = true;
+      this.getGameState().currencyDependents.get(this.getId()).forEach((value) => {
+        this.getGameState().getResolvedValue(value).touch();
+      });
+    }
+
     this.#currentValues.fractionalAmount = this.#nextValues.fractionalAmount;
     this.#currentValues.amount = this.#nextValues.amount;
     this.#currentValues.amountPurchased = this.#nextValues.amountPurchased;

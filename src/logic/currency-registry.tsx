@@ -714,5 +714,8 @@ export const registerAoiT2 = (gameState: GameState) => {
       new Cost(gameState.getCurrency("heckie"), (_) => 1000000n)
     ])
     .registerCalculateIsRevealed(() => true)
+    .registerOnAmountPurchased(() => {
+      gameState.numCharacterUnlocks += 1;
+    })
   );
 }

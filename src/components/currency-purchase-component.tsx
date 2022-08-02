@@ -58,7 +58,7 @@ export class SimpleCurrencyPurchaseComponent extends React.Component {
         </div>
       );
       return (
-        <div className="shop-box-outer">
+        <div className="upwards-fade-in">
           <div className={"shop-box " + (currency.getIsUnlocked() ? "" : "not-unlocked ") + (currency.isInStock() ? "" : "out-of-stock ") + currency.i18n.shopBoxClass}>
             <div style={{ display: "flex", justifyContent: "space-between" }}>
               <div>

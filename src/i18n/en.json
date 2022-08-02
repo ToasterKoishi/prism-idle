@@ -1,14 +1,39 @@
 {
   "character": {
+    "iku": {
+      "name": "Iku",
+      "nameFull": "Iku Hoshifuri",
+      "generation": "PRISM Project 1st Generation",
+      "blurb": ""
+    },
     "aoi": {
       "name": "Aoi",
-      "nameFull": "Aoi Tokimori"
+      "nameFull": "Aoi Tokimori",
+      "generation": "PRISM Project 1st Generation",
+      "blurb": ""
+    },
+    "meno": {
+      "name": "Meno",
+      "nameFull": "Meno Ibuki",
+      "generation": "PRISM Project 1st Generation",
+      "blurb": ""
     }
   },
   "minigame": {
+    "iku": {
+      "name": "$t(character.iku.name)'s Ikumin Garden",
+      "blurb": "",
+      "description": ""
+    },
     "aoi": {
       "name": "$t(character.aoi.name)'s Room",
+      "blurb": "Guide $t(character.aoi.name) to delicious nuggies scattered all around her room! Unfortunately, $t(character.aoi.name) is very :aoilazy: and moves frustratingly slow. We can probably find some way to motivate her... right...?",
       "description": "Welcome to $t(character.aoi.name)'s room! It is very messy, and nuggies keep showing up in the most unexpected places. Use your mouse to guide $t(character.aoi.name) to those delicious nuggies! Unfortunately, $t(character.aoi.name) is very :aoilazy: and moves frustratingly slow. We can probably find some way to motivate her... right...?"
+    },
+    "meno": {
+      "name": "$t(character.meno.name)'s Shiny Mining Puzzling",
+      "blurb": "",
+      "description": ""
     }
   },
   "currency": {
@@ -182,7 +207,7 @@
       "flavorText": ""
     },
     "aoiBullying": {
-      "name": "Chat Bullies",
+      "name": "Bullying with Love",
       "indefArticle": "",
       "shortEffectDescription": "Per level: Increase heckie conversion rate by 25%",
       "flavorText": ""
@@ -214,7 +239,7 @@
     "aoiT3Unlock": {
       "name": "Unlock Tier III",
       "indefArticle": "",
-      "shortEffectDescription": "",
+      "shortEffectDescription": "Allows unlocking another PRISM agent",
       "flavorText": ""
     }
   }

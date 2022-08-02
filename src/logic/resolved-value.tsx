@@ -9,11 +9,14 @@ export const GENERATION_TYPE = {
 }
 
 export class ResolvedValue {
+  static touchesPerformed: number = 0;
+  static numValuesRecalculated: number = 0;
+
   #id: string;
 
   #gameState: GameState;
-  #dependentCurrencies: string[] = [];
-  #dependentValues: string[] = [];
+  #dependencyCurrencies: string[] = [];
+  #dependencyValues: string[] = [];
   #resolutionFunction: ResolutionFunction;
 
   #isDirty: boolean = true;
@@ -23,24 +26,34 @@ export class ResolvedValue {
   constructor(gameState: GameState, id: string, dependentCurrencies: string[], dependentValues: string[], resolutionFunction: ResolutionFunction) {
     this.#gameState = gameState;
     this.#id = id;
-    this.#dependentCurrencies = dependentCurrencies;
-    this.#dependentValues = dependentValues;
+    this.#dependencyCurrencies = dependentCurrencies;
+    this.#dependencyValues = dependentValues;
     this.#resolutionFunction = resolutionFunction;
   }
 
   getId = () => this.#id;
-  dirty = () => {
-    this.#isDirty = true;
+  getDependencyCurrencies = () => this.#dependencyCurrencies;
+  getDependencyValues = () => this.#dependencyValues;
+  touch = () => {
+    ResolvedValue.touchesPerformed++;
+    if (!this.#isDirty) {
+      this.#isDirty = true;
+      this.#gameState.valueDependents.get(this.getId()).forEach((value) => {
+        this.#gameState.getResolvedValue(value).touch();
+      });
+    }
   }
 
   #recalculate = () => {
+    ResolvedValue.numValuesRecalculated++;
+
     const currencies = new Map<string, bigint>();
     const values = new Map<string, number>();
     const explains = new Map<string, string>();
-    this.#dependentCurrencies.forEach((currency) => {
+    this.#dependencyCurrencies.forEach((currency) => {
       currencies.set(currency, this.#gameState.getCurrency(currency).getCurrentAmount());
     });
-    this.#dependentValues.forEach((value) => {
+    this.#dependencyValues.forEach((value) => {
       values.set(value, this.#gameState.getResolvedValue(value).resolve());
       explains.set(value, this.#gameState.getResolvedValue(value).explain());
     });

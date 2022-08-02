@@ -4,23 +4,87 @@ import { registerAoiT1, registerAoiT2 } from "./currency-registry";
 import { ResolvedValue } from "./resolved-value";
 
 export class GameState {
+  numCharacterUnlocks: number = 0;
+  #charactersUnlocked: string[] = ["aoi"];
   currencies: Map<string, Currency> = new Map<string, Currency>();
+  currencyDependents: Map<string, string[]> = new Map<string, string[]>();
   resolvedValues: Map<string, ResolvedValue> = new Map<string, ResolvedValue>();
+  valueDependents: Map<string, string[]> = new Map<string, string[]>();
   generators: Map<string, CurrencyGenerator> = new Map<string, CurrencyGenerator>();
 
   constructor() {
-    // Declare all Currencies
+    // Declare all Currencies and ResolvedValues
     registerAoiT1(this);
     registerAoiT2(this);
+
+    // Calculate everything once! (Theoretically, everything is initialized dirty, but this is here just in case...)
+    this.resolvedValues.forEach((resolvedValue) => {
+      resolvedValue.touch();
+    });
   }
 
-  registerCurrency = (currency: Currency) => { this.currencies.set(currency.getId(), currency); }
-  registerResolvedValue = (resolvedValue: ResolvedValue) => { this.resolvedValues.set(resolvedValue.getId(), resolvedValue); }
+  registerCurrency = (currency: Currency) => {
+    this.currencies.set(currency.getId(), currency);
+    if (!this.currencyDependents.has(currency.getId())) {
+      this.currencyDependents.set(currency.getId(), []);
+    }
+  }
+  #addCurrencyDependent = (dependencyCurrency: string, dependentValue: string) => {
+    if (this.currencyDependents.has(dependencyCurrency)) {
+      this.currencyDependents.get(dependencyCurrency).push(dependentValue);
+    } else {
+      this.currencyDependents.set(dependencyCurrency, [dependentValue]);
+    }
+  }
+  registerResolvedValue = (resolvedValue: ResolvedValue) => {
+    this.resolvedValues.set(resolvedValue.getId(), resolvedValue);
+    if (!this.valueDependents.has(resolvedValue.getId())) {
+      this.valueDependents.set(resolvedValue.getId(), []);
+    }
+    resolvedValue.getDependencyCurrencies().forEach((dependency) => {
+      this.#addCurrencyDependent(dependency, resolvedValue.getId())
+    });
+    resolvedValue.getDependencyValues().forEach((dependency) => {
+      this.#addValueDependent(dependency, resolvedValue.getId())
+    });
+  }
+  #addValueDependent = (dependencyValue: string, dependentValue: string) => {
+    if (this.valueDependents.has(dependencyValue)) {
+      this.valueDependents.get(dependencyValue).push(dependentValue);
+    } else {
+      this.valueDependents.set(dependencyValue, [dependentValue]);
+    }
+  }
   registerGenerator = (generator: CurrencyGenerator) => { this.generators.set(generator.getId(), generator) };
 
+  getNumCharacterUnlocks = () => this.numCharacterUnlocks;
+  doCharacterUnlock = (id: string) => {
+    if (this.numCharacterUnlocks > 0) {
+      this.numCharacterUnlocks -= 1;
+      this.#charactersUnlocked.push(id);
+    }
+  }
+  getCharactersUnlocked = () => this.#charactersUnlocked;
   getCurrency = (id: string) => this.currencies.get(id);
   getResolvedValue = (id: string) => this.resolvedValues.get(id);
   getGenerator = (id: string) => this.generators.get(id);
+
+  gameTick = (time: number) => {
+    ResolvedValue.numValuesRecalculated = 0;
+    ResolvedValue.touchesPerformed = 0;
+
+    this.generateCurrencies(time);
+
+    // Lockstep update
+    this.currencies.forEach((currency) => {
+      currency.clean();
+      currency.swapFrameBuffer();
+    });
+
+    // console.log(ResolvedValue.numValuesRecalculated);
+    // console.log(ResolvedValue.touchesPerformed);
+  }
+
   generateCurrencies = (time: number) => {
     this.generators.forEach((generator) => {
       if (generator.enabled) {
@@ -39,19 +103,6 @@ export class GameState {
           this.getCurrency(output.currency).addFractionalAmount(this.getResolvedValue(output.resolvedValue).resolve() * time);
         });
       }
-    });
-  }
-
-  gameTick = (time: number) => {
-    this.resolvedValues.forEach((resolvedValue) => {
-      resolvedValue.dirty();
-    })
-
-    this.generateCurrencies(time);
-
-    // Lockstep update
-    this.currencies.forEach((currency) => {
-      currency.swapFrameBuffer();
     });
   }
 

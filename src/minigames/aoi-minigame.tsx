@@ -448,13 +448,11 @@ export class AoiMinigameArea extends React.Component {
           context.stroke();
 
           let dx = state.rhythmGame.timer * 100.0;
-          if (dx < 0) {
-            dx += 100.0;
-          }
           while (dx < (canvas.width - 20) / 2) {
-            context.globalAlpha = Math.min(Math.max(0.0, 1.2 - dx / 360.0), 1.0);
-            context.fillRect(canvas.width / 2 + dx - 4, canvas.height - 25, 8, 20);
-            context.fillRect(canvas.width / 2 - dx - 4, canvas.height - 25, 8, 20);
+            const edx = Math.max(0, dx);
+            context.globalAlpha = Math.min(Math.max(0.0, 1.2 - edx / 360.0), 1.0);
+            context.fillRect(canvas.width / 2 + edx - 4, canvas.height - 25, 8, 20);
+            context.fillRect(canvas.width / 2 - edx - 4, canvas.height - 25, 8, 20);
             dx += 100.0;
           }
         }
@@ -501,7 +499,7 @@ export class AoiMinigameArea extends React.Component {
               <div>
                 <span style={{ visibility: isActiveMode ? "hidden" : "visible", animation: "small-pulsate-0 1.5s infinite" }}>{">>>"}</span>
               </div>
-              <p style={{ textAlign: "left", flexBasis: "0", flexGrow: "1", color: isActiveMode ? "lightgray" : "black" }}><b>PASSIVE MODE |</b> {gameState.getResolvedValue("nuggieGenerator").resolve().toFixed(2)} nuggies/s <span className="tooltip-trigger">[?]<div className="tooltip-box" style={{ bottom: "auto", top: "20" }}><b>Base generation:</b> {gameState.getResolvedValue("nuggieGeneratorBase").resolve().toFixed(2)} nuggies/s<br /><b>Motivation:</b> x{gameState.getResolvedValue("nuggieGeneratorMulti").resolve().toFixed(3)}</div></span></p>
+              <div style={{ textAlign: "left", flexBasis: "0", flexGrow: "1", color: isActiveMode ? "lightgray" : "black" }}><b>PASSIVE MODE |</b> {gameState.getResolvedValue("nuggieGenerator").resolve().toFixed(2)} nuggies/s <span className="tooltip-trigger">[?]<div className="tooltip-box" style={{ bottom: "auto", top: "20" }}><b>Base generation:</b> {gameState.getResolvedValue("nuggieGeneratorBase").resolve().toFixed(2)} nuggies/s<br /><b>Motivation:</b> x{gameState.getResolvedValue("nuggieGeneratorMulti").resolve().toFixed(3)}</div></span></div>
             </div>
           ) : null}
 
