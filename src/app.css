@@ -117,8 +117,7 @@ button:disabled {
 .tooltip-box {
   width: max-content;
   position: absolute;
-  bottom: 18px;
-  right: 18px;
+  z-index: 1;
   padding: 8px;
   border: 1px solid gray;
   color: black;
@@ -136,7 +135,7 @@ button:disabled {
   width: 100%;
   height: 50px;
   margin-right: -10px;
-  object-fit: none;
+  overflow: hidden;
   clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
   background-color: rgb(128, 128, 128);
   transition: background-color var(--base-fadeout-time), box-shadow var(--base-fadeout-time), margin-right var(--base-fadein-time), clip-path var(--base-fadein-time);
@@ -144,11 +143,11 @@ button:disabled {
 
 .topbar-character-select-img {
   pointer-events: none;
-  width: 100%;
+  position: absolute;
+  left: -25px;
+  width: 700px;
   height: 50px;
-  object-fit: none;
-  object-position: 25% 50%;
-  clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
+  object-fit: cover;
   filter: brightness(50%) opacity(50%);
   transition: filter var(--base-fadein-time), height var(--base-fadein-time), clip-path var(--base-fadein-time);
 }
@@ -204,25 +203,26 @@ button:disabled {
 }
 
 .character-select-item {
+  position: relative;
   flex-grow: 1;
   flex-basis: 0;
-  width: 100%;
   height: 400px;
   margin-right: -98px;
-  object-fit: none;
   clip-path: polygon(100px 0%, 100% 0%, calc(100% - 100px) 100%, 0% 100%);
+  overflow: hidden;
   background-color: rgb(128, 128, 128);
   transition: background-color var(--base-fadeout-time), box-shadow var(--base-fadeout-time), flex-grow var(--base-fadein-time), margin-right var(--base-fadein-time), clip-path var(--base-fadein-time);
 }
 
 .character-select-img {
   pointer-events: none;
-  width: 100%;
+  position: absolute;
+  width: 700px;
   height: 400px;
-  object-fit: none;
-  clip-path: polygon(100px 0%, 100% 0%, calc(100% - 100px) 100%, 0% 100%);
+  left: calc(-350px + 50%);
+  object-fit: cover;
   filter: brightness(50%) opacity(50%);
-  transition: filter var(--base-fadein-time), clip-path var(--base-fadein-time);
+  transition: filter var(--base-fadein-time);
 }
 
 .character-select-item:last-child {
@@ -307,7 +307,7 @@ button:disabled {
 .shop-divider {
   width: 600px;
   height: 1px;
-  background-color: gray;
+  background: linear-gradient(90deg, #80808000, #808080FF 20%, #808080FF 80%, #80808000);
   margin: 32px auto;
 }
 
@@ -327,6 +327,21 @@ button:disabled {
 .shop-box.minigame-buff {
   background: linear-gradient(#7fffd4, #a4ffe1);
   border: 3px outset lightgreen;
+}
+
+.shop-box.dog {
+  background: linear-gradient(#ffffe7, #fffed3);
+  border: 3px outset orange;
+}
+
+.shop-box.ikumin-variety {
+  background: linear-gradient(#fff3f7, #ffdaf9);
+  border: 3px outset pink;
+}
+
+.shop-box.minigame-generator-ikumin-variety {
+  background: linear-gradient(#add8e6, #ffdaf9);
+  border: 3px outset pink;
 }
 
 .shop-box.tier-two-unlock {
@@ -392,14 +407,22 @@ button:disabled {
   user-select: none;
 }
 
-.aoi-minigame .floating-number-outer {
+.iku-minigame {
+  padding: 0 0 0 0;
+  border: 2px dotted black;
+  margin: 0 auto;
+  overflow: hidden;
+  background-color: tan;
+  user-select: none;
+}
+
+.floating-number-outer {
   position: absolute;
   width: 200px;
   height: 40px;
-  animation: aoi-minigame-floating-number 1s;
 }
 
-.aoi-minigame .floating-number-outer .floating-number-inner {
+.floating-number-outer .floating-number-inner {
   text-align: center;
   line-height: 40px;
   padding: 0;
@@ -408,7 +431,7 @@ button:disabled {
   color: black;
 }
 
-.aoi-minigame .floating-number-outer .floating-number-inner-crit {
+.floating-number-outer .floating-number-inner-crit {
   text-align: center;
   line-height: 40px;
   padding: 0;
@@ -418,7 +441,7 @@ button:disabled {
   -webkit-text-stroke: 1px black;
 }
 
-.aoi-minigame .floating-number-outer .floating-number-inner-dog {
+.floating-number-outer .floating-number-inner-dog {
   text-align: center;
   line-height: 40px;
   padding: 0;
@@ -428,7 +451,7 @@ button:disabled {
   -webkit-text-stroke: 1px black;
 }
 
-@keyframes aoi-minigame-floating-number {
+@keyframes floating-number-up {
   from {
     transform: none;
     opacity: 1;
@@ -436,6 +459,42 @@ button:disabled {
 
   to {
     transform: translateY(-20px);
+    opacity: 0;
+  }
+}
+
+@keyframes floating-number-right {
+  from {
+    transform: none;
+    opacity: 1;
+  }
+
+  to {
+    transform: translateX(20px);
+    opacity: 0;
+  }
+}
+
+@keyframes floating-number-down {
+  from {
+    transform: none;
+    opacity: 1;
+  }
+
+  to {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+}
+
+@keyframes floating-number-left {
+  from {
+    transform: none;
+    opacity: 1;
+  }
+
+  to {
+    transform: translateX(-20px);
     opacity: 0;
   }
 }

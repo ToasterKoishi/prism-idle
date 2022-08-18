@@ -2,17 +2,23 @@ import i18next, { t } from 'i18next';
 import React from "react";
 import { initReactI18next } from "react-i18next";
 import "./app.css";
-import { ShopAreaComponent } from "./components/shop-area-component";
 import { COLOR_SCHEMES, SORTED_CHARACTER_IDS } from './const';
 import { default as i18nEN } from "./i18n/en.json";
 import aoi from "./img/aoi.webp";
 import iku from "./img/iku.webp";
+import luto from "./img/luto.webp";
 import meno from "./img/meno.webp";
+import nia from "./img/nia.webp";
+import pina from "./img/pina.webp";
+import rita from "./img/rita.webp";
+import shiki from "./img/shiki.webp";
+import yura from "./img/yura.webp";
 import { GameState } from "./logic/game-state";
-import { AoiMinigameArea } from "./minigames/aoi-minigame";
+import { AoiScene } from './scenes/aoi-scene';
+import { IkuScene } from './scenes/iku-scene';
 
 // Debug stuff
-const TOTER_DEBUG: boolean = false;
+export const TOTER_DEBUG: boolean = false;
 let secondsPassed: number = 0.0;
 let timeStep: number = 1.0;
 
@@ -24,9 +30,12 @@ class App extends React.Component {
   gameState: GameState = null;
   previousFrameTime: DOMHighResTimeStamp = -1;
   //gameTickId: NodeJS.Timer;
-  selectedCharacter: string = "aoi";
+  selectedCharacter: string = TOTER_DEBUG ? "aoi" : "";
   showUnlockArea: boolean = false;
-  minigameCallbacks: { gameTick: (_: number) => void };
+  hooks: { gameTick: ((_: number) => void)[] };
+
+  ikuScene: React.ReactElement<IkuScene>;
+  aoiScene: React.ReactElement<AoiScene>;
 
   constructor(props) {
     super(props);
@@ -51,43 +60,106 @@ class App extends React.Component {
       gameState: this.gameState
     };
 
+    this.hooks = {
+      gameTick: []
+    };
+
+    this.ikuScene = (<IkuScene
+      gameState={this.gameState}
+      hooks={this.hooks}
+    />);
+    this.aoiScene = (<AoiScene
+      gameState={this.gameState}
+      hooks={this.hooks}
+    />);
+
     // DEBUG STUFF
     if (TOTER_DEBUG) {
       const gameState = this.gameState;
 
-      // Approximately 1 hr of playing
-      gameState.getCurrency("nuggie").addAmount(200000n);
-      for (let i = 0; i < 30; i++) gameState.getCurrency("airFryer").tryPurchaseOne();
-      for (let i = 0; i < 8; i++) gameState.getCurrency("airFryer1").tryPurchaseOne();
-      for (let i = 0; i < 4; i++) gameState.getCurrency("airFryer2").tryPurchaseOne();
-      for (let i = 0; i < 8; i++) gameState.getCurrency("wcbonalds").tryPurchaseOne();
-      for (let i = 0; i < 3; i++) gameState.getCurrency("wcbonalds1").tryPurchaseOne();
-      for (let i = 0; i < 7; i++) gameState.getCurrency("compressedNuggies1").tryPurchaseOne();
-      for (let i = 0; i < 5; i++) gameState.getCurrency("compressedNuggies2").tryPurchaseOne();
-      gameState.getCurrency("motivationResearch").tryPurchaseOne();
-      for (let i = 0; i < 4; i++) gameState.getCurrency("smellWafter").tryPurchaseOne();
-      gameState.getCurrency("nuggieDog").tryPurchaseOne();
-      for (let i = 0; i < 3; i++) gameState.getCurrency("nuggieDog1").tryPurchaseOne();
-      for (let i = 0; i < 3; i++) gameState.getCurrency("nuggieDog2").tryPurchaseOne();
-      for (let i = 0; i < 3; i++) gameState.getCurrency("nuggieFlavorTechnique").tryPurchaseOne();
-      for (let i = 0; i < 3; i++) gameState.getCurrency("nuggieMagnet").tryPurchaseOne();
+      // Approximately 1:45 hr of playing
+      gameState.getCurrency("aoi.nuggie").addAmount(6600000n);
+      gameState.getCurrency("aoi.heckie").addAmount(1700000n);
+      for (let i = 0; i < 30; i++) gameState.getCurrency("aoi.airFryer").tryPurchaseOne();
+      for (let i = 0; i < 25; i++) gameState.getCurrency("aoi.airFryer1").tryPurchaseOne();
+      for (let i = 0; i < 11; i++) gameState.getCurrency("aoi.airFryer2").tryPurchaseOne();
+      for (let i = 0; i < 10; i++) gameState.getCurrency("aoi.wcbonalds").tryPurchaseOne();
+      for (let i = 0; i < 6; i++) gameState.getCurrency("aoi.wcbonalds1").tryPurchaseOne();
+      for (let i = 0; i < 14; i++) gameState.getCurrency("aoi.compressedNuggies1").tryPurchaseOne();
+      for (let i = 0; i < 10; i++) gameState.getCurrency("aoi.compressedNuggies2").tryPurchaseOne();
+      gameState.getCurrency("aoi.motivationResearch").tryPurchaseOne();
+      for (let i = 0; i < 4; i++) gameState.getCurrency("aoi.smellWafter").tryPurchaseOne();
+      gameState.getCurrency("aoi.nuggieDog").tryPurchaseOne();
+      for (let i = 0; i < 6; i++) gameState.getCurrency("aoi.nuggieDog1").tryPurchaseOne();
+      for (let i = 0; i < 6; i++) gameState.getCurrency("aoi.nuggieDog2").tryPurchaseOne();
+      for (let i = 0; i < 8; i++) gameState.getCurrency("aoi.nuggieFlavorTechnique").tryPurchaseOne();
+      for (let i = 0; i < 6; i++) gameState.getCurrency("aoi.nuggieMagnet").tryPurchaseOne();
 
-      // T2 testing
-      gameState.getCurrency("nuggie").addAmount(100000000n);
-      gameState.getCurrency("heckie").addAmount(100000000n);
-      gameState.getCurrency("aoiT2Unlock").tryPurchaseOne();
-      for (let i = 0; i < 20; i++) gameState.getCurrency("heckieGenerator1").tryPurchaseOne();
-      for (let i = 0; i < 20; i++) gameState.getCurrency("heckieGenerator2").tryPurchaseOne();
-      for (let i = 0; i < 20; i++) gameState.getCurrency("heckieGenerator3").tryPurchaseOne();
-      gameState.getCurrency("aoiRhythmGames").tryPurchaseOne();
+      gameState.getCurrency("aoi.aoiT2Unlock").tryPurchaseOne();
+
+      for (let i = 0; i < 20; i++) gameState.getCurrency("aoi.heckieGenerator1").tryPurchaseOne();
+      for (let i = 0; i < 20; i++) gameState.getCurrency("aoi.heckieGenerator2").tryPurchaseOne();
+      for (let i = 0; i < 20; i++) gameState.getCurrency("aoi.heckieGenerator3").tryPurchaseOne();
+      for (let i = 0; i < 10; i++) gameState.getCurrency("aoi.hiGuys").tryPurchaseOne();
+      for (let i = 0; i < 6; i++) gameState.getCurrency("aoi.konkonmori").tryPurchaseOne();
+      for (let i = 0; i < 1; i++) gameState.getCurrency("aoi.aoiStreamDelay").tryPurchaseOne();
+      for (let i = 0; i < 0; i++) gameState.getCurrency("aoi.aoiStreamDelay2").tryPurchaseOne();
+      for (let i = 0; i < 10; i++) gameState.getCurrency("aoi.aoiBackseating").tryPurchaseOne();
+      for (let i = 0; i < 4; i++) gameState.getCurrency("aoi.aoiKaraoke").tryPurchaseOne();
+      for (let i = 0; i < 0; i++) gameState.getCurrency("aoi.aoiBullying").tryPurchaseOne();
+      for (let i = 0; i < 0; i++) gameState.getCurrency("aoi.aoiRhythmGames").tryPurchaseOne();
+      for (let i = 0; i < 8; i++) gameState.getCurrency("aoi.aoiMunchies").tryPurchaseOne();
+      for (let i = 0; i < 2; i++) gameState.getCurrency("aoi.aoiMunchies2").tryPurchaseOne();
+      for (let i = 0; i < 0; i++) gameState.getCurrency("aoi.aoiMunchies3").tryPurchaseOne();
 
       // Current max rate, about 2 hrs of playing
       // Max rate: 12232.50/s → 48930.00/s
-    }
 
-    this.minigameCallbacks = {
-      gameTick: (_: number) => { }
-    };
+      // Iku stuff
+
+      // ~2 hours of play
+      gameState.getCurrency("iku.ikumin").addAmount(750000n);
+      gameState.getCurrency("iku.furifuri").addAmount(350000n);
+      for (let i = 0; i < 1; i++) gameState.getCurrency("iku.gardeningRD").tryPurchaseOne();
+      for (let i = 0; i < 9; i++) gameState.getCurrency("iku.fertileSoil").tryPurchaseOne();
+      for (let i = 0; i < 6; i++) gameState.getCurrency("iku.fertileSoil1").tryPurchaseOne();
+      for (let i = 0; i < 10; i++) gameState.getCurrency("iku.fertileSoil2").tryPurchaseOne();
+      for (let i = 0; i < 15; i++) gameState.getCurrency("iku.himeJuice").tryPurchaseOne();
+      for (let i = 0; i < 10; i++) gameState.getCurrency("iku.himeJuice2").tryPurchaseOne();
+      for (let i = 0; i < 6; i++) gameState.getCurrency("iku.wateringArea").tryPurchaseOne();
+      for (let i = 0; i < 6; i++) gameState.getCurrency("iku.wateringSprinkler").tryPurchaseOne();
+      for (let i = 0; i < 1; i++) gameState.getCurrency("iku.yeetingGroupHug").tryPurchaseOne();
+      for (let i = 0; i < 5; i++) gameState.getCurrency("iku.yeetingArea").tryPurchaseOne();
+      for (let i = 0; i < 5; i++) gameState.getCurrency("iku.ikuminVariety").tryPurchaseOne();
+      for (let i = 0; i < 10; i++) gameState.getCurrency("iku.ikuminBlue").tryPurchaseOne();
+      for (let i = 0; i < 10; i++) gameState.getCurrency("iku.ikuminVaporwave").tryPurchaseOne();
+      for (let i = 0; i < 10; i++) gameState.getCurrency("iku.ikuminSky").tryPurchaseOne();
+      for (let i = 0; i < 10; i++) gameState.getCurrency("iku.ikuminNeapolitan").tryPurchaseOne();
+      for (let i = 0; i < 10; i++) gameState.getCurrency("iku.ikuminRainbow").tryPurchaseOne();
+
+      for (let i = 0; i < 5; i++) gameState.getCurrency("iku.ikuminBlueBuff").tryPurchaseOne();
+      for (let i = 0; i < 1; i++) gameState.getCurrency("iku.ikuminVaporwaveBuff").tryPurchaseOne();
+      for (let i = 0; i < 10; i++) gameState.getCurrency("iku.sunscaper",).tryPurchaseOne();
+      for (let i = 0; i < 1; i++) gameState.getCurrency("iku.ikuminNeapolitanBuff").tryPurchaseOne();
+      for (let i = 0; i < 1; i++) gameState.getCurrency("iku.t2Unlock").tryPurchaseOne();
+      gameState.getCurrency("iku.t2Unlock").tryPurchaseOne();
+
+      for (let i = 0; i < 20; i++) gameState.getCurrency("iku.furifuriGenerator1").tryPurchaseOne();
+      for (let i = 0; i < 20; i++) gameState.getCurrency("iku.furifuriGenerator2").tryPurchaseOne();
+      for (let i = 0; i < 20; i++) gameState.getCurrency("iku.furifuriGenerator3").tryPurchaseOne();
+      for (let i = 0; i < 0; i++) gameState.getCurrency("iku.educationMulti1").tryPurchaseOne();
+      for (let i = 0; i < 0; i++) gameState.getCurrency("iku.furifuriBuff2").tryPurchaseOne();
+      for (let i = 0; i < 1; i++) gameState.getCurrency("iku.decree1").tryPurchaseOne();
+      for (let i = 0; i < 1; i++) gameState.getCurrency("iku.decree2").tryPurchaseOne();
+      for (let i = 0; i < 7; i++) gameState.getCurrency("iku.himeLove").tryPurchaseOne();
+      for (let i = 0; i < 0; i++) gameState.getCurrency("iku.ikuminEatWell").tryPurchaseOne();
+      for (let i = 0; i < 10; i++) gameState.getCurrency("iku.furifuriBuff1").tryPurchaseOne();
+      for (let i = 0; i < 1; i++) gameState.getCurrency("iku.himeLove1").tryPurchaseOne();
+
+      // Debug stuff
+      gameState.getCurrency("aoi.heckie").addAmount(1000000n);
+      gameState.getCurrency("iku.furifuri").addAmount(1000000n);
+    }
   }
 
   componentDidMount() {
@@ -116,11 +188,11 @@ class App extends React.Component {
       secondsPassed += time;
     }
 
-    if (!this.showUnlockArea && this.gameState.getNumCharacterUnlocks() > 0) {
+    if (!this.showUnlockArea && this.gameState.getNumCharacterUnlocks() > 0 && SORTED_CHARACTER_IDS.length - this.gameState.getCharactersUnlocked().length > 0) {
       this.showUnlockArea = true;
     }
 
-    this.minigameCallbacks.gameTick(time);
+    this.hooks.gameTick.forEach((gameTick) => gameTick(time));
     this.gameState.gameTick(time);
 
     // Tell ReactJS to render
@@ -133,13 +205,23 @@ class App extends React.Component {
   render() {
     let currentAgentArea = null;
     switch (this.selectedCharacter) {
+      case "iku":
+        currentAgentArea = this.ikuScene;
+        break;
+
       case "aoi":
-        currentAgentArea = (<AoiArea
-          gameState={this.gameState}
-          aoiMinigameCallbacks={this.minigameCallbacks}
-        />);
+        currentAgentArea = this.aoiScene;
+        break;
+
       default:
         break;
+    }
+
+    const unlockedCharacters = SORTED_CHARACTER_IDS.filter((id) => this.gameState.getCharactersUnlocked().includes(id));
+    const numRows = Math.ceil(unlockedCharacters.length / 4.0);
+    const characterRows: string[][] = [];
+    for (let i = 0; i < numRows; i++) {
+      characterRows.push(unlockedCharacters.slice(i * unlockedCharacters.length / numRows, (i + 1) * unlockedCharacters.length / numRows));
     }
 
     return (
@@ -147,13 +229,19 @@ class App extends React.Component {
         {this.showUnlockArea ? (<AgentUnlockArea gameState={this.state.gameState} characterUnlockedCallback={(id) => { this.selectedCharacter = id; window.scrollTo(0, 0); setTimeout(() => { this.showUnlockArea = false; }, 500) }} />) : null}
 
         {this.gameState.getCharactersUnlocked().length > 1 ? (
-          <div style={{ display: "flex" }}>
-            {SORTED_CHARACTER_IDS.filter((id) => this.gameState.getCharactersUnlocked().includes(id)).map((id) => {
+          <div>
+            {characterRows.map((row) => {
               return (
-                <div key={id} className={`topbar-character-select-item ${this.selectedCharacter == id ? "selected" : ""}`} onMouseDown={() => { this.selectedCharacter = id; }}>
-                  <img src={PORTRAIT_IMAGES[id]} className="topbar-character-select-img" />
-                  <p className="topbar-character-select-text" style={{ color: COLOR_SCHEMES[id].backgroundColor }}>{t(`character.${id}.name`)}</p>
-                  <p className="topbar-character-select-text" style={{ color: COLOR_SCHEMES[id].textColor }}>{t(`character.${id}.name`)}</p>
+                <div key={row[0]} style={{ display: "flex", marginBottom: "2px" }}>
+                  {row.map((id) => {
+                    return (
+                      <div key={id} className={`topbar-character-select-item ${this.selectedCharacter == id ? "selected" : ""}`} onMouseDown={() => { this.selectedCharacter = id; }}>
+                        <img className="topbar-character-select-img" src={PORTRAIT_IMAGES[id]} />
+                        <p className="topbar-character-select-text" style={{ color: COLOR_SCHEMES[id].backgroundColor }}>{t(`character.${id}.name`)}</p>
+                        <p className="topbar-character-select-text" style={{ color: COLOR_SCHEMES[id].textColor }}>{t(`character.${id}.name`)}</p>
+                      </div>
+                    )
+                  })}
                 </div>
               )
             })}
@@ -165,15 +253,15 @@ class App extends React.Component {
             {currentAgentArea}
           </div>) : null}
 
-        <p style={{ fontSize: "8pt", position: "absolute", bottom: "0", left: "0", margin: "8px 16px" }}>Version 2022-07-25</p>
+        <p style={{ fontSize: "8pt", position: "absolute", bottom: "0", left: "0", margin: "8px 16px" }}>Version 2022-08-18.0</p>
         <div style={{ fontSize: "8pt", position: "absolute", bottom: "0", right: "0", margin: "8px 16px" }}><span className="tooltip-trigger">[?]<div className="tooltip-box" style={{ bottom: "6px", right: "6px", width: "400px" }}><b>Disclaimer:</b> We are not affiliated with PRISM Project. PRISM Idle is a non-commercial fan project made in accordance to PRISM Project's Creation Guidelines (<a target="_blank" rel="noopener noreferrer" href="https://www.prismproject.jp/terms">https://www.prismproject.jp/terms</a>). The depictions of PRISM Project's contents in this fan project are not intended to be accurate to their real-life counterparts.</div></span> PRISM Idle by <a target="_blank" rel="noopener noreferrer" href="https://twitter.com/ToasterKoishi">Toaster</a></div>
 
         {TOTER_DEBUG ? (
           <div style={{ position: "fixed", top: "0", right: "0", margin: "0", color: "red", background: "black" }}>
-            <b>DEBUG TIME PASSED: {(secondsPassed / 60).toFixed(0)}:{(secondsPassed % 60).toFixed(0).padStart(2, "0")}&nbsp;</b>
+            <b>DEBUG TIME PASSED: {Math.floor(Math.floor(secondsPassed) / 60).toFixed(0)}:{(Math.floor(secondsPassed) % 60).toFixed(0).padStart(2, "0")}&nbsp;</b>
             <button onClick={() => { timeStep = 0.0; }}>Pause</button>
             <button onClick={() => { timeStep = 1.0; }}>1x</button>
-            <button onClick={() => { timeStep = 10.0; }}>10x</button>
+            <button onClick={() => { timeStep = 5.0; }}>5x</button>
           </div>
         ) : null}
       </div>
@@ -190,6 +278,12 @@ const PORTRAIT_IMAGES = {
   iku: iku,
   aoi: aoi,
   meno: meno,
+  luto: luto,
+  rita: rita,
+  shiki: shiki,
+  nia: nia,
+  yura: yura,
+  pina: pina,
 }
 
 class AgentUnlockArea extends React.Component {
@@ -256,125 +350,6 @@ class AgentUnlockArea extends React.Component {
         </div>
       </div>
     );
-  }
-}
-
-class AoiArea extends React.Component {
-  props: {
-    gameState: GameState,
-    aoiMinigameCallbacks: { gameTick: (_: number) => void }
-  };
-
-  state: {
-    t1Open: boolean,
-    t2Open: boolean,
-  } = {
-      t1Open: true,
-      t2Open: true,
-    };
-
-  render() {
-    const aoiT1Currencies = [
-      "airFryer",
-      "airFryer1",
-      "airFryer2",
-      "wcbonalds",
-      "wcbonalds1",
-      "compressedNuggies1",
-      "compressedNuggies2",
-      "smellWafter",
-      "nuggieDog",
-      "nuggieDog1",
-      "nuggieDog2",
-      "nuggieFlavorTechnique",
-      "nuggieMagnet",
-      "motivationResearch",
-      "aoiT2Unlock",
-    ];
-
-    const aoiT2Currencies = [
-      "heckieGenerator1",
-      "heckieGenerator2",
-      "heckieGenerator3",
-    ];
-
-    const aoiT2Skills = [
-      "hiGuys",
-      "konkonmori",
-      "aoiStreamDelay",
-      "aoiStreamDelay2",
-      //"aoiStreamDelay3",
-      "aoiBackseating",
-      "aoiKaraoke",
-      "aoiBullying",
-      "aoiRhythmGames",
-      "aoiMunchies",
-      "aoiMunchies2",
-      "aoiMunchies3",
-      "aoiT3Unlock",
-    ];
-
-    const heckieGeneratorEnabled = this.props.gameState.getGenerator("heckie").enabled;
-
-    return (
-      <div style={{ fontFamily: "Verdana, Geneva, Tahoma, sans-serif", position: "relative", padding: "16px 0 500px", margin: "auto", minHeight: "100%", backgroundColor: "aliceblue" }}>
-        <AoiMinigameArea gameState={this.props.gameState} callbacks={this.props.aoiMinigameCallbacks} />
-
-        <div style={{ textAlign: "center", margin: "16px auto" }}>
-          <b>{t("character.aoi.nameFull")}</b> Tier I Upgrades <button onClick={() => { this.state.t1Open = !this.state.t1Open; this.setState(this.state); }}>{this.state.t1Open ? "Hide" : "Show"}</button>
-        </div>
-
-        <div style={{ textAlign: "center", margin: "16px auto" }}>
-          <b>Nuggies</b>: {this.props.gameState.getCurrency("nuggie").getCurrentAmountShort()}
-        </div>
-
-        {this.state.t1Open ? (
-          <div>
-            <ShopAreaComponent gameState={this.props.gameState} currencyIdsToShow={aoiT1Currencies} />
-          </div>
-        ) : null}
-
-        <div className="shop-divider" />
-
-        {this.props.gameState.getCurrency("heckie").getIsRevealed() ? (
-          <div>
-            <div style={{ textAlign: "center", margin: "16px auto" }}>
-              <b>{t("character.aoi.nameFull")}</b> Tier II Upgrades <button onClick={() => { this.state.t2Open = !this.state.t2Open; this.setState(this.state); }}>{this.state.t2Open ? "Hide" : "Show"}</button>
-            </div>
-
-            <div>
-              <div style={{ display: "flex", justifyContent: "center", gap: "8px", margin: "16px auto 0px" }}>
-                <p style={{ textAlign: "right", flexBasis: "0", flexGrow: "1" }}>{this.props.gameState.getCurrency("nuggie").getCurrentAmountShort()} | <b>NUGGIES</b></p>
-                <div style={{ visibility: heckieGeneratorEnabled ? "visible" : "hidden" }}>
-                  <span style={{ animation: "small-pulsate-0 1.5s infinite" }}>{">"}</span>
-                  <span style={{ animation: "small-pulsate-1 1.5s infinite" }}>{">"}</span>
-                  <span style={{ animation: "small-pulsate-2 1.5s infinite" }}>{">"}</span>
-                </div>
-                <button style={{ width: "45px" }} onClick={() => { this.props.gameState.getGenerator("heckie").enabled = !heckieGeneratorEnabled; this.setState(this.state); }}>
-                  {heckieGeneratorEnabled ? "ON" : "OFF"}
-                </button>
-                <div style={{ visibility: heckieGeneratorEnabled ? "visible" : "hidden" }}>
-                  <span style={{ animation: "small-pulsate-0 1.5s infinite" }}>{">"}</span>
-                  <span style={{ animation: "small-pulsate-1 1.5s infinite" }}>{">"}</span>
-                  <span style={{ animation: "small-pulsate-2 1.5s infinite" }}>{">"}</span>
-                </div>
-                <p style={{ textAlign: "left", flexBasis: "0", flexGrow: "1" }}><b>HECKIES</b> | {this.props.gameState.getCurrency("heckie").getCurrentAmountShort()}</p>
-              </div>
-              <div style={{ textAlign: "center", margin: "6px auto 0px" }}>
-                (Max rate: {this.props.gameState.getResolvedValue("heckieGeneratorIn").resolve().toFixed(2)}/s → {this.props.gameState.getResolvedValue("heckieGeneratorOut").resolve().toFixed(2)}/s)
-              </div>
-            </div>
-            {this.state.t2Open ? (
-              <div>
-                <ShopAreaComponent gameState={this.props.gameState} currencyIdsToShow={aoiT2Currencies} />
-                <ShopAreaComponent gameState={this.props.gameState} currencyIdsToShow={aoiT2Skills} />
-              </div>
-            ) : null}
-
-            <div className="shop-divider" />
-          </div>
-        ) : null}
-      </div>);
   }
 }
 

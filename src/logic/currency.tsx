@@ -21,7 +21,7 @@ export class Currency {
 
   // Technical info
   #gameState: GameState;
-  costToPurchaseOne: Cost[] = [];
+  costToPurchaseOne: () => Cost[] = () => [];
   #isUnlocked: boolean = true; // Things can be revealed but still locked, and show an unlock condiiton
   unlockRequirements: Cost[] = [];
   #isRevealed: boolean = false;
@@ -54,7 +54,14 @@ export class Currency {
   registerI18N = (v: CurrencyI18N) => { this.i18n = { ...this.i18n, ...v }; return this; }
   registerPurchaseWordingType = (v: number) => { this.purchaseWordingType = v; return this; }
   registerMaximumStock = (v: bigint) => { this.maximumStock = v; return this; }
-  registerCostToPurchaseOne = (v: Cost[]) => { this.costToPurchaseOne = v; return this; }
+  registerCostToPurchaseOne = (v: Cost[] | (() => Cost[])) => { 
+    if (typeof v == "function") {
+      this.costToPurchaseOne = v;
+    } else {
+      this.costToPurchaseOne = () => v;
+    }
+    return this;
+  }
   registerCanPurchaseOne = (f: () => boolean) => { this.canPurchaseOne = f; return this; }
   registerUnlockRequirements = (v: Cost[]) => { this.#isUnlocked = false; this.unlockRequirements = v; return this; }
   registerCalculateIsRevealed = (f: () => boolean) => { this.calculateIsRevealed = f; return this; }
@@ -125,7 +132,6 @@ export class Currency {
   getNextAmount = () => this.#nextValues.amount;
   getNextPurchasedAmount = () => this.#nextValues.amountPurchased;
   getNextPurchasedAmountShort = () => Number(this.#nextValues.amountPurchased);
-  getNextMaximumAmount = () => this.#nextValues.maximumAmount;
   swapFrameBuffer = () => {
     if (
       this.#currentValues.fractionalAmount != this.#nextValues.fractionalAmount ||
@@ -145,6 +151,7 @@ export class Currency {
   }
 
   // Purchasing
+  getMaximumStock = () => this.maximumStock;
   isInStock = () => {
     return this.maximumStock < 0 || this.#nextValues.amount < this.maximumStock;
   }
@@ -152,7 +159,7 @@ export class Currency {
     if (!this.calculateIsUnlocked()) {
       return false;
     }
-    for (const cost of this.costToPurchaseOne) {
+    for (const cost of this.costToPurchaseOne()) {
       if (cost.currency.getNextAmount() < cost.calculateCost(this.#gameState)) {
         return false;
       }
@@ -165,7 +172,7 @@ export class Currency {
   tryPurchaseOne = () => {
     if (this.canPurchaseOne()) {
       // TODO: There's definitely some sort of bug here with costs that calculate based off other currencies that are also costs, but there likely won't be any costs like that
-      for (const cost of this.costToPurchaseOne) {
+      for (const cost of this.costToPurchaseOne()) {
         cost.currency.#nextValues.amount -= cost.calculateCost(this.#gameState);
       }
 

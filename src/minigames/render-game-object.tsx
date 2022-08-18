@@ -1,5 +1,5 @@
 import React from "react";
-import { Vec2 } from "../util";
+import { generateUUID, vec2, Vec2 } from "../util";
 
 interface RenderGameObjectProps {
   position: Vec2,
@@ -39,5 +39,44 @@ export class RenderGameObject extends React.Component {
         />
       </div>
     );
+  }
+}
+
+export class LogicFloatingNumber {
+  id: number = generateUUID();
+  lifetime: number = 1.0;
+  renderObject: React.ReactElement<RenderFloatingNumber>;
+  constructor(position: Vec2, text: string, textStyle: string, direction: string = "up") {
+    this.renderObject =
+      <RenderFloatingNumber
+        key={this.id}
+        position={vec2(Math.round(position.x), Math.round(position.y))}
+        text={text}
+        textStyle={textStyle}
+        direction={direction}
+      />
+  }
+  gameTick = (time: number) => {
+    this.lifetime -= time;
+  }
+}
+
+export class RenderFloatingNumber extends React.Component {
+  props: {
+    position: Vec2,
+    text: string,
+    textStyle: string,
+    direction: string,
+  };
+  render() {
+    return (
+      <div className="floating-number-outer" style={{
+        left: `${this.props.position.x - 100}px`,
+        top: `${this.props.position.y - 10}px`,
+        animation: `floating-number-${this.props.direction} 1s forwards`,
+      }}>
+        <p className={this.props.textStyle}><b>{this.props.text}</b></p>
+      </div>
+    )
   }
 }

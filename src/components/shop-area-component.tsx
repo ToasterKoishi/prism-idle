@@ -16,8 +16,7 @@ export class ShopAreaComponent extends React.Component {
   }
 
   render() {
-    const currencies = this.props.gameState.currencies;
-    const currenciesToShow = this.props.currencyIdsToShow.map((currency) => currencies.get(currency));
+    const currenciesToShow = this.props.currencyIdsToShow.map((currency) => this.props.gameState.getCurrency(currency));
     const soldOutCurrencies: Currency[] = [];
     const inStockCurrencies: Currency[] = [];
     currenciesToShow.forEach((currency) => {

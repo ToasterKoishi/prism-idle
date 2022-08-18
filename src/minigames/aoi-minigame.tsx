@@ -1,13 +1,14 @@
 import { t } from "i18next";
 import React from "react";
 import "../app.css";
+import { ActivePassiveToggle } from "../components/basic-components";
 import { AOI_BOOST_PER_NFT, AOI_DOG_SPEED, BASE_AOI_SPEED, BASE_WCBONALDS_POSITION, NUGGIE_HIT_RADIUS, NUGGIE_MAGNET_AREA_EACH, SCENE_SIZE, SMELL_WAFTER_MOVE_SPEED_BONUS_PERCENT } from "../const";
 import aoi from "../img/aoi.png";
 import dog from "../img/dog.png";
 import nuggies from "../img/nuggies.png";
 import { GameState } from "../logic/game-state";
 import { degToRad, generateUUID, Vec2, vec2 } from "../util";
-import { RenderGameObject } from "./render-game-object";
+import { LogicFloatingNumber, RenderGameObject } from "./render-game-object";
 
 const RHYTHM_GAME_TIMING_WINDOW = 0.2;
 
@@ -16,24 +17,23 @@ class LogicNuggie {
   position = vec2();
   velocity = vec2(); // Lol
   rotation = Math.floor(Math.random() * 16.0);
-  scale = Math.random() * 0.2 + 0.9;
-  spawningTime = 1.0;
+  spawnProgress = 1.0;
   isDespawning = false;
-  despawningTime = 1.0;
+  despawnProgress = 1.0;
   lifetime = 120.0;
 
   isCompressed = false;
 
   constructor(gameState: GameState, position: Vec2, velocity: Vec2 = vec2()) {
-    this.position = position;
-    this.velocity = velocity;
-    this.isCompressed = Math.random() < gameState.getResolvedValue("compressedNuggiesRate").resolve();
+    this.position.set(position);
+    this.velocity.set(velocity);
+    this.isCompressed = Math.random() < gameState.getResolvedValue("aoi.compressedNuggiesRate").resolve();
   }
 
   gameTick = (time: number) => {
-    this.spawningTime -= time / 0.4;
+    this.spawnProgress -= time / 0.4;
     if (this.isDespawning) {
-      this.despawningTime -= time / 0.3;
+      this.despawnProgress -= time / 0.3;
     }
 
     this.lifetime -= time;
@@ -69,48 +69,12 @@ class LogicNuggie {
   }
 }
 
-class LogicFloatingNumber {
-  id: number = generateUUID();
-  lifetime: number = 1.0;
-  renderObject: any;
-  constructor(position: Vec2, text: string, textStyle: string) {
-    this.renderObject =
-      <RenderFloatingNumber
-        key={this.id}
-        position={vec2(Math.round(position.x), Math.round(position.y))}
-        text={text}
-        textStyle={textStyle}
-      />
-  }
-  gameTick = (time: number) => {
-    this.lifetime -= time;
-  }
-}
-
-class RenderFloatingNumber extends React.Component {
-  props: {
-    position: Vec2,
-    text: string,
-    textStyle: string,
-  };
-  render() {
-    return (
-      <div className="floating-number-outer" style={{
-        left: `${this.props.position.x - 100}px`,
-        top: `${this.props.position.y - 10}px`,
-      }}>
-        <p className={this.props.textStyle}><b>{this.props.text}</b></p>
-      </div>
-    )
-  }
-}
-
 interface AoiMinigameAreaProps {
-  callbacks: { gameTick: (_: number) => void }
+  hooks: { gameTick: ((_: number) => void)[] }
   gameState: GameState
 }
 
-interface AoiMinigameAreaState {
+export interface AoiMinigameAreaState {
   awowi: {
     position: Vec2,
     boost: number,
@@ -174,25 +138,35 @@ export class AoiMinigameArea extends React.Component {
         flickerColor: "#000000"
       }
     };
-
-    props.callbacks.gameTick = this.gameTick;
   }
 
-  handleOnMouseMove = (e) => {
+  componentDidMount(): void {
+    this.props.hooks.gameTick.push(this.gameTick);
+    if (this.props.gameState.liveState.aoiMinigame) {
+      Object.assign(this.state, this.props.gameState.liveState.aoiMinigame);
+    }
+  }
+
+  componentWillUnmount(): void {
+    this.props.hooks.gameTick.splice(this.props.hooks.gameTick.indexOf(this.gameTick), 1);
+    this.props.gameState.liveState.aoiMinigame = this.state;
+  }
+
+  handleOnMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const parentRect = e.currentTarget.getBoundingClientRect();
     this.mousePos.x = e.clientX - parentRect.left;
     this.mousePos.y = e.clientY - parentRect.top;
   }
 
-  handleOnMouseOver = (e) => {
+  handleOnMouseOver = (e: React.MouseEvent<HTMLDivElement>) => {
     this.shouldMoveAoi = true;
   }
 
-  handleOnMouseOut = (e) => {
-    // this.shouldMoveAoi = false;
+  handleOnMouseOut = (e: React.MouseEvent<HTMLDivElement>) => {
+    this.shouldMoveAoi = false;
   }
 
-  handleOnMouseDown = (e) => {
+  handleOnMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.button == 0) {
       if (this.state.rhythmGame.timer < RHYTHM_GAME_TIMING_WINDOW) {
         this.setState((state: AoiMinigameAreaState) => {
@@ -219,18 +193,16 @@ export class AoiMinigameArea extends React.Component {
       }
     }
   }
-  componentDidMount(): void {
-  }
 
   gameTick = (time: number) => {
-    if (this.props.gameState.getGenerator("nuggie").enabled) {
+    if (this.props.gameState.getGenerator("aoi.nuggie").enabled) {
       return;
     }
 
     if (time > 60.0) {
       // Don't run the game simulation if it's too large an amount of time to prevent insane lag
-      // Grant some pity nuggies equivalent to running in passive mode for that period of time
-      this.props.gameState.getCurrency("nuggie").addFractionalAmount(this.props.gameState.getResolvedValue("nuggieGenerator").resolve() * time);
+      // Grant some pity equivalent to running in passive mode for that period of time
+      this.props.gameState.getCurrency("aoi.nuggie").addFractionalAmount(this.props.gameState.getResolvedValue("aoi.nuggieGenerator").resolve() * time);
       return;
     }
 
@@ -247,8 +219,8 @@ export class AoiMinigameArea extends React.Component {
       state.awowi.boost -= boostTime;
       if (this.shouldMoveAoi) {
         const dist = this.mousePos.minus(state.awowi.position);
-        const boostedDistance = boostTime * gameState.getCurrency("nuggieFlavorTechnique").getCurrentAmountShort() * AOI_BOOST_PER_NFT;
-        const maxDistToMove = time * BASE_AOI_SPEED * (1.0 + (SMELL_WAFTER_MOVE_SPEED_BONUS_PERCENT / 100.0) * Number(gameState.getCurrency("smellWafter").getCurrentAmount())) + boostedDistance;
+        const boostedDistance = boostTime * gameState.getCurrency("aoi.nuggieFlavorTechnique").getCurrentAmountShort() * AOI_BOOST_PER_NFT;
+        const maxDistToMove = time * BASE_AOI_SPEED * (1.0 + (SMELL_WAFTER_MOVE_SPEED_BONUS_PERCENT / 100.0) * Number(gameState.getCurrency("aoi.smellWafter").getCurrentAmount())) + boostedDistance;
         if (dist.mag() <= maxDistToMove) {
           state.awowi.position.set(this.mousePos);
         } else {
@@ -263,8 +235,8 @@ export class AoiMinigameArea extends React.Component {
         const distance2 = distance.mag();
 
         // Magnet
-        const magnetRange = Math.sqrt(NUGGIE_MAGNET_AREA_EACH * gameState.getCurrency("nuggieMagnet").getCurrentAmountShort());
-        if (nuggie.spawningTime <= 0.0 && magnetRange > 0) {
+        const magnetRange = Math.sqrt(NUGGIE_MAGNET_AREA_EACH * gameState.getCurrency("aoi.nuggieMagnet").getCurrentAmountShort());
+        if (nuggie.spawnProgress <= 0.0 && magnetRange > 0) {
           if (distance2 < magnetRange) {
             nuggie.velocity = vec2();
             nuggie.position.plusEquals(distance.unit().times(-1 * time * 4.0 * (magnetRange)));
@@ -274,23 +246,23 @@ export class AoiMinigameArea extends React.Component {
         nuggie.gameTick(time);
 
         // Check if it's eaten
-        if (nuggie.spawningTime <= 0.0 && !nuggie.isDespawning && distance2 <= NUGGIE_HIT_RADIUS) {
+        if (nuggie.spawnProgress <= 0.0 && !nuggie.isDespawning && distance2 <= NUGGIE_HIT_RADIUS) {
           const amountGained = this.amountGainedForNuggie(nuggie);
-          gameState.getCurrency("nuggie").addFractionalAmount(amountGained);
+          gameState.getCurrency("aoi.nuggie").addFractionalAmount(amountGained);
           this.floatingNumbers.push(new LogicFloatingNumber(nuggie.position, `+${amountGained.toFixed(2).replace(/\.?0+$/, '')}${nuggie.isCompressed ? "!" : ""}`, nuggie.isCompressed ? "floating-number-inner-crit" : "floating-number-inner"));
           nuggie.onNuggieEaten();
           anyNuggieEaten = true;
         }
 
         // Remove when fully despawned
-        return nuggie.despawningTime > 0.0;
+        return nuggie.despawnProgress > 0.0;
       });
 
       // Update dog
       if (!state.dog.enabled) {
         state.dog.position.set(state.awowi.position);
       }
-      state.dog.enabled = gameState.getCurrency("nuggieDog").getCurrentAmount() > 0;
+      state.dog.enabled = gameState.getCurrency("aoi.nuggieDog").getCurrentAmount() > 0;
       if (state.dog.enabled) {
         if (state.dog.workTime <= 0.0) {
           // Acquire target
@@ -316,7 +288,7 @@ export class AoiMinigameArea extends React.Component {
             // Collect nuggies one time instantaneously when dog stops
             state.nuggieList.forEach((nuggie) => {
               const distance = nuggie.position.minus(state.dog.position).mag();
-              if (nuggie.spawningTime <= 0.0 && !nuggie.isDespawning && distance <= gameState.calculateNuggieDogHitRadius()) {
+              if (nuggie.spawnProgress <= 0.0 && !nuggie.isDespawning && distance <= gameState.calculateNuggieDogHitRadius()) {
                 state.dog.nuggiesCollected += this.amountGainedForNuggie(nuggie);
                 nuggie.onNuggieEaten();
               }
@@ -341,7 +313,7 @@ export class AoiMinigameArea extends React.Component {
 
             // Attempt drop-off one time instantaneously when dog stops
             if (state.awowi.position.minus(state.dog.position).mag() <= NUGGIE_HIT_RADIUS && state.dog.nuggiesCollected > 0n) {
-              gameState.getCurrency("nuggie").addFractionalAmount(state.dog.nuggiesCollected);
+              gameState.getCurrency("aoi.nuggie").addFractionalAmount(state.dog.nuggiesCollected);
               this.floatingNumbers.push(new LogicFloatingNumber(state.awowi.position, `+${state.dog.nuggiesCollected.toFixed(2).replace(/\.?0+$/, '')}`, "floating-number-inner-dog"));
               state.dog.nuggiesCollected = 0.0;
               anyNuggieEaten = true;
@@ -355,7 +327,7 @@ export class AoiMinigameArea extends React.Component {
       }
 
       // NFT (Nuggie Flavor Technique)
-      if (anyNuggieEaten && gameState.getCurrency("nuggieFlavorTechnique").getCurrentAmountShort() > 0) {
+      if (anyNuggieEaten && gameState.getCurrency("aoi.nuggieFlavorTechnique").getCurrentAmountShort() > 0) {
         state.awowi.boost = 0.1;
       }
 
@@ -368,8 +340,8 @@ export class AoiMinigameArea extends React.Component {
       // Spawn randomly-spawning nuggies
       state.timeToNextNuggie -= time;
       if (state.timeToNextNuggie <= 0.0) {
-        state.timeToNextNuggie += gameState.getResolvedValue("airFryerRate").resolve();
-        const numNuggiesToSpawn = gameState.getResolvedValue("airFryerAmount").resolve();
+        state.timeToNextNuggie += gameState.getResolvedValue("aoi.airFryerRate").resolve();
+        const numNuggiesToSpawn = gameState.getResolvedValue("aoi.airFryerAmount").resolve();
         for (let i = 0; i < numNuggiesToSpawn; i++) {
           state.nuggieList.push(new LogicNuggie(gameState,
             vec2(Math.random() * SCENE_SIZE.x, Math.random() * SCENE_SIZE.y),
@@ -381,9 +353,9 @@ export class AoiMinigameArea extends React.Component {
       // Spawn nuggies from delivery BUT ONLY IF AWOWI IS THERE!!!!!oneoneoneoe
       state.timeToNextDelivery -= time;
       if (state.timeToNextDelivery <= 0.0) {
-        state.timeToNextDelivery += gameState.getResolvedValue("wcbonaldsRate").resolve();
+        state.timeToNextDelivery += gameState.getResolvedValue("aoi.wcbonaldsRate").resolve();
         if (this.isAoiInDeliveryArea()) {
-          const numNuggiesToSpawn = gameState.getResolvedValue("wcbonaldsAmount").resolve();
+          const numNuggiesToSpawn = gameState.getResolvedValue("aoi.wcbonaldsAmount").resolve();
           for (let i = 0; i < numNuggiesToSpawn; i++) {
             const center = vec2(BASE_WCBONALDS_POSITION.left + BASE_WCBONALDS_POSITION.width / 2, BASE_WCBONALDS_POSITION.top + BASE_WCBONALDS_POSITION.height / 2);
             const radius = Math.random() * BASE_WCBONALDS_POSITION.height * 0.4;
@@ -417,12 +389,12 @@ export class AoiMinigameArea extends React.Component {
         this.state.nuggieList.forEach((nuggie) => {
           context.setTransform(1, 0, 0, 1, Math.floor(nuggie.position.x), Math.floor(nuggie.position.y));
 
-          if (nuggie.spawningTime > 0) {
-            context.rotate(nuggie.spawningTime);
-            context.globalAlpha = 1.0 - nuggie.spawningTime;
+          if (nuggie.spawnProgress > 0) {
+            context.rotate(nuggie.spawnProgress);
+            context.globalAlpha = 1.0 - nuggie.spawnProgress;
           } else if (nuggie.isDespawning) {
-            context.scale(nuggie.despawningTime, nuggie.despawningTime);
-            context.globalAlpha = nuggie.despawningTime;
+            context.scale(nuggie.despawnProgress, nuggie.despawnProgress);
+            context.globalAlpha = nuggie.despawnProgress;
           } else {
             context.globalAlpha = 1;
           }
@@ -435,7 +407,7 @@ export class AoiMinigameArea extends React.Component {
             -32, -32, 64, 64);
         });
 
-        if (gameState.getCurrency("aoiRhythmGames").getCurrentAmount() > 0n) {
+        if (gameState.getCurrency("aoi.aoiRhythmGames").getCurrentAmount() > 0n) {
           context.setTransform(1, 0, 0, 1, 0, 0);
           context.globalAlpha = 1.0;
           context.fillStyle = state.rhythmGame.flickerTime > 0 ? state.rhythmGame.flickerColor : "#000000";
@@ -471,39 +443,29 @@ export class AoiMinigameArea extends React.Component {
 
   amountGainedForNuggie: (_: LogicNuggie) => number = (nuggie: LogicNuggie) => {
     return (
-      (nuggie.isCompressed ? this.props.gameState.getResolvedValue("compressedNuggiesAmount").resolve() : 1.0)
-      * this.props.gameState.getResolvedValue("nuggieGlobalPercent").resolve() *
-      (1.0 + this.state.rhythmGame.combo * this.props.gameState.getCurrency("aoiRhythmGames").getCurrentAmountShort() * 0.01)
+      (nuggie.isCompressed ? this.props.gameState.getResolvedValue("aoi.compressedNuggiesAmount").resolve() : 1.0)
+      * this.props.gameState.getResolvedValue("aoi.nuggieGlobalPercent").resolve() *
+      (1.0 + this.state.rhythmGame.combo * this.props.gameState.getCurrency("aoi.aoiRhythmGames").getCurrentAmountShort() * 0.01)
     );
   }
 
   render() {
     const gameState = this.props.gameState;
-    const isActiveMode = !gameState.getGenerator("nuggie").enabled;
 
-    const deliveryVisibility = gameState.getCurrency("wcbonalds").getCurrentAmount() > 0 ? "visible" : "hidden";
-    const comboVisibility = gameState.getCurrency("aoiRhythmGames").getCurrentAmount() > 0 ? "visible" : "hidden";
+    const deliveryVisibility = gameState.getCurrency("aoi.wcbonalds").getCurrentAmount() > 0 ? "visible" : "hidden";
+    const comboVisibility = gameState.getCurrency("aoi.aoiRhythmGames").getCurrentAmount() > 0 ? "visible" : "hidden";
     const floatingNumbers = this.floatingNumbers.map((logicObject) => logicObject.renderObject);
 
     return (
       <div style={{ maxWidth: "960px", margin: "0 auto" }}>
         <div style={{ margin: "auto", textAlign: "center" }}>
-          <h1 style={{}}>{t("character.aoi.name")}'s Room</h1>
-          {gameState.getCurrency("aoiT2Unlock").getCurrentAmount() ? (
-            <div style={{ display: "flex", justifyContent: "center", gap: "8px", margin: "16px auto 0px" }}>
-              <p style={{ textAlign: "right", flexBasis: "0", flexGrow: "1", color: isActiveMode ? "black" : "lightgray" }}>Play minigame <b>| ACTIVE MODE</b></p>
-              <div>
-                <span style={{ visibility: isActiveMode ? "visible" : "hidden", animation: "small-pulsate-0 1.5s infinite" }}>{"<<<"}</span>
-              </div>
-              <button style={{ width: "60px" }} onClick={() => { gameState.getGenerator("nuggie").enabled = !gameState.getGenerator("nuggie").enabled; this.setState(this.state); }}>SWAP</button>
-              <div>
-                <span style={{ visibility: isActiveMode ? "hidden" : "visible", animation: "small-pulsate-0 1.5s infinite" }}>{">>>"}</span>
-              </div>
-              <div style={{ textAlign: "left", flexBasis: "0", flexGrow: "1", color: isActiveMode ? "lightgray" : "black" }}><b>PASSIVE MODE |</b> {gameState.getResolvedValue("nuggieGenerator").resolve().toFixed(2)} nuggies/s <span className="tooltip-trigger">[?]<div className="tooltip-box" style={{ bottom: "auto", top: "20" }}><b>Base generation:</b> {gameState.getResolvedValue("nuggieGeneratorBase").resolve().toFixed(2)} nuggies/s<br /><b>Motivation:</b> x{gameState.getResolvedValue("nuggieGeneratorMulti").resolve().toFixed(3)}</div></span></div>
-            </div>
-          ) : null}
-
-          {isActiveMode ? (
+          <h1 style={{}}>{t("minigame.aoi.name")}</h1>
+          <ActivePassiveToggle
+            gameState={this.props.gameState}
+            toggleEnabled={gameState.getCurrency("aoi.aoiT2Unlock").getCurrentAmount() > 0n}
+            generatorId="aoi.nuggie"
+            generatorHintElement={<span>{this.props.gameState.getResolvedValue("aoi.nuggieGenerator").resolve().toFixed(2)} nuggies/s <span className="tooltip-trigger">[?]<div className="tooltip-box" style={{ bottom: "auto", top: "20" }}><b>Base generation:</b> {gameState.getResolvedValue("aoi.nuggieGeneratorBase").resolve().toFixed(2)} nuggies/s<br /><b>Motivation:</b> x{gameState.getResolvedValue("aoi.nuggieGeneratorMulti").resolve().toFixed(3)}</div></span></span>}
+          >
             <div>
               <p style={{ margin: "16pt auto 16pt", textAlign: "left" }}>
                 {t("minigame.aoi.description")}</p>
@@ -566,11 +528,11 @@ export class AoiMinigameArea extends React.Component {
                   color: this.state.rhythmGame.flickerTime > 0 ? this.state.rhythmGame.flickerColor : "black",
                   userSelect: "none"
                 }}>
-                  <b>Combo: {this.state.rhythmGame.combo}/10 (x{(1.0 + this.state.rhythmGame.combo * gameState.getCurrency("aoiRhythmGames").getCurrentAmountShort() * 0.01).toFixed(2)})</b>
+                  <b>Combo: {this.state.rhythmGame.combo}/10 (x{(1.0 + this.state.rhythmGame.combo * gameState.getCurrency("aoi.aoiRhythmGames").getCurrentAmountShort() * 0.01).toFixed(2)})</b>
                 </div>
               </div>
             </div>
-          ) : null}
+          </ActivePassiveToggle>
         </div>
 
         <div className="shop-divider" />
