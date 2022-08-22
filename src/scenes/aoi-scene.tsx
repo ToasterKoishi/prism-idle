@@ -2,7 +2,6 @@ import { t } from "i18next";
 import React from "react";
 import { ConverterToggle, HideableArea } from "../components/basic-components";
 import { ShopAreaComponent } from "../components/shop-area-component";
-import { COLOR_SCHEMES } from "../const";
 import { GameState } from "../logic/game-state";
 import { AoiMinigameArea } from "../minigames/aoi-minigame";
 
@@ -42,7 +41,7 @@ export class AoiScene extends React.Component {
       "aoi.nuggieDog2",
       "aoi.nuggieDog",
       "aoi.motivationResearch",
-      "aoi.aoiT2Unlock",
+      "aoi.t2Unlock",
     ];
 
     const aoiT2Currencies = [
@@ -68,43 +67,50 @@ export class AoiScene extends React.Component {
     ];
 
     return (
-      <div style={{ fontFamily: "Verdana, Geneva, Tahoma, sans-serif", position: "relative", padding: "16px 0 500px", margin: "auto", minHeight: "100%", backgroundColor: COLOR_SCHEMES.aoi.backgroundColor }}>
+      <div className="character-area-full-container">
         <AoiMinigameArea gameState={this.props.gameState} hooks={this.props.hooks} />
 
-        <HideableArea
-          beforeButtonElement={(
-            <span><b>{t("character.aoi.nameFull")}</b> Tier I Upgrades&nbsp;</span>
-          )}
-          alwaysShownElement={(
-            <div style={{ textAlign: "center", margin: "16px auto" }}>
-              <b>Nuggies</b>: {this.props.gameState.getCurrency("aoi.nuggie").getCurrentAmountShort()}
-            </div>
-          )}
-          openOnlyElement={(
-            <ShopAreaComponent gameState={this.props.gameState} currencyIdsToShow={aoiT1Currencies} />
-          )}
-        />
-
-        <div className="shop-divider" />
-
-        {this.props.gameState.getCurrency("aoi.heckie").getIsRevealed() ? (
+        <div className="shop-area">
           <HideableArea
+            openRef={this.props.gameState.liveState.aoiScene.t1Open}
             beforeButtonElement={(
-              <span><b>{t("character.aoi.nameFull")}</b> Tier II Upgrades&nbsp;</span>
+              <span><b>{t("character.aoi.nameFull")}</b> Tier I Upgrades&nbsp;</span>
             )}
             alwaysShownElement={(
-              <ConverterToggle gameState={this.props.gameState} generatorId="aoi.heckie" />
-            )}
-            openOnlyElement={(
-              <div>
-                <ShopAreaComponent gameState={this.props.gameState} currencyIdsToShow={aoiT2Currencies} />
-                <ShopAreaComponent gameState={this.props.gameState} currencyIdsToShow={aoiT2Skills} />
+              <div style={{ textAlign: "center", margin: "16px auto" }}>
+                <b>Nuggies</b>: {this.props.gameState.getCurrency("aoi.nuggie").getCurrentAmountShort()}
               </div>
             )}
+            openOnlyElement={(
+              <ShopAreaComponent gameState={this.props.gameState} currencyIdsToShow={aoiT1Currencies} />
+            )}
           />
-        ) : null}
 
-        <div className="shop-divider" />
+          <div className="shop-divider" />
+
+          {this.props.gameState.getCurrency("aoi.heckie").getIsRevealed() ? (
+            <div>
+              <HideableArea
+                openRef={this.props.gameState.liveState.aoiScene.t2Open}
+                beforeButtonElement={(
+                  <span><b>{t("character.aoi.nameFull")}</b> Tier II Upgrades&nbsp;</span>
+                )}
+                alwaysShownElement={(
+                  <ConverterToggle gameState={this.props.gameState} generatorId="aoi.heckie" />
+                )}
+                openOnlyElement={(
+                  <div>
+                    <ShopAreaComponent gameState={this.props.gameState} currencyIdsToShow={aoiT2Currencies} />
+                    <ShopAreaComponent gameState={this.props.gameState} currencyIdsToShow={aoiT2Skills} />
+                  </div>
+                )}
+              />
+
+              <div className="shop-divider" />
+            </div>
+          ) : null}
+
+        </div>
       </div>
     );
   }

@@ -7,6 +7,10 @@
 
 html {
   overflow: hidden scroll;
+
+  @media only screen and (min-width: 1700px) {
+    overflow: hidden;
+  }
 }
 
 body {
@@ -102,6 +106,22 @@ button:disabled {
   }
 }
 
+.rightwards-fade-out {
+  animation: rightwards-fade-out var(--base-fadeout-time) forwards;
+}
+
+@keyframes rightwards-fade-out {
+  from {
+    transform: none;
+    opacity: 1;
+  }
+
+  to {
+    transform: translateX(20px);
+    opacity: 0;
+  }
+}
+
 .tooltip-trigger {
   position: relative;
 }
@@ -126,6 +146,46 @@ button:disabled {
       #ffffff 99px, #e0ffff 100px, #ffffff 101px,
       #ffffff 139px, #f0ffff 140px, #ffffff 141px);
   box-shadow: 3px 3px #00000040;
+}
+
+.game-root {
+  position: relative;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  min-height: 100vh;
+}
+
+.game-layout {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  min-height: 100vh;
+
+  @media only screen and (min-width: 1700px) {
+    height: 100vh;
+  }
+}
+
+.agent-area {
+  position: relative;
+  flex-grow: 1;
+  margin: 8px;
+
+  @media only screen and (min-width: 1700px) {
+    overflow: hidden;
+  }
+}
+
+.topbar {
+  flex-grow: 0;
+}
+
+.topbar-row {
+  display: flex;
+  margin-bottom: 2px;
+}
+
+.topbar-row:last-of-type {
+  margin-bottom: 0;
 }
 
 .topbar-character-select-item {
@@ -305,10 +365,21 @@ button:disabled {
 }
 
 .shop-divider {
-  width: 600px;
-  height: 1px;
-  background: linear-gradient(90deg, #80808000, #808080FF 20%, #808080FF 80%, #80808000);
   margin: 32px auto;
+}
+
+.shop-divider:last-child {
+  margin-bottom: 0;
+  padding-bottom: 32px;
+}
+
+.shop-divider::after {
+  content: '';
+  display: block;
+  width: 80%;
+  height: 1px;
+  margin: 0 auto;
+  background: linear-gradient(90deg, #80808000, #808080FF 20%, #808080FF 80%, #80808000);
 }
 
 .shop-box {
@@ -390,6 +461,40 @@ button:disabled {
   background-color: lightgray;
 }
 
+.character-area-full-container {
+  position: relative;
+  height: calc(100% - 16px);
+  padding: 16px 8px 0;
+  margin: auto;
+
+  @media only screen and (min-width: 1700px) {
+    display: flex;
+    flex-direction: row;
+    height: calc(100% - 16px);
+  }
+}
+
+.character-area-full-container .minigame-area {
+  max-width: 964px;
+  margin: 0 auto;
+  text-align: center;
+
+  @media only screen and (min-width: 1700px) {
+    flex-grow: 0;
+    flex-basis: 0;
+    min-width: 964px;
+    height: calc(100% - 24px);
+  }
+}
+
+.character-area-full-container .shop-area {
+  @media only screen and (min-width: 1700px) {
+    flex-grow: 1;
+    overflow-y: scroll;
+    height: calc(100% - 24px);
+  }
+}
+
 .minigame-size {
   position: relative;
   width: var(--scene-width);
@@ -438,6 +543,16 @@ button:disabled {
   margin: 0;
   font-size: 20pt;
   color: orange;
+  -webkit-text-stroke: 1px black;
+}
+
+.floating-number-outer .floating-number-inner-blukumin {
+  text-align: center;
+  line-height: 40px;
+  padding: 0;
+  margin: 0;
+  font-size: 20pt;
+  color: darkblue;
   -webkit-text-stroke: 1px black;
 }
 

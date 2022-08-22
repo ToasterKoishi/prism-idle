@@ -1,5 +1,5 @@
-import { TOTER_DEBUG } from "../app";
-import { AOI_DOG_AREA_EACH } from "../const";
+
+import { AOI_DOG_AREA_EACH, TOTER_DEBUG } from "../const";
 import { AoiMinigameAreaState } from "../minigames/aoi-minigame";
 import { IkuMinigameAreaState } from "../minigames/iku-minigame";
 import { Cost, Currency } from "./currency";
@@ -18,13 +18,33 @@ export class GameState {
   #undefinedCurrency = new Currency(this, "undefined");
   #undefinedResolvedValue = new ResolvedValue(this, "undefined", [], [], () => { return { amount: 0.0, explanation: "" } });
 
-  // Stuff that explicitly does NOT get saved, used for persisting state of scenes across a session
+  // Various values used for persisting state of scenes across a session
   liveState: {
     ikuMinigame: IkuMinigameAreaState,
+    ikuScene: {
+      passiveMode: boolean,
+      t1Open: { open: boolean },
+      t2Open: { open: boolean }
+    }
     aoiMinigame: AoiMinigameAreaState,
+    aoiScene: {
+      passiveMode: boolean,
+      t1Open: { open: boolean },
+      t2Open: { open: boolean }
+    }
   } = {
       ikuMinigame: null,
+      ikuScene: {
+        passiveMode: true,
+        t1Open: { open: true },
+        t2Open: { open: true },
+      },
       aoiMinigame: null,
+      aoiScene: {
+        passiveMode: true,
+        t1Open: { open: true },
+        t2Open: { open: true },
+      },
     };
 
   constructor() {

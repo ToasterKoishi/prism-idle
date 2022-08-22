@@ -1,6 +1,5 @@
 import { t } from "i18next";
 import React from "react";
-import "../app.css";
 import { ActivePassiveToggle } from "../components/basic-components";
 import { AOI_BOOST_PER_NFT, AOI_DOG_SPEED, BASE_AOI_SPEED, BASE_WCBONALDS_POSITION, NUGGIE_HIT_RADIUS, NUGGIE_MAGNET_AREA_EACH, SCENE_SIZE, SMELL_WAFTER_MOVE_SPEED_BONUS_PERCENT } from "../const";
 import aoi from "../img/aoi.png";
@@ -113,6 +112,7 @@ export class AoiMinigameArea extends React.Component {
 
   constructor(props: AoiMinigameAreaProps) {
     super(props);
+
     this.state = {
       awowi: {
         position: SCENE_SIZE.times(0.5),
@@ -195,7 +195,7 @@ export class AoiMinigameArea extends React.Component {
   }
 
   gameTick = (time: number) => {
-    if (this.props.gameState.getGenerator("aoi.nuggie").enabled) {
+    if (this.props.gameState.getGenerator("aoi.passiveMode").enabled) {
       return;
     }
 
@@ -457,83 +457,81 @@ export class AoiMinigameArea extends React.Component {
     const floatingNumbers = this.floatingNumbers.map((logicObject) => logicObject.renderObject);
 
     return (
-      <div style={{ maxWidth: "960px", margin: "0 auto" }}>
-        <div style={{ margin: "auto", textAlign: "center" }}>
-          <h1 style={{}}>{t("minigame.aoi.name")}</h1>
-          <ActivePassiveToggle
-            gameState={this.props.gameState}
-            toggleEnabled={gameState.getCurrency("aoi.aoiT2Unlock").getCurrentAmount() > 0n}
-            generatorId="aoi.nuggie"
-            generatorHintElement={<span>{this.props.gameState.getResolvedValue("aoi.nuggieGenerator").resolve().toFixed(2)} nuggies/s <span className="tooltip-trigger">[?]<div className="tooltip-box" style={{ bottom: "auto", top: "20" }}><b>Base generation:</b> {gameState.getResolvedValue("aoi.nuggieGeneratorBase").resolve().toFixed(2)} nuggies/s<br /><b>Motivation:</b> x{gameState.getResolvedValue("aoi.nuggieGeneratorMulti").resolve().toFixed(3)}</div></span></span>}
-          >
-            <div>
-              <p style={{ margin: "16pt auto 16pt", textAlign: "left" }}>
-                {t("minigame.aoi.description")}</p>
-              <div
-                className="minigame-size aoi-minigame"
-                onMouseMove={this.handleOnMouseMove}
-                onMouseOver={this.handleOnMouseOver}
-                onMouseOut={this.handleOnMouseOut}
-                onMouseDown={this.handleOnMouseDown}
-              >
-                <img style={{ display: "none" }} src={nuggies} ref={this.nuggieSpritesheetRef} />
+      <div className="minigame-area">
+        <h1 style={{}}>{t("minigame.aoi.name")}</h1>
+        <ActivePassiveToggle
+          gameState={this.props.gameState}
+          toggleEnabled={gameState.getCurrency("aoi.t2Unlock").getCurrentAmount() > 0n}
+          generatorId="aoi.passiveMode"
+          generatorHintElement={<span>{this.props.gameState.getResolvedValue("aoi.nuggieGenerator").resolve().toFixed(2)} nuggies/s <span className="tooltip-trigger">[?]<div className="tooltip-box" style={{ bottom: "auto", top: "20" }}><b>Base generation:</b> {gameState.getResolvedValue("aoi.nuggieGeneratorBase").resolve().toFixed(2)} nuggies/s<br /><b>Motivation:</b> x{gameState.getResolvedValue("aoi.nuggieGeneratorMulti").resolve().toFixed(3)}</div></span></span>}
+        >
+          <div>
+            <p style={{ margin: "16pt auto 16pt", textAlign: "left" }}>
+              {t("minigame.aoi.description")}</p>
+            <div
+              className="minigame-size aoi-minigame"
+              onMouseMove={this.handleOnMouseMove}
+              onMouseOver={this.handleOnMouseOver}
+              onMouseOut={this.handleOnMouseOut}
+              onMouseDown={this.handleOnMouseDown}
+            >
+              <img style={{ display: "none" }} src={nuggies} ref={this.nuggieSpritesheetRef} />
 
-                <div style={{
-                  visibility: deliveryVisibility,
-                  position: "absolute",
-                  left: BASE_WCBONALDS_POSITION.left,
-                  top: BASE_WCBONALDS_POSITION.top,
-                  width: BASE_WCBONALDS_POSITION.width,
-                  height: BASE_WCBONALDS_POSITION.height,
-                  backgroundColor: this.isAoiInDeliveryArea() ? "green" : "brown",
-                  outline: "1px solid black"
-                }} />
+              <div style={{
+                visibility: deliveryVisibility,
+                position: "absolute",
+                left: BASE_WCBONALDS_POSITION.left,
+                top: BASE_WCBONALDS_POSITION.top,
+                width: BASE_WCBONALDS_POSITION.width,
+                height: BASE_WCBONALDS_POSITION.height,
+                backgroundColor: this.isAoiInDeliveryArea() ? "green" : "brown",
+                outline: "1px solid black"
+              }} />
 
-                <canvas className="minigame-size" ref={this.canvasRef} />
-                <RenderGameObject
-                  position={this.state.dog.position}
-                  sprite={dog}
-                  spriteWidth={64.0}
-                  spriteHeight={64.0}
-                  innerStyle={{ visibility: this.state.dog.enabled ? "visible" : "hidden" }}
-                />
-                <RenderGameObject
-                  position={this.state.awowi.position}
-                  sprite={aoi}
-                  spriteWidth={64.0}
-                  spriteHeight={64.0}
-                  innerStyle={this.state.awowi.filter}
-                />
+              <canvas className="minigame-size" ref={this.canvasRef} />
+              <RenderGameObject
+                position={this.state.dog.position}
+                sprite={dog}
+                spriteWidth={64.0}
+                spriteHeight={64.0}
+                innerStyle={{ visibility: this.state.dog.enabled ? "visible" : "hidden" }}
+              />
+              <RenderGameObject
+                position={this.state.awowi.position}
+                sprite={aoi}
+                spriteWidth={64.0}
+                spriteHeight={64.0}
+                innerStyle={this.state.awowi.filter}
+              />
 
-                {floatingNumbers}
+              {floatingNumbers}
 
-                <div style={{
-                  visibility: deliveryVisibility,
-                  position: "absolute",
-                  right: "10px",
-                  top: "10px",
-                  color: "black",
-                  userSelect: "none"
-                }}>
-                  <b style={{ color: this.isAoiInDeliveryArea() ? "#00ff00" : ((this.state.timeToNextDelivery < 10 && this.state.timeToNextDelivery % 1 >= 0.5) || (this.state.timeToNextDelivery < 50 && this.state.timeToNextDelivery % 10 >= 9.5) ? "#ff0000" : "black") }}>Time to next delivery: {this.state.timeToNextDelivery.toFixed(1)}</b>
-                </div>
+              <div style={{
+                visibility: deliveryVisibility,
+                position: "absolute",
+                right: "10px",
+                top: "10px",
+                color: "black",
+                userSelect: "none"
+              }}>
+                <b style={{ color: this.isAoiInDeliveryArea() ? "#00ff00" : ((this.state.timeToNextDelivery < 10 && this.state.timeToNextDelivery % 1 >= 0.5) || (this.state.timeToNextDelivery < 50 && this.state.timeToNextDelivery % 10 >= 9.5) ? "#ff0000" : "black") }}>Time to next delivery: {this.state.timeToNextDelivery.toFixed(1)}</b>
+              </div>
 
-                <div style={{
-                  visibility: comboVisibility,
-                  position: "absolute",
-                  margin: "0 auto",
-                  left: "0",
-                  right: "0",
-                  bottom: "32px",
-                  color: this.state.rhythmGame.flickerTime > 0 ? this.state.rhythmGame.flickerColor : "black",
-                  userSelect: "none"
-                }}>
-                  <b>Combo: {this.state.rhythmGame.combo}/10 (x{(1.0 + this.state.rhythmGame.combo * gameState.getCurrency("aoi.aoiRhythmGames").getCurrentAmountShort() * 0.01).toFixed(2)})</b>
-                </div>
+              <div style={{
+                visibility: comboVisibility,
+                position: "absolute",
+                margin: "0 auto",
+                left: "0",
+                right: "0",
+                bottom: "32px",
+                color: this.state.rhythmGame.flickerTime > 0 ? this.state.rhythmGame.flickerColor : "black",
+                userSelect: "none"
+              }}>
+                <b>Combo: {this.state.rhythmGame.combo}/10 (x{(1.0 + this.state.rhythmGame.combo * gameState.getCurrency("aoi.aoiRhythmGames").getCurrentAmountShort() * 0.01).toFixed(2)})</b>
               </div>
             </div>
-          </ActivePassiveToggle>
-        </div>
+          </div>
+        </ActivePassiveToggle>
 
         <div className="shop-divider" />
       </div>

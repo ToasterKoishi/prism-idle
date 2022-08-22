@@ -10,9 +10,9 @@ interface RenderGameObjectProps {
   outerStyle?: React.CSSProperties,
 };
 
-export class RenderGameObject extends React.Component {
+export class RenderGameObject extends React.PureComponent {
   props: RenderGameObjectProps;
-  constructor(props) {
+  constructor(props: RenderGameObjectProps) {
     super(props);
   }
 
@@ -61,7 +61,7 @@ export class LogicFloatingNumber {
   }
 }
 
-export class RenderFloatingNumber extends React.Component {
+export class RenderFloatingNumber extends React.PureComponent {
   props: {
     position: Vec2,
     text: string,

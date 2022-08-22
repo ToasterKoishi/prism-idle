@@ -1,6 +1,5 @@
 import { t } from "i18next";
 import React from "react";
-import "../app.css";
 import { ActivePassiveToggle, TooltipTrigger } from "../components/basic-components";
 import { SCENE_SIZE } from "../const";
 import glove from "../img/glove.png";
@@ -165,6 +164,7 @@ export class IkuMinigameArea extends React.Component {
 
   floatingNumbers: LogicFloatingNumber[] = [];
 
+  timePassed: number = 0.0;
   currentTool: number = TOOL_WATERING_CAN;
   showMouse: boolean = false;
   mousePos: Vec2 = vec2();
@@ -234,9 +234,11 @@ export class IkuMinigameArea extends React.Component {
   }
 
   gameTick = (time: number) => {
-    if (this.props.gameState.getGenerator("iku.ikumin").enabled) {
+    if (this.props.gameState.getGenerator("iku.passiveMode").enabled) {
       return;
     }
+
+    this.timePassed += time;
 
     if (time > 60.0) {
       // Don't run the game simulation if it's too large an amount of time to prevent insane lag
@@ -321,8 +323,9 @@ export class IkuMinigameArea extends React.Component {
 
           // Gain ikumin when they go off-screen
           if (ikumin.position.x < -10.0 || ikumin.position.x > SCENE_SIZE.x + 10.0 || ikumin.position.y < -10.0 || ikumin.position.y > SCENE_SIZE.y + 10.0) {
+            const critical = ikumin.type == IKUMIN_BLUE || ikumin.type == IKUMIN_RAINBOW;
             const amountGained =
-              ((ikumin.type == IKUMIN_BLUE || ikumin.type == IKUMIN_RAINBOW ? 5.0 : 1.0) + gameState.getResolvedValue("iku.minigameIkuminBonus").resolve()) *
+              ((critical ? 5.0 : 1.0) + gameState.getResolvedValue("iku.minigameIkuminBonus").resolve()) *
               gameState.getResolvedValue("iku.ikuminGlobalPercent").resolve();
             gameState.getCurrency("iku.ikumin").addFractionalAmount(amountGained);
 
@@ -341,7 +344,7 @@ export class IkuMinigameArea extends React.Component {
               numberPosition.plusEquals(vec2(0.0, -30.0));
               direction = "up";
             }
-            this.floatingNumbers.push(new LogicFloatingNumber(numberPosition, `+${amountGained.toFixed(2).replace(/\.?0+$/, '')}${false ? "!" : ""}`, false ? "floating-number-inner-crit" : "floating-number-inner", direction));
+            this.floatingNumbers.push(new LogicFloatingNumber(numberPosition, `+${amountGained.toFixed(2).replace(/\.?0+$/, '')}${critical ? "!" : ""}`, critical ? "floating-number-inner-blukumin" : "floating-number-inner", direction));
             return false;
           }
         }
@@ -477,18 +480,26 @@ export class IkuMinigameArea extends React.Component {
         context.globalAlpha = 1.0;
         context.fillStyle = "#00ffff40";
         if (isWatering) {
+          context.strokeStyle = "#0000ff";
+          context.setLineDash([5, 5]);
           context.beginPath();
-          context.ellipse(this.mousePos.x, this.mousePos.y, wateringRadius, wateringRadius, 0.0, 0.0, 360.0);
+          context.ellipse(this.mousePos.x, this.mousePos.y, wateringRadius + 1.0, wateringRadius + 1.0, this.timePassed * 0.25, 0.0, 360.0);
           context.fill();
+          context.stroke();
         }
 
         let numSprinklers = Number(gameState.getCurrency("iku.wateringSprinkler").getCurrentAmount());
         for (let i = 0; i < numSprinklers; i++) {
           SPRINKLER_POSITIONS[numSprinklers][i];
+          context.strokeStyle = "#0000ff";
+          context.setLineDash([5, 5]);
           context.beginPath();
-          context.ellipse(SPRINKLER_POSITIONS[numSprinklers][i].x, SPRINKLER_POSITIONS[numSprinklers][i].y, wateringRadius, wateringRadius, 0.0, 0.0, 360.0);
+          context.ellipse(SPRINKLER_POSITIONS[numSprinklers][i].x, SPRINKLER_POSITIONS[numSprinklers][i].y, wateringRadius + 1.0, wateringRadius + 1.0, this.timePassed * 0.25, 0.0, 360.0);
           context.fill();
+          context.stroke();
         }
+
+        context.setLineDash([]);
 
         this.state.ikuminList.forEach((ikumin) => {
           context.setTransform(1, 0, 0, 1, Math.floor(ikumin.position.x), Math.floor(ikumin.position.y));
@@ -527,7 +538,12 @@ export class IkuMinigameArea extends React.Component {
           context.globalAlpha = 0.75;
           context.strokeStyle = "#00ff00";
           context.beginPath();
-          context.ellipse(this.mousePos.x, this.mousePos.y, yeetingRadius, yeetingRadius, 0.0, 0.0, 360.0);
+          context.ellipse(this.mousePos.x, this.mousePos.y, yeetingRadius + 1.0, yeetingRadius + 1.0, 0.0, 0.0, 360.0);
+          context.stroke();
+
+          context.setLineDash([2, 18]);
+          context.beginPath();
+          context.ellipse(this.mousePos.x, this.mousePos.y, yeetingRadius + 3.0, yeetingRadius + 3.0, this.timePassed * -0.1, 0.0, 360.0);
           context.stroke();
         }
       }
@@ -562,69 +578,67 @@ export class IkuMinigameArea extends React.Component {
     ));
 
     return (
-      <div style={{ maxWidth: "960px", margin: "0 auto" }}>
-        <div style={{ margin: "auto", textAlign: "center" }}>
-          <h1 style={{}}>{t("minigame.iku.name")}</h1>
-          <ActivePassiveToggle
-            gameState={this.props.gameState}
-            toggleEnabled={gameState.getCurrency("iku.t2Unlock").getCurrentAmount() > 0n}
-            generatorId="iku.ikumin"
-            generatorHintElement={<span>{this.props.gameState.getResolvedValue("iku.ikuminGenerator").resolve().toFixed(2)} ikumin/s&nbsp;
-              <TooltipTrigger
-                tooltipBoxStyle={{ bottom: "auto", top: "20" }}
-                tooltipContents={<div>
-                  <b>Optimal generation:</b> {gameState.getResolvedValue("iku.ikuminGeneratorBase").resolve().toFixed(2)} ikumin /s
-                  <br />
-                  <b>Growth efficiency:</b> x{gameState.getResolvedValue("iku.farmEfficiency").resolve().toFixed(3)}
-                  <br />
-                  <b>Ikumin education:</b> x{gameState.getResolvedValue("iku.farmEducation").resolve().toFixed(2)}
-                </div>}
-              >
-                [?]
-              </TooltipTrigger>
-            </span>
-            }
-          >
-            <div>
-              <p style={{ margin: "16pt auto 16pt", textAlign: "left" }}>
-                {t("minigame.iku.description")}</p>
-              <div
-                className="minigame-size iku-minigame"
-                style={{ cursor: "none", outline: "none" }}
-                onMouseMove={this.handleOnMouseMove}
-                onMouseLeave={this.handleOnMouseLeave}
-                onMouseDown={this.handleOnMouseDown}
-                onMouseUp={this.handleOnMouseUp}
-                onKeyDown={this.handleOnKeyDown}
-                tabIndex={-1}
-              >
-                <img style={{ display: "none" }} src={ikumin} ref={this.ikuminSpritesheetRef} />
+      <div className="minigame-area">
+        <h1 style={{}}>{t("minigame.iku.name")}</h1>
+        <ActivePassiveToggle
+          gameState={this.props.gameState}
+          toggleEnabled={gameState.getCurrency("iku.t2Unlock").getCurrentAmount() > 0n}
+          generatorId="iku.passiveMode"
+          generatorHintElement={<span>{this.props.gameState.getResolvedValue("iku.ikuminGenerator").resolve().toFixed(2)} ikumin/s&nbsp;
+            <TooltipTrigger
+              tooltipBoxStyle={{ bottom: "auto", top: "20" }}
+              tooltipContents={<div>
+                <b>Optimal generation:</b> {gameState.getResolvedValue("iku.ikuminGeneratorBase").resolve().toFixed(2)} ikumin /s
+                <br />
+                <b>Growth efficiency:</b> x{gameState.getResolvedValue("iku.farmEfficiency").resolve().toFixed(3)}
+                <br />
+                <b>Ikumin education:</b> x{gameState.getResolvedValue("iku.farmEducation").resolve().toFixed(2)}
+              </div>}
+            >
+              [?]
+            </TooltipTrigger>
+          </span>
+          }
+        >
+          <div>
+            <p style={{ margin: "16pt auto 16pt", textAlign: "left" }}>
+              {t("minigame.iku.description")}</p>
+            <div
+              className="minigame-size iku-minigame"
+              style={{ cursor: "none", outline: "none" }}
+              onMouseMove={this.handleOnMouseMove}
+              onMouseLeave={this.handleOnMouseLeave}
+              onMouseDown={this.handleOnMouseDown}
+              onMouseUp={this.handleOnMouseUp}
+              onKeyDown={this.handleOnKeyDown}
+              tabIndex={-1}
+            >
+              <img style={{ display: "none" }} src={ikumin} ref={this.ikuminSpritesheetRef} />
 
-                <canvas className="minigame-size" ref={this.canvasRef} />
-                {sprinklers}
-                <div style={{ position: "absolute", bottom: "16px", left: "16px", border: "2px dotted black", padding: "8px", backgroundColor: "#ffffffc0" }} onMouseDown={(e) => { this.changeTool(TOOL_WATERING_CAN); e.stopPropagation(); }}>
-                  <img src={watering_can} width="32px" height="32px" />
-                  <div style={{ position: "absolute", "bottom": "2px", "right": "2px" }}><b></b></div>
-                </div>
-                <div style={{ position: "absolute", bottom: "16px", left: "80px", border: "2px dotted black", padding: "8px", backgroundColor: "#ffffffc0" }} onMouseDown={(e) => { this.changeTool(TOOL_YEETING_GLOVE); e.stopPropagation(); }}>
-                  <img src={glove} width="32px" height="32px" />
-                  <div style={{ position: "absolute", "bottom": "2px", "right": "2px" }}><b></b></div>
-                </div>
-                <RenderGameObject
-                  position={this.mousePos.plus(this.currentTool == TOOL_WATERING_CAN ? vec2(28.0, -28.0) : vec2(0.0, 8.0))}
-                  sprite={this.currentTool == TOOL_WATERING_CAN ? watering_can : glove}
-                  spriteWidth={64.0}
-                  spriteHeight={64.0}
-                  outerStyle={{ visibility: this.showMouse ? "visible" : "hidden" }}
-                />
-
-                {floatingNumbers}
+              <canvas className="minigame-size" ref={this.canvasRef} />
+              {sprinklers}
+              <div style={{ position: "absolute", bottom: "16px", left: "16px", border: "2px dotted black", padding: "8px", backgroundColor: "#ffffffc0" }} onMouseDown={(e) => { this.changeTool(TOOL_WATERING_CAN); e.stopPropagation(); }}>
+                <img src={watering_can} width="32px" height="32px" />
+                <div style={{ position: "absolute", "bottom": "2px", "right": "2px" }}><b></b></div>
               </div>
-            </div>
-          </ActivePassiveToggle>
+              <div style={{ position: "absolute", bottom: "16px", left: "80px", border: "2px dotted black", padding: "8px", backgroundColor: "#ffffffc0" }} onMouseDown={(e) => { this.changeTool(TOOL_YEETING_GLOVE); e.stopPropagation(); }}>
+                <img src={glove} width="32px" height="32px" />
+                <div style={{ position: "absolute", "bottom": "2px", "right": "2px" }}><b></b></div>
+              </div>
+              <RenderGameObject
+                position={this.mousePos.plus(this.currentTool == TOOL_WATERING_CAN ? vec2(28.0, -28.0) : vec2(0.0, 8.0))}
+                sprite={this.currentTool == TOOL_WATERING_CAN ? watering_can : glove}
+                spriteWidth={64.0}
+                spriteHeight={64.0}
+                outerStyle={{ visibility: this.showMouse ? "visible" : "hidden" }}
+              />
 
-          <div className="shop-divider" />
-        </div>
+              {floatingNumbers}
+            </div>
+          </div>
+        </ActivePassiveToggle>
+
+        <div className="shop-divider" />
       </div>
     );
   }

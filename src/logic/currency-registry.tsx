@@ -1,3 +1,4 @@
+import { t } from "i18next";
 import { PURCHASE_WORDING_TYPE } from "../components/currency-purchase-component";
 import { BASE_NUGGIE_TIMER, BASE_WCBONALDS_TIMER, COMPRESSED_NUGGIE_1_RATE, SCENE_SIZE, SMELL_WAFTER_MOVE_SPEED_BONUS_PERCENT } from "../const";
 import { costFuncEx } from "../util";
@@ -118,11 +119,11 @@ export const registerAoiT1 = (gameState: GameState) => {
     }
   ));
 
-  gameState.registerGenerator(new CurrencyGenerator(gameState, "aoi.nuggie",
+  gameState.registerGenerator(new CurrencyGenerator(gameState, "aoi.passiveMode",
     [],
     [{ currency: "aoi.nuggie", resolvedValue: "aoi.nuggieGenerator" }]
   ));
-  gameState.getGenerator("aoi.nuggie").enabled = false;
+  gameState.getGenerator("aoi.passiveMode").enabled = false;
 
   // Basic stuff
 
@@ -339,7 +340,7 @@ export const registerAoiT1 = (gameState: GameState) => {
     ])
   );
 
-  gameState.registerCurrency(new Currency(gameState, "aoi.aoiT2Unlock")
+  gameState.registerCurrency(new Currency(gameState, "aoi.t2Unlock")
     .registerI18N({
       shopBoxClass: "tier-two-unlock"
     })
@@ -351,9 +352,6 @@ export const registerAoiT1 = (gameState: GameState) => {
     .registerOnAmountPurchased(() => {
       gameState.getCurrency("aoi.heckie").setRevealed();
       gameState.getCurrency("aoi.heckie").addAmount(1n);
-      gameState.getCurrency("aoi.heckieGenerator1").setRevealed();
-      gameState.getCurrency("aoi.heckieGenerator2").setRevealed();
-      gameState.getCurrency("aoi.heckieGenerator3").setRevealed();
     })
   );
 }
@@ -434,7 +432,7 @@ export const registerAoiT2 = (gameState: GameState) => {
       interpolations: () => {
         const rv = gameState.getResolvedValue("aoi.heckieGenerator1Each").resolve();
         return {
-          amount: `(${(rv)} → ${(rv)})`
+          amount: `(${t("currency.aoi.nuggie.withIcon.nameCount", { count: rv })} → ${t("currency.aoi.heckie.withIcon.nameCount", { count: rv })})`
         }
       },
       shopBoxClass: "minigame-generator"
@@ -446,6 +444,7 @@ export const registerAoiT2 = (gameState: GameState) => {
         return costFuncEx(1000, SCALING_RATE, gameState.getCurrency("aoi.heckieGenerator1").getNextPurchasedAmountShort(), SCALING_OVER);
       })
     ])
+    .registerCalculateIsRevealed(() => gameState.getCurrency("aoi.t2Unlock").getCurrentAmount() >= 1n)
   );
 
   gameState.registerCurrency(new Currency(gameState, "aoi.heckieGenerator2")
@@ -453,7 +452,7 @@ export const registerAoiT2 = (gameState: GameState) => {
       interpolations: () => {
         const rv = gameState.getResolvedValue("aoi.heckieGenerator2Each").resolve();
         return {
-          amount: `(${(rv)} → ${(rv)})`
+          amount: `(${t("currency.aoi.nuggie.withIcon.nameCount", { count: rv })} → ${t("currency.aoi.heckie.withIcon.nameCount", { count: rv })})`
         }
       },
       shopBoxClass: "minigame-generator"
@@ -465,6 +464,7 @@ export const registerAoiT2 = (gameState: GameState) => {
         return costFuncEx(1000, SCALING_RATE, gameState.getCurrency("aoi.heckieGenerator2").getNextPurchasedAmountShort(), SCALING_OVER);
       })
     ])
+    .registerCalculateIsRevealed(() => gameState.getCurrency("aoi.t2Unlock").getCurrentAmount() >= 1n)
   );
 
   gameState.registerCurrency(new Currency(gameState, "aoi.heckieGenerator3")
@@ -472,7 +472,7 @@ export const registerAoiT2 = (gameState: GameState) => {
       interpolations: () => {
         const rv = gameState.getResolvedValue("aoi.heckieGenerator3Each").resolve();
         return {
-          amount: `(${(rv)} → ${(rv)})`
+          amount: `(${t("currency.aoi.nuggie.withIcon.nameCount", { count: rv })} → ${t("currency.aoi.heckie.withIcon.nameCount", { count: rv })})`
         }
       },
       shopBoxClass: "minigame-generator"
@@ -484,6 +484,7 @@ export const registerAoiT2 = (gameState: GameState) => {
         return costFuncEx(1000, SCALING_RATE, gameState.getCurrency("aoi.heckieGenerator3").getNextPurchasedAmountShort(), SCALING_OVER);
       })
     ])
+    .registerCalculateIsRevealed(() => gameState.getCurrency("aoi.t2Unlock").getCurrentAmount() >= 1n)
   );
 
   gameState.registerCurrency(new Currency(gameState, "aoi.hiGuys")
@@ -914,11 +915,11 @@ export const registerIkuT1 = (gameState: GameState) => {
     }
   ));
 
-  gameState.registerGenerator(new CurrencyGenerator(gameState, "iku.ikumin",
+  gameState.registerGenerator(new CurrencyGenerator(gameState, "iku.passiveMode",
     [],
     [{ currency: "iku.ikumin", resolvedValue: "iku.ikuminGenerator" }]
   ));
-  gameState.getGenerator("iku.ikumin").enabled = false;
+  gameState.getGenerator("iku.passiveMode").enabled = false;
 
   // Iku Tier I stuff
 
@@ -1292,7 +1293,7 @@ export const registerIkuT2 = (gameState: GameState) => {
       interpolations: () => {
         const count = 1.0;
         return {
-          amount: `(${(count * 0.025).toFixed(3)} → ${(count * 0.5).toFixed(1)})`
+          amount: `(${t("currency.iku.ikumin.withIcon.nameCount", { count: parseFloat((count * 0.025).toFixed(3)) })} → ${t("currency.iku.furifuri.withIcon.nameCount", { count: parseFloat((count * 0.5).toFixed(1)) })})`
         }
       },
       shopBoxClass: "minigame-generator"
@@ -1311,7 +1312,7 @@ export const registerIkuT2 = (gameState: GameState) => {
       interpolations: () => {
         const count = 1.0;
         return {
-          amount: `(${(count * 0.1).toFixed(1)} → ${(count)})`
+          amount: `(${t("currency.iku.ikumin.withIcon.nameCount", { count: parseFloat((count * 0.1).toFixed(1)) })} → ${t("currency.iku.furifuri.withIcon.nameCount", { count: count })})`
         }
       },
       shopBoxClass: "minigame-generator"
@@ -1330,7 +1331,7 @@ export const registerIkuT2 = (gameState: GameState) => {
       interpolations: () => {
         const count = 1.0;
         return {
-          amount: `(${parseFloat((count * (0.4 - 0.02 * gameState.getCurrency("iku.ikuminEatWell").getCurrentAmountShort())).toFixed(2))} → ${(count * 2.0)})`
+          amount: `(${t("currency.iku.ikumin.withIcon.nameCount", { count: parseFloat((count * (0.4 - 0.02 * gameState.getCurrency("iku.ikuminEatWell").getCurrentAmountShort())).toFixed(2)) })} → ${t("currency.iku.furifuri.withIcon.nameCount", { count: count * 2.0 })})`
         }
       },
       shopBoxClass: "minigame-generator"

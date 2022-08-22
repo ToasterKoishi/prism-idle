@@ -1,4 +1,5 @@
-import { TOTER_DEBUG } from "../app";
+
+import { TOTER_DEBUG } from "../const";
 import { GameState } from "./game-state";
 
 type ResolutionFunction = (currencies: MapWrapper<string, bigint>, values: MapWrapper<string, number>, explains?: Map<string, string>) => { amount: number, explanation: string };

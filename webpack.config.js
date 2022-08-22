@@ -17,8 +17,8 @@ module.exports = {
         use: ["babel-loader"]
       },
       {
-        test: /\.css$/,
-        use: ["style-loader", "css-loader"]
+        test: /\.s[ac]ss$/,
+        use: ["style-loader", "css-loader", "sass-loader"]
       },
       {
         test: /\.json$/,
@@ -26,7 +26,7 @@ module.exports = {
       },
       {
         test: /\.(png|jpe?g|gif|webp)$/i,
-        loader: "file-loader"
+        type: "asset/resource"
       }
     ]
   },
@@ -39,13 +39,17 @@ module.exports = {
   },
   output: {
     path: path.resolve(__dirname, "dist/"),
-    publicPath: "../dist/",
+    publicPath: "./dist/",
     filename: "bundle.js"
   },
   devServer: {
-    contentBase: path.join(__dirname, "public/"),
     port: 3000,
-    publicPath: "http://localhost:3000/dist/"
-  },
-  plugins: [new webpack.HotModuleReplacementPlugin()]
+    static: {
+      directory: path.join(__dirname, "/"),
+    },
+    devMiddleware: {
+      publicPath: "http://localhost:3000/dist/"
+    },
+    hot: true
+  }
 };

@@ -1,5 +1,4 @@
 import { t } from "i18next";
-import "../app.css";
 import { PURCHASE_WORDING_TYPE } from "../components/currency-purchase-component";
 import { GameState } from "./game-state";
 

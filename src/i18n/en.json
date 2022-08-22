@@ -80,7 +80,13 @@
       "nameCount_other": "{{count}} Ikumin",
       "indefArticle": "an",
       "shortEffectDescription": "",
-      "flavorText": ""
+      "flavorText": "",
+      "withIcon": {
+        "name_one": "[class inline-icon iku-ikumin]Ikumin[/class]",
+        "name_other": "[class inline-icon iku-ikumin]Ikumin[/class]",
+        "nameCount_one": "1[class inline-icon iku-ikumin][/class]",
+        "nameCount_other": "{{count}}[class inline-icon iku-ikumin][/class]"
+      }
     },
     "iku.fertileSoil": {
       "name_one": "fertilizer supplier",
@@ -165,7 +171,7 @@
     "iku.ikuminBlue": {
       "name": "Ikumin Variety: Blue Ikumin",
       "indefArticle": "",
-      "shortEffectDescription": "Further increase chance of growing a Blue Ikumin by 1% (Blue Ikumin count as 5 Ikumin)",
+      "shortEffectDescription": "Further increase chance of growing a Blue Ikumin by 1% (Blue Ikumin count as $t(currency.iku.ikumin.withIcon.nameCount, {'count': 5}))",
       "flavorText": "Blue Ikumin are a particularly loyal and powerful variety of Ikumin boasting increased strength and intelligence, boosting their usefulness in all sorts of activities."
     },
     "iku.ikuminVaporwave": {
@@ -196,7 +202,7 @@
       "name_one": "motivational poster",
       "name_other": "motivational posters",
       "indefArticle": "",
-      "shortEffectDescription": "Increase Ikumin gained from Ikumin in $t(minigame.iku.name) by 1",
+      "shortEffectDescription": "Increase $t(currency.iku.ikumin.withIcon.name_other) gained from Ikumin in $t(minigame.iku.name) by 1",
       "flavorText": "Posters depicting the brightest of Blue Ikumin hard at work hauling buckets of Hime juice to the gardens motivates all Ikumin to work harder for their nation."
     },
     "iku.ikuminVaporwaveBuff": {
@@ -230,7 +236,7 @@
     "iku.t2Unlock": {
       "name": "The First Furifuri",
       "indefArticle": "",
-      "shortEffectDescription": "Allows collection of $t(character.iku.name)'s Tier II currency, furifuris. Also allows toggling passive mode for $t(minigame.iku.name)",
+      "shortEffectDescription": "Allows collection of $t(character.iku.name)'s Tier II currency, $t(currency.iku.furifuri.withIcon.name_other). Also allows toggling passive mode for $t(minigame.iku.name)",
       "flavorText": ""
     },
     "iku.furifuri": {
@@ -240,48 +246,54 @@
       "nameCount_other": "{{count}} furifuris",
       "indefArticle": "a",
       "shortEffectDescription": "",
-      "flavorText": ""
+      "flavorText": "",
+      "withIcon": {
+        "name_one": "[class inline-icon iku-furifuri]furifuri[/class]",
+        "name_other": "[class inline-icon iku-furifuri]furifuris[/class]",
+        "nameCount_one": "1[class inline-icon iku-furifuri][/class]",
+        "nameCount_other": "{{count}}[class inline-icon iku-furifuri][/class]"
+      }
     },
     "iku.furifuriGenerator1": {
       "name": "Creative Sense",
       "indefArticle": "",
-      "shortEffectDescription": "Per level: Increase base furifuri conversion rate by {{amount}} per second",
+      "shortEffectDescription": "Per level: Increase base $t(currency.iku.furifuri.withIcon.name_one) conversion rate by {{amount}} per second",
       "flavorText": "Express your creative sense, whether it be in designing zoos, flipping houses, or making wonderful paintings of your friends. With your hands, you can make imagination become reality."
     },
     "iku.furifuriGenerator2": {
       "name": "Royal Aura",
       "indefArticle": "",
-      "shortEffectDescription": "Per level: Increase base furifuri conversion rate by {{amount}} per second",
+      "shortEffectDescription": "Per level: Increase base $t(currency.iku.furifuri.withIcon.name_one) conversion rate by {{amount}} per second",
       "flavorText": "$t(character.iku.nameFull) exudes such an aura of nobility that all blessed by her presence are compelled to call her things such as Princess or Hime. Some even consider her to be the leader of PRISM Project itself."
     },
     "iku.furifuriGenerator3": {
       "name": "Ikumin Love",
       "indefArticle": "",
-      "shortEffectDescription": "Per level: Increase base furifuri conversion rate by {{amount}} per second",
+      "shortEffectDescription": "Per level: Increase base $t(currency.iku.furifuri.withIcon.name_one) conversion rate by {{amount}} per second",
       "flavorText": "There is no bond as deep as the bond between $t(character.iku.name) and her Ikumin."
     },
     "iku.furifuriBuff1": {
       "name": "Princess of Many Talents",
       "indefArticle": "",
-      "shortEffectDescription": "Per level: Increase furifuri conversion rate by 50%",
+      "shortEffectDescription": "Per level: Increase $t(currency.iku.furifuri.withIcon.name_one) conversion rate by 50%",
       "flavorText": ""
     },
     "iku.himeLove": {
       "name": "Hime Love",
       "indefArticle": "",
-      "shortEffectDescription": "Per level: Increase Ikumin gained from all sources by 25%",
+      "shortEffectDescription": "Per level: Increase $t(currency.iku.ikumin.withIcon.name_other) gained from all sources by 25%",
       "flavorText": ""
     },
     "iku.himeLove1": {
       "name": "Works of Dedication",
       "indefArticle": "",
-      "shortEffectDescription": "Per level: Increase furifuri output rate by 1x (Current: {{rate1}}x), but also increase Ikumin input rate by 3x (Current: {{rate2}}x)",
+      "shortEffectDescription": "Per level: Increase $t(currency.iku.furifuri.withIcon.name_one) output rate by 1x (Current: {{rate1}}x), but also increase $t(currency.iku.ikumin.withIcon.name_other) input rate by 3x (Current: {{rate2}}x)",
       "flavorText": ""
     },
     "iku.educationMulti1": {
       "name": "Ikumination College of Optometry",
       "indefArticle": "",
-      "shortEffectDescription": "Per level: Increase $t(minigame.iku.name) passive Ikumin education multiplier by 0.02",
+      "shortEffectDescription": "Per level: Increase $t(minigame.iku.name) idle Ikumin education multiplier by 0.02",
       "flavorText": "As Ikumin have notoriously bad eyesight, it greatly benefits the nation to set up state-sponsored schools of eyesight impovement medicine."
     },
     "iku.decree1": {
@@ -293,13 +305,13 @@
     "iku.ikuminEatWell": {
       "name": "Ikumin Eat Well",
       "indefArticle": "",
-      "shortEffectDescription": "Per level: Decrease base Ikumin input rate of Ikumin Love by 0.02/s",
+      "shortEffectDescription": "Per level: Decrease base $t(currency.iku.ikumin.withIcon.name_other) input rate of Ikumin Love by 0.02/s",
       "flavorText": ""
     },
     "iku.furifuriBuff2": {
       "name": "Ikumination National Museum",
       "indefArticle": "",
-      "shortEffectDescription": "Per level: Increase furifuri output rate by 30%",
+      "shortEffectDescription": "Per level: Increase $t(currency.iku.furifuri.withIcon.name_one) output rate by 30%",
       "flavorText": ""
     },
     "iku.t3Unlock": {
@@ -315,25 +327,31 @@
       "nameCount_other": "{{count}} nuggies",
       "indefArticle": "a",
       "shortEffectDescription": "",
-      "flavorText": ""
+      "flavorText": "",
+      "withIcon": {
+        "name_one": "[class inline-icon aoi-nuggie]nuggie[/class]",
+        "name_other": "[class inline-icon aoi-nuggie]nuggies[/class]",
+        "nameCount_one": "1[class inline-icon aoi-nuggie][/class]",
+        "nameCount_other": "{{count}}[class inline-icon aoi-nuggie][/class]"
+      }
     },
     "aoi.compressedNuggies1": {
       "name": "Compressed Nuggies",
       "indefArticle": "",
-      "shortEffectDescription": "Each nuggie has an additional {{rate}} chance of being compressed (Counts as $t(currency.aoi.nuggie.nameCount, {'count':{{amount}}}))",
+      "shortEffectDescription": "Each nuggie has an additional {{rate}} chance of being compressed (Counts as $t(currency.aoi.nuggie.withIcon.nameCount, {'count':{{amount}}}))",
       "flavorText": "If you try hard enough, you could argue that a nuggie is actually just multiple nuggies that are superglued together."
     },
     "aoi.compressedNuggies2": {
       "name": "Nuggie Topology",
       "indefArticle": "",
-      "shortEffectDescription": "Each compressed nuggie counts as 1 additional nuggie",
+      "shortEffectDescription": "Each compressed nuggie counts as 1 additional $t(currency.aoi.nuggie.withIcon.name_one)",
       "flavorText": "Studies in advanced topology allow us to argue that compressed nuggies are, in fact, an increasingly large number of nuggies superglued together."
     },
     "aoi.airFryer": {
       "name_one": "air fryer",
       "name_other": "air fryers",
       "indefArticle": "an",
-      "shortEffectDescription": "Every {{rate}} seconds, spawn an additional $t(currency.aoi.nuggie.nameCount, {'count': {{amount}}})",
+      "shortEffectDescription": "Every {{rate}} seconds, spawn an additional {{amount}} nuggie(s)",
       "flavorText": "Install an additional air fryer in $t(character.aoi.name)'s apartment. It periodically drops a cooked nuggie on the floor."
     },
     "aoi.airFryer1": {
@@ -352,7 +370,7 @@
       "name_one": "WcBonalds delivery",
       "name_other": "WcBonalds deliveries",
       "indefArticle": "a",
-      "shortEffectDescription": "Every {{rate}} seconds, if $t(character.aoi.name) is at the door, delivers $t(currency.aoi.nuggie.nameCount, {'count': 50})",
+      "shortEffectDescription": "Every {{rate}} seconds, if $t(character.aoi.name) is at the door, delivers 50 nuggies",
       "flavorText": "Constantly call for BooberYeets of 50-piece WcNuggies Combos to $t(character.aoi.name)'s apartment. However, $t(character.aoi.name) needs to be at the door when they arrive or else they won't deliver!"
     },
     "aoi.wcbonalds1": {
@@ -365,7 +383,7 @@
       "name": "motivation research",
       "indefArticle": "",
       "shortEffectDescription": "Unlock motivation-boosting items",
-      "flavorText": "The mind of $t(character.aoi.nameFull) is a mystery. By consuming $t(currency.aoi.nuggie.name_other), we are able to get closer to her mindset, and gain insight into what we might to do motivate her to move faster."
+      "flavorText": "The mind of $t(character.aoi.nameFull) is a mystery. By consuming nuggies, we are able to get closer to her mindset, and gain insight into what we might to do motivate her to move faster."
     },
     "aoi.smellWafter": {
       "name_one": "smell wafter",
@@ -404,35 +422,41 @@
       "shortEffectDescription": "Increase area of nuggie magnetization",
       "flavorText": "$t(character.aoi.name) is notoriously difficult to motivate. So difficult, in fact, that it's been determined that it would be cheaper and more effective to find ways to bring the nuggies to her, than to bring her to the nuggies. To this end, a special suit tuned to the magnetic frequency of nuggies has been developed and stealthily strapped to $t(character.aoi.name)."
     },
-    "aoi.aoiT2Unlock": {
+    "aoi.t2Unlock": {
       "name": "Hajimete no Heckie",
       "indefArticle": "",
-      "shortEffectDescription": "Allows collection of $t(character.aoi.name)'s Tier II currency, heckies. Also allows toggling passive mode for $t(minigame.aoi.name)",
+      "shortEffectDescription": "Allows collection of $t(character.aoi.name)'s Tier II currency, heckies. Also allows toggling idle mode for $t(minigame.aoi.name)",
       "flavorText": ""
     },
     "aoi.heckie": {
-      "name_one": "aoi.heckie",
+      "name_one": "heckie",
       "name_other": "heckies",
       "indefArticle": "a",
       "shortEffectDescription": "",
-      "flavorText": ""
+      "flavorText": "",
+      "withIcon": {
+        "name_one": "[class inline-icon aoi-heckie]heckie[/class]",
+        "name_other": "[class inline-icon aoi-heckie]heckies[/class]",
+        "nameCount_one": "1[class inline-icon aoi-heckie][/class]",
+        "nameCount_other": "{{count}}[class inline-icon aoi-heckie][/class]"
+      }
     },
     "aoi.heckieGenerator1": {
       "name": "Endless Zatsudan",
       "indefArticle": "",
-      "shortEffectDescription": "Per level: Increase base heckie conversion rate by {{amount}} per second",
+      "shortEffectDescription": "Per level: Increase base $t(currency.aoi.heckie.withIcon.name_one) conversion rate by {{amount}} per second",
       "flavorText": "$t(character.aoi.name)'s ability to talk forever (usually about food) despite all circumstances surely brings a heckie to her Timekeepers' lips."
     },
     "aoi.heckieGenerator2": {
       "name": "Timekeeping",
       "indefArticle": "",
-      "shortEffectDescription": "Per level: Increase base heckie conversion rate by {{amount}} per second",
+      "shortEffectDescription": "Per level: Increase base $t(currency.aoi.heckie.withIcon.name_one) conversion rate by {{amount}} per second",
       "flavorText": "The art of keeping time is one of the arts of all time. Fortunately for Timekeepers, $t(character.aoi.name) is extremely good at it."
     },
     "aoi.heckieGenerator3": {
       "name": "Negative Gaming Skill",
       "indefArticle": "",
-      "shortEffectDescription": "Per level: Increase base heckie conversion rate by {{amount}} per second",
+      "shortEffectDescription": "Per level: Increase base $t(currency.aoi.heckie.withIcon.name_one) conversion rate by {{amount}} per second",
       "flavorText": "If one is good at being bad at something, does that mean that you are simply bad at something, or does the fact that you are good at being bad mean that you are actually good at something? Semanticists continue to argue about this, and a billion other useless things, every day."
     },
     "aoi.hiGuys": {
@@ -468,43 +492,43 @@
     "aoi.aoiBackseating": {
       "name": "Backseating",
       "indefArticle": "",
-      "shortEffectDescription": "Per level: Increase $t(minigame.aoi.name) passive motivation multiplier by 0.02",
+      "shortEffectDescription": "Per level: Increase $t(minigame.aoi.name) idle motivation multiplier by 0.02",
       "flavorText": "While $t(character.aoi.name)'s video game success (or lack thereof) still largely depends on her own gaming skill, having a dedicated team of backseating Timekeepers definitely helps her get things done slightly more efficiently."
     },
     "aoi.aoiKaraoke": {
       "name": "Queen of Song",
       "indefArticle": "",
-      "shortEffectDescription": "Per level: Increase heckie output rate by 10%",
+      "shortEffectDescription": "Per level: Increase $t(currency.aoi.heckie.withIcon.name_one) output rate by 10%",
       "flavorText": "\"Heckie\" sure is a versatile articulation with so many interpretations! Sometimes, it's used in reaction to bad things; other times, in reaction to good things. In this case, $t(character.aoi.name)'s singing is so good that it causes Timekeepers to utter many more heckies of pure reverence."
     },
     "aoi.aoiBullying": {
       "name": "Bullying with Love",
       "indefArticle": "",
-      "shortEffectDescription": "Per level: Increase heckie conversion rate by 25%",
+      "shortEffectDescription": "Per level: Increase $t(currency.aoi.heckie.withIcon.name_one) conversion rate by 25%",
       "flavorText": ""
     },
     "aoi.aoiRhythmGames": {
       "name": "Pro Rhythm Gamer",
       "indefArticle": "",
-      "shortEffectDescription": "Enables combo system in $t(minigame.aoi.name); Per level: Per combo, each floor nuggie is worth +0.01x nuggies. Passive mode treats combo as always being 5",
+      "shortEffectDescription": "Enables combo system in $t(minigame.aoi.name); Per level: Per combo, each nuggie is worth +0.01x $t(currency.aoi.nuggie.withIcon.name_other). Idle mode treats combo as always being 5",
       "flavorText": "In a show of defiance against her usual negative gaming skill nature, $t(character.aoi.name)'s rhythm gaming skill is impressive enough (and herself cute enough) that a legendary rhythm gamer bestowed this title upon her."
     },
     "aoi.aoiMunchies": {
       "name": "Post-Stream Munchies",
       "indefArticle": "",
-      "shortEffectDescription": "Per level: Increase nuggies gained from all sources by 25%",
+      "shortEffectDescription": "Per level: Increase $t(currency.aoi.nuggie.withIcon.name_other) gained from all sources by 25%",
       "flavorText": "Multiple joint research projects by Ikumination scientists and RKAngels have shown that streaming causes an increase of up to or greater than 51.4% increase in energy consumption (citation needed). In layman terms, this means strimmer get hungy fast and eat food right after strim"
     },
     "aoi.aoiMunchies2": {
       "name": "Mid-Stream Munchies",
       "indefArticle": "",
-      "shortEffectDescription": "Per level: Decrease time between $t(currency.aoi.wcbonalds.name, {'count': 0}) by 2.5s, and increase nuggies gained from all sources by 10%",
+      "shortEffectDescription": "Per level: Decrease time between $t(currency.aoi.wcbonalds.name, {'count': 0}) by 2.5s, and increase $t(currency.aoi.nuggie.withIcon.name_other) gained from all sources by 10%",
       "flavorText": ""
     },
     "aoi.aoiMunchies3": {
       "name": "Pre-Stream Munchies",
       "indefArticle": "",
-      "shortEffectDescription": "Per level: Decrease nuggie input rate by 5% (Current: x{{amount}})",
+      "shortEffectDescription": "Per level: Decrease $t(currency.aoi.nuggie.withIcon.name_other) input rate by 5% (Current: x{{amount}})",
       "flavorText": "The loop of pre-, mid-, and post-stream munchies is complete; her hunger, timeless and immortal."
     },
     "aoi.aoiT3Unlock": {

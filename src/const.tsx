@@ -1,5 +1,7 @@
-import { TOTER_DEBUG } from "./app";
 import { vec2 } from "./util";
+
+export const TOTER_DEBUG: boolean = false;
+export const TOTER_DEBUG_RENDER_ACTIVITY: boolean = false;
 
 export const GAME_TICK_TIME = 1000.0 / 60.0;
 export const SCENE_SIZE = vec2(960.0, 540.0);
@@ -8,6 +10,10 @@ export const SORTED_CHARACTER_IDS = TOTER_DEBUG ?
   ["iku", "aoi", "meno", "rita", "luto", "shiki", "nia", "yura", "pina"] :
   ["iku", "aoi", /*"meno", "rita", "luto", "shiki", "nia", "yura", "pina"*/];
 export const COLOR_SCHEMES = {
+  "": {
+    backgroundColor: "white",
+    textColor: "white",
+  },
   iku: {
     backgroundColor: "mistyrose",
     textColor: "orchid",

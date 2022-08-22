@@ -1,8 +1,7 @@
 import i18next, { t } from 'i18next';
 import React from "react";
 import { initReactI18next } from "react-i18next";
-import "./app.css";
-import { COLOR_SCHEMES, SORTED_CHARACTER_IDS } from './const';
+import { COLOR_SCHEMES, SORTED_CHARACTER_IDS, TOTER_DEBUG, TOTER_DEBUG_RENDER_ACTIVITY } from './const';
 import { default as i18nEN } from "./i18n/en.json";
 import aoi from "./img/aoi.webp";
 import iku from "./img/iku.webp";
@@ -16,9 +15,10 @@ import yura from "./img/yura.webp";
 import { GameState } from "./logic/game-state";
 import { AoiScene } from './scenes/aoi-scene';
 import { IkuScene } from './scenes/iku-scene';
+import "./styles/app.scss";
+import "./styles/text.scss";
 
 // Debug stuff
-export const TOTER_DEBUG: boolean = false;
 let secondsPassed: number = 0.0;
 let timeStep: number = 1.0;
 
@@ -30,12 +30,15 @@ class App extends React.Component {
   gameState: GameState = null;
   previousFrameTime: DOMHighResTimeStamp = -1;
   //gameTickId: NodeJS.Timer;
-  selectedCharacter: string = TOTER_DEBUG ? "aoi" : "";
+  selectedCharacter: string = TOTER_DEBUG ? "meno" : "";
   showUnlockArea: boolean = false;
   hooks: { gameTick: ((_: number) => void)[] };
 
   ikuScene: React.ReactElement<IkuScene>;
   aoiScene: React.ReactElement<AoiScene>;
+  allScenes: any;
+  previousScene: React.ReactElement = null;
+  previousSceneTime = 0.0;
 
   constructor(props) {
     super(props);
@@ -73,6 +76,11 @@ class App extends React.Component {
       hooks={this.hooks}
     />);
 
+    this.allScenes = {
+      iku: this.ikuScene,
+      aoi: this.aoiScene,
+    }
+
     // DEBUG STUFF
     if (TOTER_DEBUG) {
       const gameState = this.gameState;
@@ -95,7 +103,7 @@ class App extends React.Component {
       for (let i = 0; i < 8; i++) gameState.getCurrency("aoi.nuggieFlavorTechnique").tryPurchaseOne();
       for (let i = 0; i < 6; i++) gameState.getCurrency("aoi.nuggieMagnet").tryPurchaseOne();
 
-      gameState.getCurrency("aoi.aoiT2Unlock").tryPurchaseOne();
+      gameState.getCurrency("aoi.t2Unlock").tryPurchaseOne();
 
       for (let i = 0; i < 20; i++) gameState.getCurrency("aoi.heckieGenerator1").tryPurchaseOne();
       for (let i = 0; i < 20; i++) gameState.getCurrency("aoi.heckieGenerator2").tryPurchaseOne();
@@ -195,6 +203,11 @@ class App extends React.Component {
     this.hooks.gameTick.forEach((gameTick) => gameTick(time));
     this.gameState.gameTick(time);
 
+    this.previousSceneTime -= time;
+    if (this.previousSceneTime <= 0.0) {
+      this.previousScene = null;
+    }
+
     // Tell ReactJS to render
     this.setState(state => {
       return state;
@@ -202,20 +215,25 @@ class App extends React.Component {
     //this.forceUpdate();
   }
 
-  render() {
-    let currentAgentArea = null;
-    switch (this.selectedCharacter) {
-      case "iku":
-        currentAgentArea = this.ikuScene;
-        break;
-
-      case "aoi":
-        currentAgentArea = this.aoiScene;
-        break;
-
-      default:
-        break;
+  switchCharacter = (id: string) => {
+    if (id != this.selectedCharacter) {
+      // Set current character T1 curr to passive mode if possible
+      if (this.gameState.getCurrency(`${this.selectedCharacter}.t2Unlock`).getCurrentAmount() >= 1n) {
+        this.gameState.liveState[`${this.selectedCharacter}Scene`].passiveMode = this.gameState.getGenerator(`${this.selectedCharacter}.passiveMode`).enabled;
+        this.gameState.getGenerator(`${this.selectedCharacter}.passiveMode`).enabled = true;
+      }
+      // Set new character T2 curr to cached value of passive mode
+      if (this.gameState.getCurrency(`${id}.t2Unlock`).getCurrentAmount() >= 1n) {
+        this.gameState.getGenerator(`${id}.passiveMode`).enabled = this.gameState.liveState[`${id}Scene`].passiveMode;
+      }
+      this.previousScene = this.allScenes[this.selectedCharacter];
+      this.previousSceneTime = 0.3;
+      this.selectedCharacter = id;
     }
+  }
+
+  render() {
+    const currentAgentArea = this.allScenes[this.selectedCharacter];
 
     const unlockedCharacters = SORTED_CHARACTER_IDS.filter((id) => this.gameState.getCharactersUnlocked().includes(id));
     const numRows = Math.ceil(unlockedCharacters.length / 4.0);
@@ -225,37 +243,42 @@ class App extends React.Component {
     }
 
     return (
-      <div style={{ fontFamily: "Verdana, Geneva, Tahoma, sans-serif", position: "relative", minHeight: "100%" }}>
+      <div className="game-root">
         {this.showUnlockArea ? (<AgentUnlockArea gameState={this.state.gameState} characterUnlockedCallback={(id) => { this.selectedCharacter = id; window.scrollTo(0, 0); setTimeout(() => { this.showUnlockArea = false; }, 500) }} />) : null}
-
-        {this.gameState.getCharactersUnlocked().length > 1 ? (
-          <div>
-            {characterRows.map((row) => {
-              return (
-                <div key={row[0]} style={{ display: "flex", marginBottom: "2px" }}>
-                  {row.map((id) => {
-                    return (
-                      <div key={id} className={`topbar-character-select-item ${this.selectedCharacter == id ? "selected" : ""}`} onMouseDown={() => { this.selectedCharacter = id; }}>
-                        <img className="topbar-character-select-img" src={PORTRAIT_IMAGES[id]} />
-                        <p className="topbar-character-select-text" style={{ color: COLOR_SCHEMES[id].backgroundColor }}>{t(`character.${id}.name`)}</p>
-                        <p className="topbar-character-select-text" style={{ color: COLOR_SCHEMES[id].textColor }}>{t(`character.${id}.name`)}</p>
-                      </div>
-                    )
-                  })}
-                </div>
-              )
-            })}
-          </div>
-        ) : null}
-
-        {currentAgentArea ? (
-          <div style={{ margin: "8px" }}>
+        <div className="game-layout">
+          {this.gameState.getCharactersUnlocked().length > 1 ? (
+            <div className="topbar">
+              {characterRows.map((row) => {
+                return (
+                  <div key={row[0]} className="topbar-row">
+                    {row.map((id) => {
+                      return (
+                        <div key={id} className={`topbar-character-select-item ${this.selectedCharacter == id ? "selected" : ""}`} onMouseDown={() => this.switchCharacter(id)}>
+                          <img className="topbar-character-select-img" src={PORTRAIT_IMAGES[id]} />
+                          <p className="topbar-character-select-text" style={{ color: COLOR_SCHEMES[id].backgroundColor }}>{t(`character.${id}.name`)}</p>
+                          <p className="topbar-character-select-text" style={{ color: COLOR_SCHEMES[id].textColor }}>{t(`character.${id}.name`)}</p>
+                        </div>
+                      )
+                    })}
+                  </div>
+                )
+              })}
+            </div>
+          ) : null}
+          <div className="agent-area" style={{ backgroundColor: COLOR_SCHEMES[this.selectedCharacter].backgroundColor, transition: "background-color 0.4s" }}>
             {currentAgentArea}
-          </div>) : null}
+            {/*this.previousScene*/false ? (
+              <div className="rightwards-fade-out" style={{ pointerEvents: "none", position: "absolute", top: "0", left: "0" }}>{this.previousScene}</div>
+            ) : null}
+          </div>
+        </div>
 
-        <p style={{ fontSize: "8pt", position: "absolute", bottom: "0", left: "0", margin: "8px 16px" }}>Version 2022-08-18.0</p>
-        <div style={{ fontSize: "8pt", position: "absolute", bottom: "0", right: "0", margin: "8px 16px" }}><span className="tooltip-trigger">[?]<div className="tooltip-box" style={{ bottom: "6px", right: "6px", width: "400px" }}><b>Disclaimer:</b> We are not affiliated with PRISM Project. PRISM Idle is a non-commercial fan project made in accordance to PRISM Project's Creation Guidelines (<a target="_blank" rel="noopener noreferrer" href="https://www.prismproject.jp/terms">https://www.prismproject.jp/terms</a>). The depictions of PRISM Project's contents in this fan project are not intended to be accurate to their real-life counterparts.</div></span> PRISM Idle by <a target="_blank" rel="noopener noreferrer" href="https://twitter.com/ToasterKoishi">Toaster</a></div>
+        <div style={{ fontSize: "8pt", position: "absolute", bottom: "16px", left: "16px" }}>Version 2022-08-21.0</div>
+        <div style={{ fontSize: "8pt", position: "absolute", bottom: "16px", right: "16px" }}><span className="tooltip-trigger">[?]<div className="tooltip-box" style={{ bottom: "6px", right: "6px", width: "400px" }}><b>Disclaimer:</b> We are not affiliated with PRISM Project. PRISM Idle is a non-commercial fan project made in accordance to PRISM Project's Creation Guidelines (<a target="_blank" rel="noopener noreferrer" href="https://www.prismproject.jp/terms">https://www.prismproject.jp/terms</a>). The depictions of PRISM Project's contents in this fan project are not intended to be accurate to their real-life counterparts.</div></span> PRISM Idle by <a target="_blank" rel="noopener noreferrer" href="https://twitter.com/ToasterKoishi">Toaster</a></div>
 
+        {TOTER_DEBUG_RENDER_ACTIVITY ? (
+          <div style={{ position: "fixed", top: "0", left: "0", padding: "8px", backgroundColor: Math.floor(Math.random() * 16777215).toString(16) }} />
+        ) : null}
         {TOTER_DEBUG ? (
           <div style={{ position: "fixed", top: "0", right: "0", margin: "0", color: "red", background: "black" }}>
             <b>DEBUG TIME PASSED: {Math.floor(Math.floor(secondsPassed) / 60).toFixed(0)}:{(Math.floor(secondsPassed) % 60).toFixed(0).padStart(2, "0")}&nbsp;</b>
@@ -300,8 +323,10 @@ class AgentUnlockArea extends React.Component {
   shownCharacters: string[];
   fadingOut: boolean = false;
 
-  componentWillMount() {
-    const unlockedCharacters = this.props.gameState.getCharactersUnlocked();
+  constructor(props) {
+    super(props);
+
+    const unlockedCharacters = props.gameState.getCharactersUnlocked();
     this.shownCharacters = SORTED_CHARACTER_IDS.filter((id) => !unlockedCharacters.includes(id));
   }
 
@@ -340,7 +365,7 @@ class AgentUnlockArea extends React.Component {
             <div style={{ textAlign: "center" }}>
               <p><b>{t(`character.${selectedCharacterId}.nameFull`)}</b></p>
               <p>{t(`character.${selectedCharacterId}.generation`)}</p>
-              <div style={{ width: "80%", height: "1px", margin: "24px auto", backgroundColor: "gray" }} />
+              <div className="shop-divider" />
               <p><b>{t(`minigame.${selectedCharacterId}.name`)}</b></p>
               <p style={{ maxWidth: "80%", margin: "0 auto" }}>{t(`minigame.${selectedCharacterId}.blurb`)}</p>
               <div style={{ position: "absolute", bottom: "16px", left: "0", width: "100%" }}><button style={{ padding: "11px" }} onClick={() => { if (!this.fadingOut) { this.props.gameState.doCharacterUnlock(selectedCharacterId); this.props.characterUnlockedCallback(selectedCharacterId); this.fadingOut = true; } }}>Unlock</button></div>

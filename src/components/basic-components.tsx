@@ -1,22 +1,90 @@
-import React, { useState } from "react";
+import React, { memo, useState } from "react";
+import { TOTER_DEBUG_RENDER_ACTIVITY } from "../const";
 import { GameState } from "../logic/game-state";
 
-export function TooltipTrigger(props: { style?: React.CSSProperties, tooltipContents: JSX.Element, tooltipBoxStyle?: React.CSSProperties, children: any }) {
+export const TooltipTrigger = memo(function TooltipTrigger(props: { style?: React.CSSProperties, tooltipContents: JSX.Element, tooltipBoxStyle?: React.CSSProperties, children: any }) {
   return (
     <span className="tooltip-trigger" style={props.style}>
+      {TOTER_DEBUG_RENDER_ACTIVITY ? (
+        <div style={{ position: "absolute", top: "0", left: "0", padding: "2px", backgroundColor: Math.floor(Math.random() * 16777215).toString(16) }} />
+      ) : null}
       {props.children}
       <div className="tooltip-box" style={props.tooltipBoxStyle}>{props.tooltipContents}</div>
     </span>
   );
-}
+});
 
-export function HideableArea(props: { beforeButtonElement: JSX.Element, alwaysShownElement: JSX.Element, openOnlyElement: JSX.Element }) {
-  const [open, setOpen] = useState(true);
+export const FancyText = memo(function FancyText(props: { effectText: string }) {
+  const effectTextObjects = [];
+  let currentId = 0;
+  let currentText = "";
+  let currentTag = "";
+  let currentParams = "";
+  let mode = 0; // 0 = text, 1 = tag name, 2 = tag parameters
+  const effectText = props.effectText;
+  for (let i = 0; i < effectText.length; i++) {
+    const char = effectText[i];
+    if (mode == 0) {
+      if (char == '[') {
+        // Begin tag
+        if (currentTag == "class") {
+          effectTextObjects.push((<span key={currentId++} className={currentParams}>{currentText}</span>));
+        } else if (currentTag == "b" && currentText.length > 0) {
+          effectTextObjects.push((<b key={currentId++}>{currentText}</b>));
+        } else if (currentText.length > 0) {
+          effectTextObjects.push((<span key={currentId++}>{currentText}</span>));
+        }
+        currentText = "";
+        currentTag = "";
+        mode = 1;
+      } else {
+        currentText += char;
+      }
+    } else if (mode == 1) {
+      if (char == ' ') {
+        // Begin parameters
+        mode = 2;
+      } else if (char == ']') {
+        if (currentTag[0] == '/') {
+          currentTag = "";
+          currentParams = "";
+        }
+        mode = 0;
+      } else {
+        currentTag += char;
+      }
+    } else if (mode == 2) {
+      if (char == ']') {
+        // End tag
+        if (currentTag[0] == '/') {
+          currentTag = "";
+          currentParams = "";
+        }
+        mode = 0;
+      } else {
+        currentParams += char;
+      }
+    }
+  }
+  if (currentText.length > 0) {
+    effectTextObjects.push((<span key={currentId++}>{currentText}</span>));
+  }
+
+  return (<span>
+    {effectTextObjects}
+    {TOTER_DEBUG_RENDER_ACTIVITY ? (
+      <span style={{ display: "inline-block", width: "1px", height: "16px", backgroundColor: Math.floor(Math.random() * 16777215).toString(16) }} />
+    ) : null}
+  </span>);
+});
+
+export function HideableArea(props: { openRef?: { open: boolean }, beforeButtonElement: JSX.Element, alwaysShownElement: JSX.Element, openOnlyElement: JSX.Element }) {
+  const [open, setOpen] = useState(props.openRef ? props.openRef.open : true);
   return (
     <div>
-      <div style={{ textAlign: "center", margin: "16px auto" }}>
+      <div style={{ textAlign: "center", margin: "0 auto" }}>
         {props.beforeButtonElement}
-        <button onClick={() => { setOpen(!open); }}>{open ? "Hide" : "Show"}</button>
+        <button onClick={() => { setOpen(!open); if (props.openRef) { props.openRef.open = !open; } }}>{open ? "Hide" : "Show"}</button>
       </div>
       {props.alwaysShownElement}
       {open ? props.openOnlyElement : null}
@@ -25,7 +93,7 @@ export function HideableArea(props: { beforeButtonElement: JSX.Element, alwaysSh
 }
 
 export function ActivePassiveToggle(props: { gameState: GameState, toggleEnabled: boolean, generatorId: string, generatorHintElement: JSX.Element, children: any }) {
-  const [isActiveMode, setActiveMode] = useState(!props.gameState.getGenerator(props.generatorId).enabled);
+  const isActiveMode = !props.gameState.getGenerator(props.generatorId).enabled;
   return (
     <div>
       {props.toggleEnabled ? (
@@ -34,11 +102,11 @@ export function ActivePassiveToggle(props: { gameState: GameState, toggleEnabled
           <div>
             <span style={{ visibility: isActiveMode ? "visible" : "hidden", animation: "small-pulsate-0 1.5s infinite" }}>{"<<<"}</span>
           </div>
-          <button style={{ width: "60px" }} onClick={() => { props.gameState.getGenerator(props.generatorId).enabled = isActiveMode; setActiveMode(!isActiveMode); }}>SWAP</button>
+          <button style={{ width: "60px" }} onClick={() => { props.gameState.getGenerator(props.generatorId).enabled = isActiveMode; }}>SWAP</button>
           <div>
             <span style={{ visibility: isActiveMode ? "hidden" : "visible", animation: "small-pulsate-0 1.5s infinite" }}>{">>>"}</span>
           </div>
-          <div style={{ textAlign: "left", flexBasis: "0", flexGrow: "1", color: isActiveMode ? "lightgray" : "black" }}><b>PASSIVE MODE |</b>&nbsp;{props.generatorHintElement}</div>
+          <div style={{ textAlign: "left", flexBasis: "0", flexGrow: "1", color: isActiveMode ? "lightgray" : "black" }}><b>IDLE MODE |</b>&nbsp;{props.generatorHintElement}</div>
         </div>
       ) : null}
 
