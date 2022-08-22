@@ -1,7 +1,0 @@
-Maxed out T1 upgrades are intended to generate the same scaled amount of T1 currency
-
-T1 scaling targets
-Aoi: 1x
-Iku: 0.1x
-
-T2 base upgrades at level 20 + maxed out other upgrades are intended to generate the exact same amount of T2 currency at the same scaled T1 cost
