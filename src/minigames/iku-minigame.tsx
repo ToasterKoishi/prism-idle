@@ -1,6 +1,6 @@
 import { t } from "i18next";
 import React from "react";
-import { ActivePassiveToggle, TooltipTrigger } from "../components/basic-components";
+import { ActivePassiveToggle, FancyText, TooltipTrigger } from "../components/basic-components";
 import { SCENE_SIZE } from "../const";
 import glove from "../img/glove.png";
 import ikumin from "../img/ikumin.png";
@@ -224,12 +224,12 @@ export class IkuMinigameArea extends React.Component {
 
   handleOnKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     switch (e.key) {
-      // case "1":
-      //   this.changeTool(TOOL_WATERING_CAN);
-      //   break;
-      // case "2":
-      //   this.changeTool(TOOL_YEETING_GLOVE);
-      //   break;
+      case "1":
+        this.changeTool(TOOL_WATERING_CAN);
+        break;
+      case "2":
+        this.changeTool(TOOL_YEETING_GLOVE);
+        break;
     }
   }
 
@@ -584,11 +584,11 @@ export class IkuMinigameArea extends React.Component {
           gameState={this.props.gameState}
           toggleEnabled={gameState.getCurrency("iku.t2Unlock").getCurrentAmount() > 0n}
           generatorId="iku.passiveMode"
-          generatorHintElement={<span>{this.props.gameState.getResolvedValue("iku.ikuminGenerator").resolve().toFixed(2)} ikumin/s&nbsp;
+          generatorHintElement={<span><FancyText rawText={t("currency.iku.ikumin.withIcon.nameCount_amount", { amount: this.props.gameState.getResolvedValue("iku.ikuminGenerator").resolve().toFixed(2) })} />/s&nbsp;
             <TooltipTrigger
               tooltipBoxStyle={{ bottom: "auto", top: "20" }}
               tooltipContents={<div>
-                <b>Optimal generation:</b> {gameState.getResolvedValue("iku.ikuminGeneratorBase").resolve().toFixed(2)} ikumin /s
+                <b>Optimal generation:</b> {gameState.getResolvedValue("iku.ikuminGeneratorBase").resolve().toFixed(2)} ikumin/s
                 <br />
                 <b>Growth efficiency:</b> x{gameState.getResolvedValue("iku.farmEfficiency").resolve().toFixed(3)}
                 <br />
@@ -617,13 +617,15 @@ export class IkuMinigameArea extends React.Component {
 
               <canvas className="minigame-size" ref={this.canvasRef} />
               {sprinklers}
-              <div style={{ position: "absolute", bottom: "16px", left: "16px", border: "2px dotted black", padding: "8px", backgroundColor: "#ffffffc0" }} onMouseDown={(e) => { this.changeTool(TOOL_WATERING_CAN); e.stopPropagation(); }}>
-                <img src={watering_can} width="32px" height="32px" />
-                <div style={{ position: "absolute", "bottom": "2px", "right": "2px" }}><b></b></div>
-              </div>
-              <div style={{ position: "absolute", bottom: "16px", left: "80px", border: "2px dotted black", padding: "8px", backgroundColor: "#ffffffc0" }} onMouseDown={(e) => { this.changeTool(TOOL_YEETING_GLOVE); e.stopPropagation(); }}>
-                <img src={glove} width="32px" height="32px" />
-                <div style={{ position: "absolute", "bottom": "2px", "right": "2px" }}><b></b></div>
+              <div className="minigame-hotbar">
+                <div className={`hotbar-item-container${this.currentTool == TOOL_WATERING_CAN ? " selected" : ""}`} onMouseDown={(e) => { this.changeTool(TOOL_WATERING_CAN); e.stopPropagation(); }}>
+                  <img className="hotbar-item-img" src={watering_can} />
+                  <div className="hotbar-item-shortcut"><b>1</b></div>
+                </div>
+                <div className={`hotbar-item-container${this.currentTool == TOOL_YEETING_GLOVE ? " selected" : ""}`} onMouseDown={(e) => { this.changeTool(TOOL_YEETING_GLOVE); e.stopPropagation(); }}>
+                  <img className="hotbar-item-img" src={glove} />
+                  <div className="hotbar-item-shortcut"><b>2</b></div>
+                </div>
               </div>
               <RenderGameObject
                 position={this.mousePos.plus(this.currentTool == TOOL_WATERING_CAN ? vec2(28.0, -28.0) : vec2(0.0, 8.0))}

@@ -1,0 +1,112 @@
+.meno-puzzle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: auto;
+  width: min-content;
+  height: min-content;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  box-shadow: 6px 6px 0 #00000080;
+
+  .meno-puzzle-row {
+    display: flex;
+    justify-content: center;
+
+    .meno-puzzle-cell {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: var(--cell-size);
+      height: var(--cell-size);
+      background-color: gray;
+      outline: 2px solid black;
+      margin: 1px;
+
+      &.investigate {
+        background-color: darkkhaki;
+
+        &.highlight {
+          background-color: yellow;
+        }
+      }
+
+      &.highlight {
+        background-color: lightgray;
+      }
+
+      &.broken {
+        background-color: #202020;
+
+        &.investigate {
+          background-color: #404000;
+        }
+      }
+
+      &.shiny.shiny.shiny {
+        background-color: darkblue;
+      }
+
+      .meno-puzzle-cell-inner {
+        width: 100%;
+        font-size: 32px;
+        word-wrap: break-word;
+
+        .meno-puzzle-shiny {
+          width: 50%;
+          animation: floating-number-up 0.5s 0.5s forwards ease-out;
+        }
+      }
+    }
+  }
+}
+
+@keyframes rotate-stepwise-1-8 {
+  0% {
+    transform: rotate(0deg);
+    animation-timing-function: step-start;
+  }
+
+  12% {
+    transform: rotate(45deg);
+    animation-timing-function: step-start;
+  }
+
+  25% {
+    transform: rotate(90deg);
+    animation-timing-function: step-start;
+  }
+
+  37% {
+    transform: rotate(135deg);
+    animation-timing-function: step-start;
+  }
+
+  50% {
+    transform: rotate(180deg);
+    animation-timing-function: step-start;
+  }
+
+  62% {
+    transform: rotate(225deg);
+    animation-timing-function: step-start;
+  }
+
+  75% {
+    transform: rotate(270deg);
+    animation-timing-function: step-start;
+  }
+
+  87% {
+    transform: rotate(315deg);
+    animation-timing-function: step-start;
+  }
+
+  100% {
+    transform: rotate(0deg);
+    animation-timing-function: step-start;
+  }
+}

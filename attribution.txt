@@ -1,0 +1,15 @@
+Several raw assets are attributed to PRISM Project and used under their Creation Guidelines:
+- Assets found on PRISM Project's official website
+- Official YouTube channel emotes, membership loyalty icons, and so forth
+- Cropped selections from publicly available PRISM Project YouTube streams
+
+Several raw assets are attributed to FlatIcon's icon creators and used under FlatIcon's Free user license:
+<a href="https://www.flaticon.com/free-icons/magnifying-glass" title="magnifying glass icons">Magnifying glass icons created by Freepik - Flaticon</a>
+<a href="https://www.flaticon.com/free-icons/chisel" title="chisel icons">Chisel icons created by Freepik - Flaticon</a>
+<a href="https://www.flaticon.com/free-icons/diamond" title="diamond icons">Diamond icons created by Freepik - Flaticon</a>
+<a href="https://www.flaticon.com/free-icons/plant" title="plant icons">Plant icons created by Freepik - Flaticon</a>
+<a href="https://www.flaticon.com/free-icons/gloves" title="gloves icons">Gloves icons created by max.icons - Flaticon</a>
+<a href="https://www.flaticon.com/free-icons/seed" title="seed icons">Seed icons created by Saepul Nahwan - Flaticon</a>
+<a href="https://www.flaticon.com/free-icons/bling" title="bling icons">Bling icons created by Aranagraphics - Flaticon</a>
+<a href="https://www.flaticon.com/free-icons/sprinkler" title="sprinkler icons">Sprinkler icons created by max.icons - Flaticon</a>
+<a href="https://www.flaticon.com/free-icons/loading" title="loading icons">Loading icons created by Icon Hubs - Flaticon</a>

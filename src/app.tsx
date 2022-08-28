@@ -1,10 +1,12 @@
 import i18next, { t } from 'i18next';
 import React from "react";
 import { initReactI18next } from "react-i18next";
+import { TooltipTrigger } from './components/basic-components';
 import { COLOR_SCHEMES, SORTED_CHARACTER_IDS, TOTER_DEBUG, TOTER_DEBUG_RENDER_ACTIVITY } from './const';
 import { default as i18nEN } from "./i18n/en.json";
 import aoi from "./img/aoi.webp";
 import iku from "./img/iku.webp";
+import logo from "./img/logo.png";
 import luto from "./img/luto.webp";
 import meno from "./img/meno.webp";
 import nia from "./img/nia.webp";
@@ -15,7 +17,9 @@ import yura from "./img/yura.webp";
 import { GameState } from "./logic/game-state";
 import { AoiScene } from './scenes/aoi-scene';
 import { IkuScene } from './scenes/iku-scene';
+import { MenoScene } from './scenes/meno-scene';
 import "./styles/app.scss";
+import "./styles/meno.scss";
 import "./styles/text.scss";
 
 // Debug stuff
@@ -36,6 +40,7 @@ class App extends React.Component {
 
   ikuScene: React.ReactElement<IkuScene>;
   aoiScene: React.ReactElement<AoiScene>;
+  menoScene: React.ReactElement<MenoScene>;
   allScenes: any;
   previousScene: React.ReactElement = null;
   previousSceneTime = 0.0;
@@ -75,10 +80,15 @@ class App extends React.Component {
       gameState={this.gameState}
       hooks={this.hooks}
     />);
+    this.menoScene = (<MenoScene
+      gameState={this.gameState}
+      hooks={this.hooks}
+    />);
 
     this.allScenes = {
       iku: this.ikuScene,
       aoi: this.aoiScene,
+      meno: this.menoScene,
     }
 
     // DEBUG STUFF
@@ -165,9 +175,14 @@ class App extends React.Component {
       for (let i = 0; i < 1; i++) gameState.getCurrency("iku.himeLove1").tryPurchaseOne();
 
       // Debug stuff
-      gameState.getCurrency("aoi.heckie").addAmount(1000000n);
-      gameState.getCurrency("iku.furifuri").addAmount(1000000n);
+      gameState.getCurrency("aoi.nuggie").addAmount(10000000n);
+      gameState.getCurrency("aoi.heckie").addAmount(10000000n);
+      gameState.getCurrency("iku.ikumin").addAmount(10000000n);
+      gameState.getCurrency("iku.furifuri").addAmount(10000000n);
     }
+
+    this.gameState.gameTick(0.0);
+    this.gameState.loadSave();
   }
 
   componentDidMount() {
@@ -273,21 +288,43 @@ class App extends React.Component {
           </div>
         </div>
 
-        <div style={{ fontSize: "8pt", position: "absolute", bottom: "16px", left: "16px" }}>Version 2022-08-21.0</div>
-        <div style={{ fontSize: "8pt", position: "absolute", bottom: "16px", right: "16px" }}><span className="tooltip-trigger">[?]<div className="tooltip-box" style={{ bottom: "6px", right: "6px", width: "400px" }}><b>Disclaimer:</b> We are not affiliated with PRISM Project. PRISM Idle is a non-commercial fan project made in accordance to PRISM Project's Creation Guidelines (<a target="_blank" rel="noopener noreferrer" href="https://www.prismproject.jp/terms">https://www.prismproject.jp/terms</a>). The depictions of PRISM Project's contents in this fan project are not intended to be accurate to their real-life counterparts.</div></span> PRISM Idle by <a target="_blank" rel="noopener noreferrer" href="https://twitter.com/ToasterKoishi">Toaster</a></div>
-
-        {TOTER_DEBUG_RENDER_ACTIVITY ? (
-          <div style={{ position: "fixed", top: "0", left: "0", padding: "8px", backgroundColor: Math.floor(Math.random() * 16777215).toString(16) }} />
-        ) : null}
-        {TOTER_DEBUG ? (
-          <div style={{ position: "fixed", top: "0", right: "0", margin: "0", color: "red", background: "black" }}>
-            <b>DEBUG TIME PASSED: {Math.floor(Math.floor(secondsPassed) / 60).toFixed(0)}:{(Math.floor(secondsPassed) % 60).toFixed(0).padStart(2, "0")}&nbsp;</b>
-            <button onClick={() => { timeStep = 0.0; }}>Pause</button>
-            <button onClick={() => { timeStep = 1.0; }}>1x</button>
-            <button onClick={() => { timeStep = 5.0; }}>5x</button>
+        <div style={{ position: "absolute", bottom: "0", right: "0", width: "100px", height: "100px", margin: "8px 4px", backgroundImage: `url(${logo})`, backgroundSize: "100%", opacity: "0.5" }} />
+        <div className="footer">
+          <div className="footer-left">
+            Version 2022-08-28.0
           </div>
-        ) : null}
-      </div>
+          <div className="footer-middle">
+          </div>
+          <div className="footer-right">
+            <TooltipTrigger
+              tooltipBoxStyle={{ bottom: "6px", right: "6px", width: "400px", textAlign: "left" }}
+              tooltipContents={(
+                <div>
+                  <div>
+                    <b>Disclaimer:</b> We are not affiliated with PRISM Project. PRISM Idle is a non-commercial fan project made in accordance to PRISM Project's Creation Guidelines (<a target="_blank" rel="noopener noreferrer" href="https://www.prismproject.jp/terms">https://www.prismproject.jp/terms</a>). The depictions of PRISM Project's contents in this fan project are not intended to be accurate to their real-life counterparts.
+                  </div>
+                </div>
+              )}>[?]</TooltipTrigger>
+            &nbsp;PRISM Idle by <a target="_blank" rel="noopener noreferrer" href="https://twitter.com/ToasterKoishi">Toaster</a>
+          </div>
+        </div>
+
+        {
+          TOTER_DEBUG_RENDER_ACTIVITY ? (
+            <div style={{ position: "fixed", top: "0", left: "0", padding: "8px", backgroundColor: Math.floor(Math.random() * 16777215).toString(16) }} />
+          ) : null
+        }
+        {
+          TOTER_DEBUG ? (
+            <div style={{ position: "fixed", top: "0", right: "0", margin: "0", color: "red", background: "black" }}>
+              <b>DEBUG TIME PASSED: {Math.floor(Math.floor(secondsPassed) / 60).toFixed(0)}:{(Math.floor(secondsPassed) % 60).toFixed(0).padStart(2, "0")}&nbsp;</b>
+              <button onClick={() => { timeStep = 0.0; }}>Pause</button>
+              <button onClick={() => { timeStep = 1.0; }}>1x</button>
+              <button onClick={() => { timeStep = 5.0; }}>5x</button>
+            </div>
+          ) : null
+        }
+      </div >
     );
   }
 }
@@ -345,11 +382,22 @@ class AgentUnlockArea extends React.Component {
     const selectedCharacterId = this.shownCharacters[this.state.selectedItem];
 
     return (
-      <div className={`${this.fadingOut ? "outwards-fade-out" : ""}`} style={{ position: "fixed", top: "0", "left": "0", zIndex: "1", width: "100%", height: "100%", overflow: "auto" }}>
+      <div className={`${this.fadingOut ? "outwards-fade-out" : ""}`} style={{ position: "fixed", top: "0", "left": "0", zIndex: "1000", width: "100%", height: "100%", overflow: "auto" }}>
         <div className="simple-fade-in" style={{ position: "absolute", width: "100%", height: "100%", backgroundColor: "rgb(0,0,0,0.2)" }} />
         <div className="upwards-fade-in" style={{ position: "relative", margin: "100px auto", width: "80%", height: "calc(100% - 236px)", border: "solid lightblue 2px", padding: "16px", boxShadow: "0 0 10px #00000080", backgroundColor: this.state.hasSelectedItem ? COLOR_SCHEMES[selectedCharacterId].backgroundColor : "white", transition: "background-color 0.3s" }}>
 
-          <h1 style={{ textAlign: "center" }}>Select Agent</h1>
+          <div style={{ position: "absolute", top: "0", left: "0", right: "0", width: "100%", maxWidth: "600px", height: "100%", margin: "0 auto", overflow: "hidden", perspective: "1000px" }}>
+            <div style={{ position: "absolute", width: "100%", transformStyle: "preserve-3d" }}>
+              <div style={{ paddingTop: "100%" }} />
+              <img style={{ position: "absolute", top: "-40%", width: "100%", animation: "logo-rotate 30s 0s infinite" }} src={logo} />
+            </div>
+            <div style={{ position: "absolute", width: "100%", bottom: "0", transformStyle: "preserve-3d" }}>
+              <div style={{ paddingTop: "100%" }} />
+              <img style={{ position: "absolute", bottom: "-40%", width: "100%", animation: "logo-rotate 30s 0s infinite" }} src={logo} />
+            </div>
+          </div>
+
+          <h1 style={{ position: "relative", textAlign: "center" }}>Select Agent</h1>
 
           <div style={{ display: "flex", margin: "16px" }}>
             {this.shownCharacters.map((id, idx) => {
@@ -362,14 +410,16 @@ class AgentUnlockArea extends React.Component {
           </div>
 
           {this.state.hasSelectedItem ? (
-            <div style={{ textAlign: "center" }}>
+            <div style={{ position: "relative", textAlign: "center" }}>
               <p><b>{t(`character.${selectedCharacterId}.nameFull`)}</b></p>
               <p>{t(`character.${selectedCharacterId}.generation`)}</p>
               <div className="shop-divider" />
               <p><b>{t(`minigame.${selectedCharacterId}.name`)}</b></p>
               <p style={{ maxWidth: "80%", margin: "0 auto" }}>{t(`minigame.${selectedCharacterId}.blurb`)}</p>
-              <div style={{ position: "absolute", bottom: "16px", left: "0", width: "100%" }}><button style={{ padding: "11px" }} onClick={() => { if (!this.fadingOut) { this.props.gameState.doCharacterUnlock(selectedCharacterId); this.props.characterUnlockedCallback(selectedCharacterId); this.fadingOut = true; } }}>Unlock</button></div>
             </div>
+          ) : null}
+          {this.state.hasSelectedItem ? (
+            <div style={{ position: "absolute", bottom: "16px", left: "0", textAlign: "center", width: "100%" }}><button style={{ padding: "11px" }} onClick={() => { if (!this.fadingOut) { this.props.gameState.doCharacterUnlock(selectedCharacterId); this.props.characterUnlockedCallback(selectedCharacterId); this.fadingOut = true; } }}>Unlock</button></div>
           ) : null}
 
         </div>

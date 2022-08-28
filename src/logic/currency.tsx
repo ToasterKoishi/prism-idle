@@ -1,4 +1,6 @@
 import { t } from "i18next";
+import React from "react";
+import { FancyText } from "../components/basic-components";
 import { PURCHASE_WORDING_TYPE } from "../components/currency-purchase-component";
 import { GameState } from "./game-state";
 
@@ -53,7 +55,7 @@ export class Currency {
   registerI18N = (v: CurrencyI18N) => { this.i18n = { ...this.i18n, ...v }; return this; }
   registerPurchaseWordingType = (v: number) => { this.purchaseWordingType = v; return this; }
   registerMaximumStock = (v: bigint) => { this.maximumStock = v; return this; }
-  registerCostToPurchaseOne = (v: Cost[] | (() => Cost[])) => { 
+  registerCostToPurchaseOne = (v: Cost[] | (() => Cost[])) => {
     if (typeof v == "function") {
       this.costToPurchaseOne = v;
     } else {
@@ -85,6 +87,24 @@ export class Currency {
     } else if (this.purchaseWordingType == PURCHASE_WORDING_TYPE.LEARN) {
       return t("currency." + this.#id + ".name", { count: 1 }) + " Lv." + amount;
     }
+  }
+  getFancyTextName = (amount: number | bigint | string | boolean = null, options: { withIcon?: boolean, textModifier?: (_: string) => string, raw?: boolean } = {}) => {
+    if (options.withIcon === undefined) {
+      options.withIcon = true;
+    }
+    if (options.textModifier === undefined) {
+      options.textModifier = (_) => _;
+    }
+    if (options.raw === undefined) {
+      options.raw = false;
+    }
+    if (typeof amount === "boolean") {
+      amount = this.getCurrentAmount();
+    }
+    const hasAmount = amount !== undefined && amount !== null;
+    const amountIsNumerical = hasAmount && typeof amount !== "string";
+    const rawText = options.textModifier(t(`currency.${this.getId()}${options.withIcon ? ".withIcon" : ""}.name${hasAmount ? "Count" : ""}${hasAmount && !amountIsNumerical ? "_amount" : ""}`, { amount: hasAmount && !amountIsNumerical ? amount : undefined, count: amountIsNumerical ? Number(amount) : 0 }));
+    return options.raw ? rawText : (<FancyText rawText={rawText} />);
   }
 
   // Amount manipulation
@@ -187,9 +207,6 @@ export class Currency {
       if (cost.currency.getNextAmount() < cost.calculateCost(this.#gameState)) {
         return false;
       }
-    }
-    if (this.maximumStock >= 0 && this.#nextValues.amount >= this.maximumStock) {
-      return false;
     }
     return true;
   };

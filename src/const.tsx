@@ -1,6 +1,6 @@
 import { vec2 } from "./util";
 
-export const TOTER_DEBUG: boolean = false;
+export const TOTER_DEBUG: boolean = true;
 export const TOTER_DEBUG_RENDER_ACTIVITY: boolean = false;
 
 export const GAME_TICK_TIME = 1000.0 / 60.0;

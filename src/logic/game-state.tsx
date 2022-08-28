@@ -1,14 +1,17 @@
 
+import React from "react";
+import { FancyText } from "../components/basic-components";
 import { AOI_DOG_AREA_EACH, TOTER_DEBUG } from "../const";
 import { AoiMinigameAreaState } from "../minigames/aoi-minigame";
 import { IkuMinigameAreaState } from "../minigames/iku-minigame";
+import { MenoMinigameAreaState } from "../minigames/meno-minigame";
 import { Cost, Currency } from "./currency";
-import { registerAoiT1, registerAoiT2, registerIkuT1, registerIkuT2 } from "./currency-registry";
+import { registerAoiT1, registerAoiT2, registerIkuT1, registerIkuT2, registerMenoT1, registerMenoT2 } from "./currency-registry";
 import { ResolvedValue } from "./resolved-value";
 
 export class GameState {
   numCharacterUnlocks: number = TOTER_DEBUG ? 0 : 1;
-  #charactersUnlocked: string[] = TOTER_DEBUG ? ["iku", "aoi"/*, "meno", "rita", "luto", "shiki", "nia", "yura", "pina"*/] : [];
+  #charactersUnlocked: string[] = TOTER_DEBUG ? ["iku", "aoi", "meno"/*, "rita", "luto", "shiki", "nia", "yura", "pina"*/] : [];
   #currencies: Map<string, Currency> = new Map<string, Currency>();
   currencyDependents: Map<string, string[]> = new Map<string, string[]>();
   #resolvedValues: Map<string, ResolvedValue> = new Map<string, ResolvedValue>();
@@ -31,17 +34,29 @@ export class GameState {
       passiveMode: boolean,
       t1Open: { open: boolean },
       t2Open: { open: boolean }
-    }
+    },
+    menoMinigame: MenoMinigameAreaState,
+    menoScene: {
+      passiveMode: boolean,
+      t1Open: { open: boolean },
+      t2Open: { open: boolean }
+    },
   } = {
       ikuMinigame: null,
       ikuScene: {
-        passiveMode: true,
+        passiveMode: false,
         t1Open: { open: true },
         t2Open: { open: true },
       },
       aoiMinigame: null,
       aoiScene: {
-        passiveMode: true,
+        passiveMode: false,
+        t1Open: { open: true },
+        t2Open: { open: true },
+      },
+      menoMinigame: null,
+      menoScene: {
+        passiveMode: false,
         t1Open: { open: true },
         t2Open: { open: true },
       },
@@ -56,6 +71,8 @@ export class GameState {
     registerAoiT2(this);
     registerIkuT1(this);
     registerIkuT2(this);
+    registerMenoT1(this);
+    registerMenoT2(this);
 
     // Calculate everything once! (Theoretically, everything is initialized dirty, but this is here just in case...)
     this.#resolvedValues.forEach((resolvedValue) => {
@@ -129,6 +146,15 @@ export class GameState {
   //getRVRes = (id: string) => this.getResolvedValue(id).resolve();
   getGenerator = (id: string) => this.generators.get(id);
 
+  loadSave = () => {
+    // Fully implement later...
+    ["iku", "aoi"].forEach((id) => {
+      if (this.getCurrency(`${id}.t2Unlock`).getCurrentAmount() >= 1n) {
+        this.getGenerator(`${id}.passiveMode`).enabled = true;
+      }
+    });
+  }
+
   gameTick = (time: number) => {
     ResolvedValue.numValuesRecalculated = 0;
     ResolvedValue.touchesPerformed = 0;
@@ -166,13 +192,14 @@ export class GameState {
     });
   }
 
-  renderCosts = (costs: Cost[]) => {
+  renderCosts = (costs: Cost[], fancy: boolean = false) => {
     let retval = "";
     costs.forEach((cost) => {
-      retval += cost.currency.getNameAmount(cost.calculateCost(this));
+      retval += fancy ? cost.currency.getFancyTextName(cost.calculateCost(this), { raw: true }) : cost.currency.getNameAmount(cost.calculateCost(this));
       retval += ", ";
     });
-    return retval.slice(0, retval.length - 2);
+    retval = retval.slice(0, retval.length - 2);
+    return fancy ? <FancyText rawText={retval} /> : (<span>{retval}</span>);
   }
 
   // Aoi related stuff

@@ -1,7 +1,5 @@
-import { t } from "i18next";
 import React from "react";
-import { ConverterToggle, HideableArea } from "../components/basic-components";
-import { ShopAreaComponent } from "../components/shop-area-component";
+import { T1Area, T2Area } from "../components/basic-components";
 import { GameState } from "../logic/game-state";
 import { IkuMinigameArea } from "../minigames/iku-minigame";
 
@@ -72,45 +70,21 @@ export class IkuScene extends React.Component {
         <IkuMinigameArea gameState={this.props.gameState} hooks={this.props.hooks} />
 
         <div className="shop-area">
-          <HideableArea
-            openRef={this.props.gameState.liveState.ikuScene.t1Open}
-            beforeButtonElement={(
-              <span><b>{t("character.iku.nameFull")}</b> Tier I Upgrades&nbsp;</span>
-            )}
-            alwaysShownElement={(
-              <div style={{ textAlign: "center", margin: "16px auto" }}>
-                <b>Ikumin</b>: {this.props.gameState.getCurrency("iku.ikumin").getCurrentAmountShort()}
-              </div>
-            )}
-            openOnlyElement={(
-              <ShopAreaComponent gameState={this.props.gameState} currencyIdsToShow={ikuT1Currencies} />
-            )}
-          />
+          <T1Area
+            gameState={this.props.gameState}
+            characterId="iku"
+            currencyId="iku.ikumin"
+            upgradesToShow={ikuT1Currencies} />
 
           <div className="shop-divider" />
 
-          {this.props.gameState.getCurrency("iku.furifuri").getIsRevealed() ? (
-            <div>
-              <HideableArea
-                openRef={this.props.gameState.liveState.ikuScene.t2Open}
-                beforeButtonElement={(
-                  <span><b>{t("character.iku.nameFull")}</b> Tier II Upgrades&nbsp;</span>
-                )}
-                alwaysShownElement={(
-                  <ConverterToggle gameState={this.props.gameState} generatorId="iku.furifuri" />
-                )}
-                openOnlyElement={(
-                  <div>
-                    <ShopAreaComponent gameState={this.props.gameState} currencyIdsToShow={ikuT2Currencies} />
-                    <ShopAreaComponent gameState={this.props.gameState} currencyIdsToShow={ikuT2Skills} />
-                  </div>
-                )}
-              />
-
-              <div className="shop-divider" />
-            </div>
-          ) : null}
-
+          <T2Area
+            gameState={this.props.gameState}
+            characterId="iku"
+            currencyId="iku.furifuri"
+            generatorId="iku.furifuri"
+            upgradesToShowTop={ikuT2Currencies}
+            upgradesToShowBottom={ikuT2Skills} />
         </div>
       </div>
     );

@@ -78,6 +78,7 @@
       "name_other": "Ikumin",
       "nameCount_one": "1 Ikumin",
       "nameCount_other": "{{count}} Ikumin",
+      "nameCount_amount": "{{amount}} Ikumin",
       "indefArticle": "an",
       "shortEffectDescription": "",
       "flavorText": "",
@@ -85,7 +86,8 @@
         "name_one": "[class inline-icon iku-ikumin]Ikumin[/class]",
         "name_other": "[class inline-icon iku-ikumin]Ikumin[/class]",
         "nameCount_one": "1[class inline-icon iku-ikumin][/class]",
-        "nameCount_other": "{{count}}[class inline-icon iku-ikumin][/class]"
+        "nameCount_other": "{{count}}[class inline-icon iku-ikumin][/class]",
+        "nameCount_amount": "{{amount}}[class inline-icon iku-ikumin][/class]"
       }
     },
     "iku.fertileSoil": {
@@ -244,6 +246,7 @@
       "name_other": "furifuris",
       "nameCount_one": "1 furifuri",
       "nameCount_other": "{{count}} furifuris",
+      "nameCount_amount": "{{amount}} furifuris",
       "indefArticle": "a",
       "shortEffectDescription": "",
       "flavorText": "",
@@ -251,7 +254,8 @@
         "name_one": "[class inline-icon iku-furifuri]furifuri[/class]",
         "name_other": "[class inline-icon iku-furifuri]furifuris[/class]",
         "nameCount_one": "1[class inline-icon iku-furifuri][/class]",
-        "nameCount_other": "{{count}}[class inline-icon iku-furifuri][/class]"
+        "nameCount_other": "{{count}}[class inline-icon iku-furifuri][/class]",
+        "nameCount_amount": "{{amount}}[class inline-icon iku-furifuri][/class]"
       }
     },
     "iku.furifuriGenerator1": {
@@ -282,7 +286,7 @@
       "name": "Hime Love",
       "indefArticle": "",
       "shortEffectDescription": "Per level: Increase $t(currency.iku.ikumin.withIcon.name_other) gained from all sources by 25%",
-      "flavorText": ""
+      "flavorText": "There is no bond as deep as the bond between Ikumin and their Hime."
     },
     "iku.himeLove1": {
       "name": "Works of Dedication",
@@ -294,7 +298,7 @@
       "name": "Ikumination College of Optometry",
       "indefArticle": "",
       "shortEffectDescription": "Per level: Increase $t(minigame.iku.name) idle Ikumin education multiplier by 0.02",
-      "flavorText": "As Ikumin have notoriously bad eyesight, it greatly benefits the nation to set up state-sponsored schools of eyesight impovement medicine."
+      "flavorText": "As Ikumin have notoriously bad eyesight, it greatly benefits the nation to set up state-sponsored schools of sight sharpening."
     },
     "iku.decree1": {
       "name": "Decree: Seedsetter Initiative",
@@ -306,7 +310,7 @@
       "name": "Ikumin Eat Well",
       "indefArticle": "",
       "shortEffectDescription": "Per level: Decrease base $t(currency.iku.ikumin.withIcon.name_other) input rate of Ikumin Love by 0.02/s",
-      "flavorText": ""
+      "flavorText": "Ikumin have a tendency to forego meals in the name of worshipping their Hime; initiatives are set up to discourage this from happening."
     },
     "iku.furifuriBuff2": {
       "name": "Ikumination National Museum",
@@ -325,6 +329,7 @@
       "name_other": "nuggies",
       "nameCount_one": "1 nuggie",
       "nameCount_other": "{{count}} nuggies",
+      "nameCount_amount": "{{amount}} nuggies",
       "indefArticle": "a",
       "shortEffectDescription": "",
       "flavorText": "",
@@ -332,7 +337,8 @@
         "name_one": "[class inline-icon aoi-nuggie]nuggie[/class]",
         "name_other": "[class inline-icon aoi-nuggie]nuggies[/class]",
         "nameCount_one": "1[class inline-icon aoi-nuggie][/class]",
-        "nameCount_other": "{{count}}[class inline-icon aoi-nuggie][/class]"
+        "nameCount_other": "{{count}}[class inline-icon aoi-nuggie][/class]",
+        "nameCount_amount": "{{amount}}[class inline-icon aoi-nuggie][/class]"
       }
     },
     "aoi.compressedNuggies1": {
@@ -344,8 +350,14 @@
     "aoi.compressedNuggies2": {
       "name": "Nuggie Topology",
       "indefArticle": "",
-      "shortEffectDescription": "Each compressed nuggie counts as 1 additional $t(currency.aoi.nuggie.withIcon.name_one)",
+      "shortEffectDescription": "Increase base amount of $t(currency.aoi.nuggie.withIcon.name_other) that compressed nuggies count as by 1",
       "flavorText": "Studies in advanced topology allow us to argue that compressed nuggies are, in fact, an increasingly large number of nuggies superglued together."
+    },
+    "aoi.compressedNuggies3": {
+      "name": "Multi-dimensional Topological Analysis",
+      "indefArticle": "",
+      "shortEffectDescription": "Increase amount of $t(currency.aoi.nuggie.withIcon.name_other) that compressed nuggies count as by 100%",
+      "flavorText": "World-reknowned mathematicians are hired to further convince $t(character.aoi.name) that nuggies are multiple nuggies not only in the four traditional spatial-temporal dimensions, but multiple non-existent dimensions as well."
     },
     "aoi.airFryer": {
       "name_one": "air fryer",
@@ -431,6 +443,9 @@
     "aoi.heckie": {
       "name_one": "heckie",
       "name_other": "heckies",
+      "nameCount_one": "1 heckie",
+      "nameCount_other": "{{count}} heckies",
+      "nameCount_amount": "{{amount}} heckies",
       "indefArticle": "a",
       "shortEffectDescription": "",
       "flavorText": "",
@@ -438,7 +453,8 @@
         "name_one": "[class inline-icon aoi-heckie]heckie[/class]",
         "name_other": "[class inline-icon aoi-heckie]heckies[/class]",
         "nameCount_one": "1[class inline-icon aoi-heckie][/class]",
-        "nameCount_other": "{{count}}[class inline-icon aoi-heckie][/class]"
+        "nameCount_other": "{{count}}[class inline-icon aoi-heckie][/class]",
+        "nameCount_amount": "{{amount}}[class inline-icon aoi-heckie][/class]"
       }
     },
     "aoi.heckieGenerator1": {
@@ -536,6 +552,46 @@
       "indefArticle": "",
       "shortEffectDescription": "Recruit a PRISM Agent",
       "flavorText": ""
+    },
+    "meno.shiny": {
+      "name_one": "shiny",
+      "name_other": "shinies",
+      "nameCount_one": "1 shiny",
+      "nameCount_other": "{{count}} shinies",
+      "nameCount_amount": "{{amount}} shinies",
+      "indefArticle": "a",
+      "shortEffectDescription": "",
+      "flavorText": "",
+      "withIcon": {
+        "name_one": "[class inline-icon meno-shiny]shiny[/class]",
+        "name_other": "[class inline-icon meno-shiny]shinies[/class]",
+        "nameCount_one": "1[class inline-icon meno-shiny][/class]",
+        "nameCount_other": "{{count}}[class inline-icon meno-shiny][/class]",
+        "nameCount_amount": "{{amount}}[class inline-icon meno-shiny][/class]"
+      }
+    },
+    "meno.t2Unlock": {
+      "name": "Incredibly Cute Ippuis",
+      "indefArticle": "",
+      "shortEffectDescription": "Allows collection of $t(character.meno.name)'s Tier II currency, $t(currency.meno.ippui.withIcon.name_other). Also allows toggling passive mode for $t(minigame.meno.name)",
+      "flavorText": ""
+    },
+    "meno.ippui": {
+      "name_one": "ippui",
+      "name_other": "ippuis",
+      "nameCount_one": "1 ippui",
+      "nameCount_other": "{{count}} ippuis",
+      "nameCount_amount": "{{amount}} ippuis",
+      "indefArticle": "an",
+      "shortEffectDescription": "",
+      "flavorText": "",
+      "withIcon": {
+        "name_one": "[class inline-icon meno-ippui]ippui[/class]",
+        "name_other": "[class inline-icon meno-ippui]ippuis[/class]",
+        "nameCount_one": "1[class inline-icon meno-ippui][/class]",
+        "nameCount_other": "{{count}}[class inline-icon meno-ippui][/class]",
+        "nameCount_amount": "{{amount}}[class inline-icon meno-ippui][/class]"
+      }
     }
   }
 }

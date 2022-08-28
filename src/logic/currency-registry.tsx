@@ -101,11 +101,11 @@ export const registerAoiT1 = (gameState: GameState) => {
     }
   ));
   gameState.registerResolvedValue(new ResolvedValue(gameState, "aoi.compressedNuggiesAmount",
-    ["aoi.compressedNuggies2"],
+    ["aoi.compressedNuggies2", "aoi.compressedNuggies3"],
     [],
     (currencies, values) => {
       const amount =
-        5n + currencies.get("aoi.compressedNuggies2");
+        (5n + currencies.get("aoi.compressedNuggies2")) * (1n + currencies.get("aoi.compressedNuggies3"));
       return { amount: Number(amount), explanation: "" };
     }
   ));
@@ -157,6 +157,19 @@ export const registerAoiT1 = (gameState: GameState) => {
       })
     ])
     .registerCalculateIsRevealed(() => gameState.getCurrency("aoi.compressedNuggies1").getCurrentAmount() >= 1)
+  );
+
+  gameState.registerCurrency(new Currency(gameState, "aoi.compressedNuggies3")
+    .registerI18N({
+      shopBoxClass: "minigame-generator"
+    })
+    //.registerMaximumStock(15n)
+    .registerCostToPurchaseOne([
+      new Cost(gameState.getCurrency("aoi.nuggie"), (gameState) => {
+        return costFuncEx(1000000, 10, gameState.getCurrency("aoi.compressedNuggies3").getNextPurchasedAmountShort(), 1);
+      })
+    ])
+    .registerCalculateIsRevealed(() => gameState.getCurrency("aoi.compressedNuggies2").getCurrentAmount() >= 10)
   );
 
   // Minigame generators
@@ -1524,4 +1537,43 @@ export const registerIkuT2 = (gameState: GameState) => {
       gameState.numCharacterUnlocks += 1;
     })
   );
+}
+
+export const registerMenoT1 = (gameState: GameState) => {
+  gameState.registerCurrency(new Currency(gameState, "meno.shiny"));
+
+  gameState.registerResolvedValue(new ResolvedValue(gameState, "meno.shinyGenerator",
+    [],
+    [],
+    (currencies, values) => {
+      return { amount: Number(0), explanation: "" };
+    }
+  ));
+
+  gameState.registerGenerator(new CurrencyGenerator(gameState, "meno.passiveMode",
+    [],
+    [{ currency: "meno.shiny", resolvedValue: "meno.shinyGenerator" }]
+  ));
+  gameState.getGenerator("meno.passiveMode").enabled = false;
+
+  
+
+  gameState.registerCurrency(new Currency(gameState, "meno.t2Unlock")
+    .registerI18N({
+      shopBoxClass: "tier-two-unlock"
+    })
+    .registerMaximumStock(1n)
+    .registerCostToPurchaseOne([
+      new Cost(gameState.getCurrency("meno.shiny"), (_) => 50000n)
+    ])
+    .registerCalculateIsRevealed(() => true)
+    .registerOnAmountPurchased(() => {
+      gameState.getCurrency("meno.ippui").setRevealed();
+      gameState.getCurrency("meno.ippui").addAmount(1n);
+    })
+  );
+}
+
+export const registerMenoT2 = (gameState: GameState) => {
+  gameState.registerCurrency(new Currency(gameState, "meno.ippui"));
 }

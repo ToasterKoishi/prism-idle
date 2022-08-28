@@ -1,6 +1,6 @@
 import { t } from "i18next";
 import React from "react";
-import { ActivePassiveToggle } from "../components/basic-components";
+import { ActivePassiveToggle, FancyText } from "../components/basic-components";
 import { AOI_BOOST_PER_NFT, AOI_DOG_SPEED, BASE_AOI_SPEED, BASE_WCBONALDS_POSITION, NUGGIE_HIT_RADIUS, NUGGIE_MAGNET_AREA_EACH, SCENE_SIZE, SMELL_WAFTER_MOVE_SPEED_BONUS_PERCENT } from "../const";
 import aoi from "../img/aoi.png";
 import dog from "../img/dog.png";
@@ -463,7 +463,8 @@ export class AoiMinigameArea extends React.Component {
           gameState={this.props.gameState}
           toggleEnabled={gameState.getCurrency("aoi.t2Unlock").getCurrentAmount() > 0n}
           generatorId="aoi.passiveMode"
-          generatorHintElement={<span>{this.props.gameState.getResolvedValue("aoi.nuggieGenerator").resolve().toFixed(2)} nuggies/s <span className="tooltip-trigger">[?]<div className="tooltip-box" style={{ bottom: "auto", top: "20" }}><b>Base generation:</b> {gameState.getResolvedValue("aoi.nuggieGeneratorBase").resolve().toFixed(2)} nuggies/s<br /><b>Motivation:</b> x{gameState.getResolvedValue("aoi.nuggieGeneratorMulti").resolve().toFixed(3)}</div></span></span>}
+          generatorHintElement={<span>{gameState.getCurrency("aoi.nuggie").getFancyTextName(this.props.gameState.getResolvedValue("aoi.nuggieGenerator").resolve().toFixed(2))}/s&nbsp;
+            <span className="tooltip-trigger">[?]<div className="tooltip-box" style={{ bottom: "auto", top: "20" }}><b>Optimal generation:</b> {gameState.getResolvedValue("aoi.nuggieGeneratorBase").resolve().toFixed(2)} nuggies/s<br /><b>Motivation:</b> x{gameState.getResolvedValue("aoi.nuggieGeneratorMulti").resolve().toFixed(3)}</div></span></span>}
         >
           <div>
             <p style={{ margin: "16pt auto 16pt", textAlign: "left" }}>

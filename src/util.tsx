@@ -1,17 +1,37 @@
 export const toTitleCase: (string: string) => string = (string: string) => {
-  if (string.length === 0.0) {
+  if (string.length === 0) {
     return string;
   }
-  return string.split(" ").map((word, index, array) => {
-    if (index == 0 || index == array.length - 1 || (
-      word != "of" &&
-      word != "with"
-    )) {
-      return `${word[0].toUpperCase()}${word.substring(1)}`
+
+  let retval = "";
+  let insideTag = false;
+  let currentWord = "";
+  const capitalizeWord = (word: string) => word.length == 0 || word == "of" || word == "with" ? word : word[0].toUpperCase() + word.slice(1);
+  for (let i = 0; i < string.length; i++) {
+    const char = string[i];
+    if (char === '[') {
+      retval += capitalizeWord(currentWord);
+      currentWord = "";
+      insideTag = true;
+      retval += char;
+    } else if (char === ']') {
+      insideTag = false;
+      retval += char;
     } else {
-      return word;
+      if (!insideTag) {
+        if (char === ' ') {
+          retval += capitalizeWord(currentWord) + " ";
+          currentWord = "";
+        } else {
+          currentWord += char;
+        }
+      } else {
+        retval += char;
+      }
     }
-  }).join(" ");
+  }
+  retval += capitalizeWord(currentWord);
+  return retval;
 }
 
 export const degToRad = (deg: number) => Math.PI * deg / 180.0;
@@ -25,8 +45,15 @@ export const costFuncEx = (a: number, b: number, x: bigint | number, c: number, 
 }
 
 // Vector factories
-export function vec2(x: number = 0.0, y: number = 0.0) {
-  return new Vec2(x, y);
+export function vec2(x: number | number[] = 0.0, y: number = null) {
+  if (typeof x === "number") {
+    if (y === null) {
+      y = x;
+    }
+    return new Vec2(x, y);
+  } else {
+    return new Vec2(x[0], x[1]);
+  }
 }
 
 export class Vec2 {
@@ -42,6 +69,9 @@ export class Vec2 {
   }
   get = () => {
     return new Vec2(this.x, this.y);
+  }
+  isEqual: (_: Vec2) => boolean = (other: Vec2) => {
+    return this.x === other.x && this.y === other.y;
   }
   plus = (other: Vec2) => {
     return new Vec2(this.x + other.x, this.y + other.y);
@@ -68,6 +98,9 @@ export class Vec2 {
   }
   unit = () => {
     return this.div(this.mag());
+  }
+  reverse = () => {
+    return new Vec2(this.y, this.x);
   }
   isZero = () => {
     return this.x === 0 && this.y === 0;

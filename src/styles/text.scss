@@ -7,7 +7,7 @@
   background-size: cover;
 }
 
-.tooltip-text {
+.fancy-text {
   .bold {
     font-weight: bold;
   }
@@ -34,6 +34,12 @@
     &.aoi-heckie::before {
       @include inline-icon-16-16();
       background-image: url("../img/heckie.png");
+      top: 3px;
+    }
+
+    &.meno-shiny::before {
+      @include inline-icon-16-16();
+      background-image: url("../img/shiny.png");
       top: 3px;
     }
   }

@@ -78,7 +78,7 @@ export class SimpleCurrencyPurchaseComponent extends React.Component {
       }
 
       const effectText = t("currency." + currency.getId() + ".shortEffectDescription", interpolations);
-      const effectTextObjects = <FancyText effectText={effectText} />
+      const effectTextObjects = <FancyText rawText={effectText} />
 
       return (
         <div className="upwards-fade-in">
@@ -97,11 +97,11 @@ export class SimpleCurrencyPurchaseComponent extends React.Component {
             </div>
             <p>{
               currency.getIsUnlocked() ?
-                (currency.isInStock() ? `Cost: ${currency.getGameState().renderCosts(currency.costToPurchaseOne())}` : "Cost: -") :
-                (`Requires: ${currency.getGameState().renderCosts(currency.unlockRequirements)}`)
+                (currency.isInStock() ? <span>Cost: {currency.getGameState().renderCosts(currency.costToPurchaseOne(), true)}</span> : "Cost: -") :
+                (<span>Requires: {currency.getGameState().renderCosts(currency.unlockRequirements)}</span>)
             }</p>
             <div style={{ width: "80%", height: "1px", margin: "9px auto", background: "linear-gradient(90deg, #80808000, #808080FF 20%, #808080FF 80%, #80808000)" }} />
-            <div className="clearfix tooltip-text">
+            <div className="clearfix">
               {effectTextObjects}
               {this.#maybeFlavorBox}
             </div>

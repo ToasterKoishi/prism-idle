@@ -1,6 +1,9 @@
+import { t } from "i18next";
 import React, { memo, useState } from "react";
 import { TOTER_DEBUG_RENDER_ACTIVITY } from "../const";
 import { GameState } from "../logic/game-state";
+import { toTitleCase } from "../util";
+import { ShopAreaComponent } from "./shop-area-component";
 
 export const TooltipTrigger = memo(function TooltipTrigger(props: { style?: React.CSSProperties, tooltipContents: JSX.Element, tooltipBoxStyle?: React.CSSProperties, children: any }) {
   return (
@@ -14,22 +17,22 @@ export const TooltipTrigger = memo(function TooltipTrigger(props: { style?: Reac
   );
 });
 
-export const FancyText = memo(function FancyText(props: { effectText: string }) {
+export const FancyText = memo(function FancyText(props: { rawText: string }) {
   const effectTextObjects = [];
   let currentId = 0;
   let currentText = "";
   let currentTag = "";
   let currentParams = "";
   let mode = 0; // 0 = text, 1 = tag name, 2 = tag parameters
-  const effectText = props.effectText;
+  const effectText = props.rawText;
   for (let i = 0; i < effectText.length; i++) {
     const char = effectText[i];
     if (mode == 0) {
       if (char == '[') {
         // Begin tag
-        if (currentTag == "class") {
+        if (currentTag.toLowerCase() == "class") {
           effectTextObjects.push((<span key={currentId++} className={currentParams}>{currentText}</span>));
-        } else if (currentTag == "b" && currentText.length > 0) {
+        } else if (currentTag.toLowerCase() == "b" && currentText.length > 0) {
           effectTextObjects.push((<b key={currentId++}>{currentText}</b>));
         } else if (currentText.length > 0) {
           effectTextObjects.push((<span key={currentId++}>{currentText}</span>));
@@ -70,7 +73,7 @@ export const FancyText = memo(function FancyText(props: { effectText: string }) 
     effectTextObjects.push((<span key={currentId++}>{currentText}</span>));
   }
 
-  return (<span>
+  return (<span className="fancy-text">
     {effectTextObjects}
     {TOTER_DEBUG_RENDER_ACTIVITY ? (
       <span style={{ display: "inline-block", width: "1px", height: "16px", backgroundColor: Math.floor(Math.random() * 16777215).toString(16) }} />
@@ -139,7 +142,51 @@ export function ConverterToggle(props: { gameState: GameState, generatorId: stri
       <p style={{ textAlign: "left", flexBasis: "0", flexGrow: "1" }}><b>{outputCurrency.getNamePlural().toUpperCase()}</b> | {outputCurrency.getCurrentAmountShort()}</p>
     </div>
     <div style={{ textAlign: "center", margin: "6px auto 0px" }}>
-      (Max rate: {props.gameState.getResolvedValue(`${props.generatorId}GeneratorIn`).resolve().toFixed(2)}/s → {props.gameState.getResolvedValue(`${props.generatorId}GeneratorOut`).resolve().toFixed(2)}/s)
+      (Max rate: {inputCurrency.getFancyTextName(props.gameState.getResolvedValue(`${props.generatorId}GeneratorIn`).resolve().toFixed(2))}/s → {outputCurrency.getFancyTextName(props.gameState.getResolvedValue(`${props.generatorId}GeneratorOut`).resolve().toFixed(2))}/s)
     </div>
   </div>);
+}
+
+export function T1Area(props: { gameState: GameState, characterId: string, currencyId: string, upgradesToShow: string[] }) {
+  return (
+    <HideableArea
+      openRef={props.gameState.liveState[`${props.characterId}Scene`].t1Open}
+      beforeButtonElement={(
+        <span><b>{t(`character.${props.characterId}.nameFull`)}</b> Tier I Upgrades&nbsp;</span>
+      )}
+      alwaysShownElement={(
+        <div style={{ textAlign: "center", margin: "16px auto" }}>
+          <b>{props.gameState.getCurrency(props.currencyId).getFancyTextName(null, { textModifier: toTitleCase })}</b>: {props.gameState.getCurrency(props.currencyId).getCurrentAmountShort()}
+        </div>
+      )}
+      openOnlyElement={(
+        <ShopAreaComponent gameState={props.gameState} currencyIdsToShow={props.upgradesToShow} />
+      )}
+    />
+  );
+}
+
+export function T2Area(props: { gameState: GameState, characterId: string, currencyId: string, generatorId: string, upgradesToShowTop: string[], upgradesToShowBottom: string[] }) {
+  return (
+    props.gameState.getCurrency(props.currencyId).getIsRevealed() ? (
+      <div>
+        <HideableArea
+          openRef={props.gameState.liveState[`${props.characterId}Scene`].t2Open}
+          beforeButtonElement={(
+            <span><b>{t(`character.${props.characterId}.nameFull`)}</b> Tier II Upgrades&nbsp;</span>
+          )}
+          alwaysShownElement={(
+            <ConverterToggle gameState={props.gameState} generatorId={props.generatorId} />
+          )}
+          openOnlyElement={(
+            <div>
+              <ShopAreaComponent gameState={props.gameState} currencyIdsToShow={props.upgradesToShowTop} />
+              <ShopAreaComponent gameState={props.gameState} currencyIdsToShow={props.upgradesToShowBottom} />
+            </div>
+          )}
+        />
+        <div className="shop-divider" />
+      </div>
+    ) : null
+  );
 }
