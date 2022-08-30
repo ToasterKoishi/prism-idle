@@ -570,6 +570,88 @@
         "nameCount_amount": "{{amount}}[class inline-icon meno-shiny][/class]"
       }
     },
+    "meno.biggerBlocks": {
+      "name_one": "bigger block",
+      "name_other": "bigger blocks",
+      "indefArticle": "a",
+      "shortEffectDescription": "Increase size of blocks by 1; increase shinies per layer by 2; and increase time to mine a block by {{rate}} seconds",
+      "flavorText": "A few non-threatening ippuis can motivate otagons to mine bigger blocks."
+    },
+    "meno.biggerBlocks1": {
+      "name_one": "deeper mineshaft",
+      "name_other": "deeper mineshafts",
+      "indefArticle": "a",
+      "shortEffectDescription": "Increase shinies per layer by 1; and increase time to mine a block by {{rate}} seconds",
+      "flavorText": "The ideal level to mine for diamond used to be at y=11, but then the world expanded vertically, and now theoretical miners suggest mining at increasingly deep depths. Although at first skeptical, we find that digging downwards does definitely discover deeper diamond deposits."
+    },
+    "meno.biggerBlocks2": {
+      "name_one": "thicker block",
+      "name_other": "thicker blocks",
+      "indefArticle": "a",
+      "shortEffectDescription": "Increase number of layers by 1",
+      "flavorText": ""
+    },
+    "meno.biggerBlocks3": {
+      "name_one": "even bigger block",
+      "name_other": "even bigger blocks",
+      "indefArticle": "an",
+      "shortEffectDescription": "Increase size of blocks by 1; increase shinies per layer by 4; and increase time to mine a block by {{rate}} seconds",
+      "flavorText": ""
+    },
+    "meno.digSpeed": {
+      "name_one": "otagon arm actuator",
+      "name_other": "otagon arm actuators",
+      "indefArticle": "an",
+      "shortEffectDescription": "Increase dig speed by 40%",
+      "flavorText": ""
+    },
+    "meno.storageSize": {
+      "name_one": "dungeon expansion",
+      "name_other": "dungeon expansions",
+      "indefArticle": "a",
+      "shortEffectDescription": "Increase maximum blocks by 5",
+      "flavorText": ""
+    },
+    "meno.residualShiny": {
+      "name_one": "residual shiny",
+      "name_other": "residual shinies",
+      "indefArticle": "a",
+      "shortEffectDescription": "Increase base $t(currency.meno.shiny.withIcon.name_other) gained when a block is dug out by $t(currency.meno.shiny.withIcon.nameCount, {'count':1})",
+      "flavorText": ""
+    },
+    "meno.magnifyingGlass": {
+      "name_one": "vial of anti-glare coating",
+      "name_other": "vials of anti-glare coating",
+      "indefArticle": "a",
+      "shortEffectDescription": "Increase max uses of magnifying glass by 1",
+      "flavorText": "$t(character.meno.name)'s natural stare contains such a strong glare that magnifying glasses crack under the pressure of $t(character.meno.name) looking through them. Obviously, anti-glare coating mitigates this issue to some degree (obviously)."
+    },
+    "meno.magnifyingGlass1": {
+      "name_one": "vial of superglue (safe for glass)",
+      "name_other": "vials of superglue (safe for glass)",
+      "indefArticle": "a",
+      "shortEffectDescription": "Increase area of magnifying glass",
+      "flavorText": "We are definitely not going to use this to super-glue a bunch of magnifying glasses together."
+    },
+    "meno.chisel": {
+      "name": "unbreaking chisel",
+      "indefArticle": "",
+      "shortEffectDescription": "Increase max uses of chisel by 1",
+      "flavorText": "For some reason, these terrible chisels come with only 1 durability! What, did a skeleton drop them?"
+    },
+    "meno.chisel1": {
+      "name": "efficiency chisel",
+      "indefArticle": "",
+      "shortEffectDescription": "Increase width of chisel area by 1",
+      "flavorText": "Unlike the improved magnifying glasses, which are just a bunch of magnifying glasses super-glued together, these chisels are enchanted with enchanting table language to be built different."
+    },
+    "": {
+      "name_one": "",
+      "name_other": "",
+      "indefArticle": "",
+      "shortEffectDescription": "",
+      "flavorText": ""
+    },
     "meno.t2Unlock": {
       "name": "Incredibly Cute Ippuis",
       "indefArticle": "",

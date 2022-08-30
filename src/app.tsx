@@ -179,6 +179,7 @@ class App extends React.Component {
       gameState.getCurrency("aoi.heckie").addAmount(10000000n);
       gameState.getCurrency("iku.ikumin").addAmount(10000000n);
       gameState.getCurrency("iku.furifuri").addAmount(10000000n);
+      gameState.getCurrency("meno.shiny").addAmount(50000n);
     }
 
     this.gameState.gameTick(0.0);
@@ -291,7 +292,7 @@ class App extends React.Component {
         <div style={{ position: "absolute", bottom: "0", right: "0", width: "100px", height: "100px", margin: "8px 4px", backgroundImage: `url(${logo})`, backgroundSize: "100%", opacity: "0.5" }} />
         <div className="footer">
           <div className="footer-left">
-            Version 2022-08-28.0
+            Version 2022-08-30.0
           </div>
           <div className="footer-middle">
           </div>
@@ -384,18 +385,22 @@ class AgentUnlockArea extends React.Component {
     return (
       <div className={`${this.fadingOut ? "outwards-fade-out" : ""}`} style={{ position: "fixed", top: "0", "left": "0", zIndex: "1000", width: "100%", height: "100%", overflow: "auto" }}>
         <div className="simple-fade-in" style={{ position: "absolute", width: "100%", height: "100%", backgroundColor: "rgb(0,0,0,0.2)" }} />
-        <div className="upwards-fade-in" style={{ position: "relative", margin: "100px auto", width: "80%", height: "calc(100% - 236px)", border: "solid lightblue 2px", padding: "16px", boxShadow: "0 0 10px #00000080", backgroundColor: this.state.hasSelectedItem ? COLOR_SCHEMES[selectedCharacterId].backgroundColor : "white", transition: "background-color 0.3s" }}>
+        <div className="upwards-fade-in" style={{ position: "relative", margin: "100px auto", width: "80%", height: "calc(100% - 236px)", padding: "16px", boxShadow: "0 0 10px #00000080" }}>
 
-          <div style={{ position: "absolute", top: "0", left: "0", right: "0", width: "100%", maxWidth: "600px", height: "100%", margin: "0 auto", overflow: "hidden", perspective: "1000px" }}>
+          <div style={{ position: "absolute", top: "0", left: "0", right: "0", width: "100%", maxWidth: "600px", height: "100%", margin: "0 auto", perspective: "1000px" }}>
             <div style={{ position: "absolute", width: "100%", transformStyle: "preserve-3d" }}>
               <div style={{ paddingTop: "100%" }} />
-              <img style={{ position: "absolute", top: "-40%", width: "100%", animation: "logo-rotate 30s 0s infinite" }} src={logo} />
+              <img style={{ position: "absolute", top: "-50%", width: "100%", animation: "logo-rotate 30s 0s infinite" }} src={logo} />
             </div>
             <div style={{ position: "absolute", width: "100%", bottom: "0", transformStyle: "preserve-3d" }}>
               <div style={{ paddingTop: "100%" }} />
-              <img style={{ position: "absolute", bottom: "-40%", width: "100%", animation: "logo-rotate 30s 0s infinite" }} src={logo} />
+              <img style={{ position: "absolute", bottom: "-50%", width: "100%", animation: "logo-rotate 30s 0s infinite" }} src={logo} />
             </div>
           </div>
+
+          <div style={{position: "absolute", top: 0, left: 0, width: "100%", height: "100%", backgroundColor: this.state.hasSelectedItem ? COLOR_SCHEMES[selectedCharacterId].backgroundColor : "white", transition: "background-color 0.3s"}} />
+
+          <div style={{position: "absolute", top: "-10px", left: "-10px", width: "calc(100% + 20px)", height: "calc(100% + 20px)", outline: "5px solid lavender", opacity: 0.6}} />
 
           <h1 style={{ position: "relative", textAlign: "center" }}>Select Agent</h1>
 

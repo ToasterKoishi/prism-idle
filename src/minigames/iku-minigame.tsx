@@ -2,10 +2,10 @@ import { t } from "i18next";
 import React from "react";
 import { ActivePassiveToggle, FancyText, TooltipTrigger } from "../components/basic-components";
 import { SCENE_SIZE } from "../const";
-import glove from "../img/glove.png";
-import ikumin from "../img/ikumin.png";
-import sprinkler from "../img/sprinkler.png";
-import watering_can from "../img/watering-can.png";
+import glove from "../img/iku/glove.png";
+import ikumin from "../img/iku/ikumin.png";
+import sprinkler from "../img/iku/sprinkler.png";
+import watering_can from "../img/iku/watering-can.png";
 import { GameState } from "../logic/game-state";
 import { generateUUID, Vec2, vec2 } from "../util";
 import { LogicFloatingNumber, RenderGameObject } from "./render-game-object";
@@ -615,8 +615,8 @@ export class IkuMinigameArea extends React.Component {
             >
               <img style={{ display: "none" }} src={ikumin} ref={this.ikuminSpritesheetRef} />
 
-              <canvas className="minigame-size" ref={this.canvasRef} />
               {sprinklers}
+              <canvas className="minigame-size" ref={this.canvasRef} />
               <div className="minigame-hotbar">
                 <div className={`hotbar-item-container${this.currentTool == TOOL_WATERING_CAN ? " selected" : ""}`} onMouseDown={(e) => { this.changeTool(TOOL_WATERING_CAN); e.stopPropagation(); }}>
                   <img className="hotbar-item-img" src={watering_can} />

@@ -10,7 +10,7 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  box-shadow: 6px 6px 0 #00000080;
+  box-shadow: var(--shadow-distance) var(--shadow-distance) 0 #00000080;
 
   .meno-puzzle-row {
     display: flex;
@@ -25,6 +25,14 @@
       background-color: gray;
       outline: 2px solid black;
       margin: 1px;
+
+      &.shiny {
+        background-color: rgb(110, 110, 255);
+
+        &.highlight {
+          background-color: rgb(167, 167, 255);
+        }
+      }
 
       &.investigate {
         background-color: darkkhaki;
@@ -41,27 +49,59 @@
       &.broken {
         background-color: #202020;
 
-        &.investigate {
-          background-color: #404000;
+        &.shiny {
+          background-color: darkblue;
         }
       }
 
-      &.shiny.shiny.shiny {
-        background-color: darkblue;
+      .shiny-below {
+        position: absolute;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url("../img/meno/tiles.png");
+        background-size: cover;
       }
 
       .meno-puzzle-cell-inner {
+        position: absolute;
         width: 100%;
         font-size: 32px;
         word-wrap: break-word;
+      }
 
-        .meno-puzzle-shiny {
-          width: 50%;
-          animation: floating-number-up 0.5s 0.5s forwards ease-out;
-        }
+      &.right-edge::before {
+        content: '';
+        display: block;
+        position: absolute;
+        top: var(--right-edge-top);
+        right: var(--right-edge-right);
+        width: var(--right-edge-width);
+        height: 100%;
+        background-color: gray;
+        outline: 2px solid black;
+        transform: skewY(45deg);
+      }
+
+      &.bottom-edge::after {
+        content: '';
+        display: block;
+        position: absolute;
+        left: var(--bottom-edge-left);
+        bottom: var(--bottom-edge-bottom);
+        width: 100%;
+        height: var(--bottom-edge-height);
+        background-color: gray;
+        outline: 2px solid black;
+        transform: skewX(45deg);
       }
     }
   }
+}
+
+.meno-puzzle-shiny {
+  pointer-events: none;
+  animation: floating-number-up 0.5s 0.5s forwards ease-out;
 }
 
 @keyframes rotate-stepwise-1-8 {

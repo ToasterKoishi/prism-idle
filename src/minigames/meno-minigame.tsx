@@ -2,22 +2,31 @@ import { t } from "i18next";
 import React, { CSSProperties } from "react";
 import { ActivePassiveToggle, TooltipTrigger } from "../components/basic-components";
 import { SCENE_SIZE, TOTER_DEBUG_RENDER_ACTIVITY } from "../const";
-import chisel from "../img/chisel.png";
-import ikumin from "../img/ikumin.png";
-import magnifying_glass from "../img/magnifying-glass.png";
+import ikumin from "../img/iku/ikumin.png";
+import chisel from "../img/meno/chisel.png";
+import magnifying_glass from "../img/meno/magnifying-glass.png";
+import spinner from "../img/meno/spinner.png";
 import shiny from "../img/shiny.png";
-import spinner from "../img/spinner.png";
 import { GameState } from "../logic/game-state";
 import { generateUUID, Vec2, vec2 } from "../util";
 import { LogicFloatingNumber, RenderGameObject } from "./render-game-object";
 
-const CLOCK_POSITIONS = [vec2(-1, -1), vec2(0, -1), vec2(1, -1), vec2(1, 0), vec2(1, 1), vec2(0, 1), vec2(-1, 1), vec2(-1, 0)];
+const ADJACENT_POSITIONS = [vec2(-1, -1), vec2(0, -1), vec2(1, -1), vec2(1, 0), vec2(1, 1), vec2(0, 1), vec2(-1, 1), vec2(-1, 0)];
+const CHISEL_POSITIONS = [vec2(0, 0), vec2(0, 1), vec2(0, -1), vec2(0, 2), vec2(0, -2)];
+const MAGNIFYING_GLASS_POSITIONS = [vec2(0, 0), vec2(0, 1), vec2(0, -1), vec2(1, 0), vec2(-1, 0), vec2(-1, -1), vec2(1, -1), vec2(-1, 1), vec2(1, 1)];
 
 const TOOL_MAGNIFYING_GLASS = 0;
 const TOOL_CHISEL = 1;
+const TOOL_HAMMER = 2;
 
 const MAX_PUZZLES = 5;
-const DIG_TIME = 30;
+
+const getChiselCoords = (coord: Vec2, chiselLevel: number) => {
+  return CHISEL_POSITIONS.slice(0, 1 + chiselLevel).map((position) => coord.plus(position));
+};
+const getMagnifyingGlassCoords = (coord: Vec2, magnifyingGlassLevel: number) => {
+  return MAGNIFYING_GLASS_POSITIONS.slice(0, 1 + 4 * magnifyingGlassLevel).map((position) => coord.plus(position));
+};
 
 class RenderPuzzle extends React.Component {
   props: {
@@ -41,56 +50,52 @@ class RenderPuzzle extends React.Component {
     for (let x = 0; x < logicPuzzle.puzzleSize.x; x++) {
       rows.push([]);
       for (let y = 0; y < logicPuzzle.puzzleSize.y; y++) {
+        const minedDepth = logicPuzzle.topLayerData[x][y].minedDepth;
         // Calculate broken tile style
-        let isBroken = false;
-        let hasShiny = false;
-        if (logicPuzzle.breakDepths[x][y] >= 0) {
-          isBroken = true;
-          hasShiny = logicPuzzle.shinyLocations.findIndex((shiny) => vec2(shiny).isEqual(vec2(x, y))) >= 0;
-        }
+        const isBedrock = minedDepth >= logicPuzzle.maxDepth;
+        const hasShiny = minedDepth >= 0 ? logicPuzzle.tileData[x][y][minedDepth].hasShiny : false;
+        const hasShinyBelow = minedDepth + 1 <= logicPuzzle.maxDepth ? logicPuzzle.tileData[x][y][minedDepth + 1].hasShiny : false;
+        const depthPx = (minedDepth + 1.0) * 4.0;
 
         // Calculate magnifying glass numbers
-        let numAround = -1;
-        if (logicPuzzle.revealDepths[x][y] >= 0) {
-          numAround = 0;
-          CLOCK_POSITIONS.forEach((snorthweast) => {
-            const positionToCheck = vec2(x, y).plus(snorthweast);
-            logicPuzzle.shinyLocations.forEach((shiny) => {
-              if (vec2(shiny).isEqual(positionToCheck)) {
-                numAround += 1;
-              }
-            });
-          });
-        }
+        let numAround = logicPuzzle.topLayerData[x][y].isInvestigated ? logicPuzzle.tileData[x][y][minedDepth + 1].numAround : -1;
 
-        let finalCellContentToShow = null;
-        if (hasShiny) {
-          finalCellContentToShow = <img className="meno-puzzle-shiny" src={shiny} />;
-        } else if (numAround >= 0) {
-          finalCellContentToShow = <span>{numAround}</span>;
-        }
+        const depthBelow = x + 1 < logicPuzzle.puzzleSize.x ? logicPuzzle.topLayerData[x + 1][y].minedDepth - minedDepth : logicPuzzle.maxDepth - minedDepth;
+        const depthRight = y + 1 < logicPuzzle.puzzleSize.y ? logicPuzzle.topLayerData[x][y + 1].minedDepth - minedDepth : logicPuzzle.maxDepth - minedDepth;
+
+        let finalCellContentToShow = numAround >= 0 ? <span>{numAround}</span> : null;
 
         let finalStyles: string[] = [];
-        if (this.props.hoveredCell && this.props.hoveredCell.x == x && this.props.hoveredCell.y == y) {
+        if (logicPuzzle.topLayerData[x][y].isHighlighted) {
           finalStyles.push("highlight");
+        }
+        if (isBedrock) {
+          finalStyles.push("broken");
         }
         if (hasShiny) {
           finalStyles.push("shiny");
         }
-        if (isBroken) {
-          finalStyles.push("broken");
-        }
-        if (logicPuzzle.revealDepths[x][y] >= 0) {
+        if (logicPuzzle.topLayerData[x][y].isInvestigated) {
           finalStyles.push("investigate");
         }
 
         rows[x].push(
           <div
             key={y}
-            className={`meno-puzzle-cell ${finalStyles.join(" ")}`}
+            className={`meno-puzzle-cell ${depthBelow > 0 ? "bottom-edge" : ""} ${depthRight > 0 ? "right-edge" : ""} ${finalStyles.join(" ")}`}
+            style={{
+              transform: `translate(${depthPx}px, ${depthPx}px)`,
+              "--bottom-edge-left": `${2 * depthBelow}px`,
+              "--bottom-edge-bottom": `${-4 * depthBelow}px`,
+              "--bottom-edge-height": `${4 * depthBelow - 2}px`,
+              "--right-edge-top": `${2 * depthRight}px`,
+              "--right-edge-right": `${-4 * depthRight}px`,
+              "--right-edge-width": `${4 * depthRight - 2}px`
+            } as CSSProperties}
             onMouseDown={(_) => this.props.onCellClickedHandler(vec2(x, y))}
             onMouseMove={(_) => this.props.onCellHoveredHandler(vec2(x, y))}
           >
+            {logicPuzzle.topLayerData[x][y].isInvestigated && hasShinyBelow ? <div className="shiny-below" /> : null}
             <div className="meno-puzzle-cell-inner">
               {finalCellContentToShow}
             </div>
@@ -107,7 +112,8 @@ class RenderPuzzle extends React.Component {
         style={{
           pointerEvents: this.props.transitionAmount == 0.0 ? "auto" : "none",
           transform: this.props.transitionAmount == 0.0 ? shakeTransform : transitionTransform,
-          "--cell-size": logicPuzzle.getRenderCellSize() - 2
+          "--cell-size": logicPuzzle.getRenderCellSize() - 2,
+          "--shadow-distance": `${logicPuzzle.maxDepth * 4.0 + 8.0}px`,
         } as CSSProperties}
         onMouseLeave={(_) => this.props.onPuzzleLeaveHandler()}
       >
@@ -126,57 +132,97 @@ class LogicPuzzle {
   readonly uuid: number;
 
   puzzleSize: Vec2;
-  revealDepths: number[][] = []; // 2d array of depths to and which are revealed
-  breakDepths: number[][] = []; // 2d array of depths to and which are broken
-  shinyLocations: number[][] = []; // 1d array of 3-tuple coordinates
+  topLayerData: { minedDepth: number, isHighlighted: boolean, isInvestigated: boolean }[][] = []; // 2d xy coordinate array of tiles
+  tileData: { hasShiny: boolean, numAround: number }[][][] = []; // 3d xyz coordinate array
   maxDepth: number = -1;
 
   totalShinies: number;
   shiniesFound: number = 0;
 
-  constructor() {
+  constructor(gameState: GameState) {
     this.uuid = generateUUID();
 
-    const puzzleSize: Vec2 = vec2(2, 2);
-    const shiniesPerLayer = 1;
-    const standardLayers = 1;
+    const puzzleSize: Vec2 = vec2(gameState.getResolvedValue("meno.puzzleSize").resolve());
+    const numLayers = gameState.getResolvedValue("meno.puzzleDepth").resolve();
+    const shiniesPerLayer = gameState.getResolvedValue("meno.shinyPerLayer").resolve();
 
     this.puzzleSize = puzzleSize;
-    this.maxDepth = standardLayers - 1;
-    this.totalShinies = shiniesPerLayer * standardLayers;
+    this.maxDepth = numLayers - 1;
+    this.totalShinies = shiniesPerLayer * numLayers;
 
+    // Generate arrays of data
     for (let x = 0; x < puzzleSize.x; x++) {
-      this.revealDepths.push([]);
-      this.breakDepths.push([]);
+      this.topLayerData.push([]);
+      this.tileData.push([]);
       for (let y = 0; y < puzzleSize.y; y++) {
-        this.revealDepths[x].push(-1);
-        this.breakDepths[x].push(-1);
+        this.topLayerData[x].push({ isInvestigated: false, isHighlighted: false, minedDepth: x == puzzleSize.x || y == puzzleSize.y ? this.maxDepth : -1 });
+        this.tileData[x].push([]);
+        for (let z = 0; z < numLayers; z++) {
+          this.tileData[x][y].push({ hasShiny: false, numAround: 0 });
+        }
       }
     }
 
-    for (let i = 0; i < standardLayers; i++) {
+    // Place shinies
+    for (let i = 0; i < numLayers; i++) {
+      const deck: Vec2[] = [];
+      for (let x = 0; x < puzzleSize.x; x++) {
+        for (let y = 0; y < puzzleSize.y; y++) {
+          deck.push(vec2(x, y));
+        }
+      }
       for (let j = 0; j < shiniesPerLayer; j++) {
-        this.shinyLocations.push([Math.floor(Math.random() * puzzleSize.x), Math.floor(Math.random() * puzzleSize.y), i]);
+        if (deck.length == 0) {
+          break;
+        }
+        const card: Vec2 = deck.splice(Math.floor(Math.random() * deck.length), 1)[0];
+        this.tileData[card.x][card.y][i].hasShiny = true;
+      }
+    }
+
+    // Calculate adjacency numbers
+    for (let x = 0; x < puzzleSize.x; x++) {
+      for (let y = 0; y < puzzleSize.y; y++) {
+        for (let z = 0; z < numLayers; z++) {
+          ADJACENT_POSITIONS.forEach((clock) => {
+            const position = vec2(x, y).plus(clock);
+            if (this.isInPuzzleBounds(position) && this.tileData[position.x][position.y][z].hasShiny) {
+              this.tileData[x][y][z].numAround += 1;
+            }
+          });
+        }
       }
     }
   }
 
-  handleToolUse = (cell: Vec2, currentTool: number) => {
-    if (currentTool == TOOL_MAGNIFYING_GLASS && this.revealDepths[cell.x][cell.y] == -1) {
-      this.revealDepths[cell.x][cell.y] = 0;
-      return 0;
-    } else if (currentTool == TOOL_CHISEL && this.breakDepths[cell.x][cell.y] == -1) {
-      this.breakDepths[cell.x][cell.y] = 0;
-      const foundShiny = this.shinyLocations.findIndex((shiny) => vec2(shiny).isEqual(cell)) >= 0 ? 1 : 0;
-      this.shiniesFound += foundShiny;
-      return foundShiny;
+  isCellActionable = (coord: Vec2, toolAction: number) => {
+    return this.isInPuzzleBounds(coord);
+  }
+
+  performCellAction = (coord: Vec2, toolAction: number) => {
+    if (this.isInPuzzleBounds(coord)) {
+      const tld = this.topLayerData[coord.x][coord.y];
+      if (toolAction == TOOL_MAGNIFYING_GLASS && !tld.isInvestigated && tld.minedDepth != this.maxDepth) {
+        tld.isInvestigated = true;
+        return 0;
+      } else if ((toolAction == TOOL_CHISEL || toolAction == TOOL_HAMMER) && tld.minedDepth < this.maxDepth) {
+        tld.isInvestigated = false;
+        tld.minedDepth += 1;
+        const foundShiny = this.tileData[coord.x][coord.y][tld.minedDepth].hasShiny ? 1 : 0;
+        this.shiniesFound += foundShiny;
+        return foundShiny;
+      }
     }
 
     return -1;
   }
 
+  isInPuzzleBounds = (coord: Vec2) => {
+    return coord.x >= 0 && coord.y >= 0 && coord.x < this.puzzleSize.x && coord.y < this.puzzleSize.y;
+  }
+
   getRenderCellSize = () => {
-    return 48.0;
+    return 48.0 * Math.min(8.0 / this.puzzleSize.y, 1.0);
   }
 }
 
@@ -202,7 +248,7 @@ export class MenoMinigameArea extends React.Component {
   floatingNumbers: LogicFloatingNumber[] = [];
 
   currentTool: number = TOOL_MAGNIFYING_GLASS;
-  hoveredCell: Vec2 = null;
+  hoveredCell: Vec2 = vec2(-1, -1);
 
   timePassed: number = 0.0;
   showMouse: boolean = false;
@@ -215,11 +261,12 @@ export class MenoMinigameArea extends React.Component {
   puzzleShakeEffectTime: number = 0.0;
   pingEffects: { position: Vec2, animationProgress: number }[] = [];
   particleEffects: { position: Vec2, velocity: Vec2 }[] = [];
+  shinyGatherEffects: { id: number, position: Vec2, animationProgress: number }[] = [];
 
   constructor(props: MenoMinigameAreaProps) {
     super(props);
     this.state = {
-      currentPuzzle: new LogicPuzzle(),
+      currentPuzzle: new LogicPuzzle(props.gameState),
       nextPuzzle: null,
       toolUsesLeft: [1, 1],
       numStockedPuzzles: 5,
@@ -229,8 +276,8 @@ export class MenoMinigameArea extends React.Component {
 
   componentDidMount(): void {
     this.props.hooks.gameTick.push(this.gameTick);
-    if (this.props.gameState.liveState.ikuMinigame) {
-      Object.assign(this.state, this.props.gameState.liveState.ikuMinigame);
+    if (this.props.gameState.liveState.menoMinigame) {
+      Object.assign(this.state, this.props.gameState.liveState.menoMinigame);
     }
   }
 
@@ -277,8 +324,8 @@ export class MenoMinigameArea extends React.Component {
     this.setState((state: MenoMinigameAreaState, props: MenoMinigameAreaProps) => {
       if (state.numStockedPuzzles > 0) {
         state.numStockedPuzzles -= 1;
-        state.nextPuzzle = new LogicPuzzle();
-        state.toolUsesLeft = [1, 1];
+        state.nextPuzzle = new LogicPuzzle(props.gameState);
+        state.toolUsesLeft = this.getMaxToolUses();
 
         this.puzzleTransitionTime = 0.0;
       }
@@ -287,39 +334,59 @@ export class MenoMinigameArea extends React.Component {
   }
 
   handleOnCellClicked = (cell: Vec2) => {
-    this.setState((state: MenoMinigameAreaState, props: MenoMinigameAreaProps) => {
-      if (state.toolUsesLeft[this.currentTool] > 0) {
-        // Half of the logic lives here and the other half lives in handleToolUse because fml
-        const useResult = state.currentPuzzle.handleToolUse(cell, this.currentTool);
-        if (useResult >= 0) {
-          state.toolUsesLeft[this.currentTool] -= 1;
-
-          const cellRenderPosition = cell.minus(state.currentPuzzle.puzzleSize.times(0.5)).times(state.currentPuzzle.getRenderCellSize()).reverse().plus(SCENE_SIZE.times(0.5).plus(vec2(state.currentPuzzle.getRenderCellSize()).times(0.5)));
-          if (this.currentTool == TOOL_MAGNIFYING_GLASS) {
-            this.pingEffects.push({ position: cellRenderPosition.get(), animationProgress: 1.0 });
-          } else if (this.currentTool == TOOL_CHISEL) {
-            this.puzzleShakeEffectTime = 1.0;
-            for (let i = 0; i < 10; i++) {
-              this.particleEffects.push({ position: cellRenderPosition.get(), velocity: Vec2.unit(-Math.random() * Math.PI).times(Math.random() * 100.0 + 100.0) });
-            }
-            if (useResult > 0) {
-              props.gameState.getCurrency("meno.shiny").addAmount(1n);
-              this.floatingNumbers.push(new LogicFloatingNumber(cellRenderPosition.plus(vec2(0.0, -16.0)), "+1", "floating-number-inner-shiny"));
+    if (this.state.toolUsesLeft[this.currentTool] > 0) {
+      if (this.state.currentPuzzle.isCellActionable(cell, this.currentTool)) {
+        const coordsToAction = this.currentTool == TOOL_MAGNIFYING_GLASS ? getMagnifyingGlassCoords(cell, this.props.gameState.getCurrency("meno.magnifyingGlass1").getCurrentAmountShort()) : getChiselCoords(cell, this.props.gameState.getCurrency("meno.chisel1").getCurrentAmountShort());
+        let hadAnyEffect = false;
+        coordsToAction.forEach((coord) => {
+          const useResult = this.state.currentPuzzle.performCellAction(coord, this.currentTool);
+          if (useResult >= 0) {
+            hadAnyEffect = true;
+            const cellRenderPosition = coord.minus(this.state.currentPuzzle.puzzleSize.times(0.5)).times(this.state.currentPuzzle.getRenderCellSize()).reverse().plus(SCENE_SIZE.times(0.5).plus(vec2(this.state.currentPuzzle.getRenderCellSize()).times(0.5)));
+            if (this.currentTool == TOOL_MAGNIFYING_GLASS) {
+              this.pingEffects.push({ position: cellRenderPosition.get(), animationProgress: 1.0 });
+            } else if (this.currentTool == TOOL_CHISEL) {
+              this.puzzleShakeEffectTime = 1.0;
+              for (let i = 0; i < 10; i++) {
+                this.particleEffects.push({ position: cellRenderPosition.get(), velocity: Vec2.unit(-Math.random() * Math.PI).times(Math.random() * 100.0 + 100.0) });
+              }
+              if (useResult > 0) {
+                this.props.gameState.getCurrency("meno.shiny").addAmount(1n);
+                this.floatingNumbers.push(new LogicFloatingNumber(cellRenderPosition.plus(vec2(0.0, -16.0)), "+1", "floating-number-inner-shiny"));
+                this.shinyGatherEffects.push({ id: generateUUID(), position: cellRenderPosition.plus(vec2(2, 2)), animationProgress: 0.0 });
+              }
             }
           }
+        });
+        if (hadAnyEffect) {
+          this.state.toolUsesLeft[this.currentTool] -= 1;
         }
       }
-
-      return state;
-    });
+    }
   }
 
   handleOnCellHovered = (cell: Vec2) => {
-    this.hoveredCell = cell;
+    if (!this.hoveredCell.isEqual(cell)) {
+      this.hoveredCell.set(cell);
+      this.state.currentPuzzle.topLayerData.forEach((_) => _.forEach((tile) => {
+        tile.isHighlighted = this.currentTool == TOOL_HAMMER;
+      }));
+      if (this.state.currentPuzzle.isCellActionable(cell, this.currentTool)) {
+        const highlightedCoords = this.currentTool == TOOL_MAGNIFYING_GLASS ? getMagnifyingGlassCoords(cell, this.props.gameState.getCurrency("meno.magnifyingGlass1").getCurrentAmountShort()) : getChiselCoords(cell, this.props.gameState.getCurrency("meno.chisel1").getCurrentAmountShort());
+        highlightedCoords.forEach((coord) => {
+          if (this.state.currentPuzzle.isInPuzzleBounds(coord)) {
+            this.state.currentPuzzle.topLayerData[coord.x][coord.y].isHighlighted = true;
+          }
+        });
+      }
+    }
   }
 
   handleOnPuzzleLeave = () => {
-    this.hoveredCell = null;
+    this.hoveredCell = vec2(-1, -1);
+    this.state.currentPuzzle.topLayerData.forEach((_) => _.forEach((tile) => {
+      tile.isHighlighted = false;
+    }));
   }
 
   gameTick = (time: number) => {
@@ -339,12 +406,18 @@ export class MenoMinigameArea extends React.Component {
     this.setState((state: MenoMinigameAreaState, props: MenoMinigameAreaProps) => {
       const gameState = props.gameState;
 
-      state.progressToNextPuzzle += time / DIG_TIME;
+      state.progressToNextPuzzle += time / gameState.getResolvedValue("meno.puzzleGenerationTime").resolve();
       if (state.progressToNextPuzzle >= 1.0) {
         if (state.numStockedPuzzles < MAX_PUZZLES) {
           state.numStockedPuzzles += 1;
           state.progressToNextPuzzle = 0.0;
           this.pingEffects.push({ position: vec2(SCENE_SIZE.x - 40.0, 70.0), animationProgress: 1.0 });
+
+          const numExtraShiny = gameState.getResolvedValue("meno.extraShinyPerDig").resolve();
+          if (numExtraShiny > 0) {
+            gameState.getCurrency("meno.shiny").addFractionalAmount(numExtraShiny);
+            this.floatingNumbers.push(new LogicFloatingNumber(vec2(SCENE_SIZE.x - 40.0, 70.0), `+${numExtraShiny}`, "floating-number-inner-shiny"));
+          }
         } else {
           state.progressToNextPuzzle = 1.0;
         }
@@ -370,6 +443,10 @@ export class MenoMinigameArea extends React.Component {
         particle.position.plusEquals(particle.velocity.plus(newVelocity).times(0.5 * time));
         particle.velocity.set(newVelocity);
         return particle.position.y < SCENE_SIZE.y;
+      });
+      this.shinyGatherEffects = this.shinyGatherEffects.filter((effect) => {
+        effect.animationProgress += time;
+        return effect.animationProgress < 1.0;
       });
 
       // Update floating text
@@ -416,15 +493,23 @@ export class MenoMinigameArea extends React.Component {
     this.mouseDown = false;
   }
 
+  getMaxToolUses = () => {
+    return [
+      1 + this.props.gameState.getCurrency("meno.magnifyingGlass").getCurrentAmountShort(),
+      1 + this.props.gameState.getCurrency("meno.chisel").getCurrentAmountShort()
+    ];
+  }
+
   render() {
     const gameState = this.props.gameState;
 
     const hotbarItems = [magnifying_glass, chisel];
+    const maxToolUses = this.getMaxToolUses();
     let hotbarDivs = [];
     hotbarItems.forEach((item, index) => {
       hotbarDivs.push(<div key={index} className={`hotbar-item-container${this.currentTool == index ? " selected" : ""}${this.state.toolUsesLeft[index] > 0 ? "" : " disabled"}`} onMouseDown={(e) => { this.changeTool(index); e.stopPropagation(); }}>
         <img className="hotbar-item-img" src={item} />
-        <div className="hotbar-item-count"><b>x{this.state.toolUsesLeft[index]}</b></div>
+        <div className="hotbar-item-count"><b>{`${this.state.toolUsesLeft[index]}/${maxToolUses[index]}`}</b></div>
         <div className="hotbar-item-shortcut"><b>{index + 1}</b></div>
       </div >);
     });
@@ -432,6 +517,7 @@ export class MenoMinigameArea extends React.Component {
     const hasMorePuzzles = this.state.numStockedPuzzles > 0;
     const stockFull = this.state.numStockedPuzzles >= MAX_PUZZLES && this.state.progressToNextPuzzle >= 1.0;
     const recommendNextPuzzle = this.state.currentPuzzle.shiniesFound == this.state.currentPuzzle.totalShinies || this.state.toolUsesLeft[TOOL_CHISEL] == 0
+    const shinyGatherEffectElements = this.shinyGatherEffects.map((effect) => <img key={effect.id} className="meno-puzzle-shiny" style={{ position: "absolute", left: `${effect.position.x - 12}px`, top: `${effect.position.y - 12}px`, width: "24px" }} src={shiny} />);
     const floatingNumbers = this.floatingNumbers.map((logicObject) => logicObject.renderObject);
 
     return (
@@ -468,7 +554,7 @@ export class MenoMinigameArea extends React.Component {
               <img style={{ display: "none" }} src={ikumin} ref={this.ikuminSpritesheetRef} />
 
               <div style={{ position: "absolute", top: "20px", left: 0, right: 0, margin: "0 auto", fontSize: "20pt" }}>Shinies: {`${this.state.currentPuzzle.shiniesFound}/${this.state.currentPuzzle.totalShinies}`}</div>
-              <button className={hasMorePuzzles ? "" : "disabled"} style={{ position: "absolute", bottom: "20px", width: "80px", height: "40px", left: 0, right: 0, margin: "0 auto", filter: recommendNextPuzzle && hasMorePuzzles ? "drop-shadow(0 0 10px yellow)" : null }} onClick={(_) => this.handleGoToNextPuzzle()} onMouseMove={(e) => { this.showMouse = false; e.stopPropagation(); }}>{recommendNextPuzzle ? "Next" : "Skip"}</button>
+              <button className={hasMorePuzzles ? "" : "disabled"} style={{ position: "absolute", bottom: "20px", width: "80px", height: "40px", left: 0, right: 0, margin: "0 auto", filter: recommendNextPuzzle && hasMorePuzzles ? "drop-shadow(0 0 10px yellow)" : null }} onClick={(e) => { this.handleGoToNextPuzzle(); }} onMouseMove={(e) => { this.showMouse = false; e.stopPropagation(); }}>{recommendNextPuzzle ? "Next" : "Skip"}</button>
 
               {this.state.currentPuzzle ? <RenderPuzzle
                 key={this.state.currentPuzzle.uuid}
@@ -487,16 +573,17 @@ export class MenoMinigameArea extends React.Component {
                 logicPuzzle={this.state.nextPuzzle}
                 transitionAmount={this.puzzleTransitionTime - 1.0}
               /> : null}
+              {shinyGatherEffectElements}
               <canvas className="minigame-size" style={{ pointerEvents: "none" }} ref={this.canvasRef} />
 
               <div style={{ display: "flex", flexDirection: "column", position: "absolute", width: "80px", height: "100%", right: 0, top: 0, bottom: 0, margin: "auto 0" }}>
-                <div className="horizontal-align-outer" style={{ flex: "1 0 0" }}><b>Stored:<br />{`${this.state.numStockedPuzzles}/${MAX_PUZZLES}`}</b></div>
+                <div className="horizontal-align-outer" style={{ flex: "1 0 0" }}><b>Blocks:<br />{`${this.state.numStockedPuzzles}/${MAX_PUZZLES}`}</b></div>
                 <div style={{ position: "relative", flex: "0 0 1", margin: "0 auto", border: "1px solid black", width: "20px", height: "400px" }}>
                   <div style={{ position: "absolute", bottom: 0, width: "100%", height: `${(400.0 * this.state.progressToNextPuzzle).toFixed(0)}px`, backgroundColor: "yellow" }} />
                 </div>
                 <div className="horizontal-align-outer" style={{ flex: "1 0 0", fontSize: "8pt" }}><b>{stockFull ? (<span>Output<br />Full</span>) : "Digging..."}</b></div>
               </div>
-              {stockFull ? null : (<RenderGameObject position={SCENE_SIZE.minus(vec2(40.0, 35.0))} sprite={spinner} spriteWidth={48.0} spriteHeight={48.0} outerStyle={{animation: "rotate-stepwise-1-8 1s infinite"}} />)}
+              {stockFull ? null : (<RenderGameObject position={SCENE_SIZE.minus(vec2(40.0, 35.0))} sprite={spinner} spriteWidth={48.0} spriteHeight={48.0} outerStyle={{ animation: "rotate-stepwise-1-8 1s infinite" }} />)}
 
               <div className="minigame-hotbar">
                 {hotbarDivs}

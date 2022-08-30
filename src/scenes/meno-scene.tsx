@@ -23,6 +23,15 @@ export class MenoScene extends React.Component {
 
   render() {
     const t1Currencies = [
+      "meno.biggerBlocks",
+      "meno.biggerBlocks1",
+      "meno.biggerBlocks2",
+      "meno.digSpeed",
+      "meno.residualShiny",
+      "meno.magnifyingGlass",
+      "meno.magnifyingGlass1",
+      "meno.chisel",
+      "meno.chisel1",
       "meno.t2Unlock",
     ];
 

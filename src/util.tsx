@@ -6,7 +6,7 @@ export const toTitleCase: (string: string) => string = (string: string) => {
   let retval = "";
   let insideTag = false;
   let currentWord = "";
-  const capitalizeWord = (word: string) => word.length == 0 || word == "of" || word == "with" ? word : word[0].toUpperCase() + word.slice(1);
+  const capitalizeWord = (word: string) => word.length == 0 || word == "of" || word == "with" || word == "for" ? word : word[0].toUpperCase() + word.slice(1);
   for (let i = 0; i < string.length; i++) {
     const char = string[i];
     if (char === '[') {
@@ -19,8 +19,8 @@ export const toTitleCase: (string: string) => string = (string: string) => {
       retval += char;
     } else {
       if (!insideTag) {
-        if (char === ' ') {
-          retval += capitalizeWord(currentWord) + " ";
+        if (char == ' ' || char == '(' || char == ')') {
+          retval += capitalizeWord(currentWord) + char;
           currentWord = "";
         } else {
           currentWord += char;

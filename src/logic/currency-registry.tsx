@@ -1550,13 +1550,190 @@ export const registerMenoT1 = (gameState: GameState) => {
     }
   ));
 
+  gameState.registerResolvedValue(new ResolvedValue(gameState, "meno.puzzleSize",
+    ["meno.biggerBlocks"],
+    [],
+    (currencies, values) => {
+      const amount = 2n + currencies.get("meno.biggerBlocks");
+      return { amount: Number(amount), explanation: "" };
+    }
+  ));
+  gameState.registerResolvedValue(new ResolvedValue(gameState, "meno.puzzleDepth",
+    ["meno.biggerBlocks2"],
+    [],
+    (currencies, values) => {
+      const amount = 1n + currencies.get("meno.biggerBlocks2");
+      return { amount: Number(amount), explanation: "" };
+    }
+  ));
+  gameState.registerResolvedValue(new ResolvedValue(gameState, "meno.shinyPerLayer",
+    ["meno.biggerBlocks", "meno.biggerBlocks1"],
+    [],
+    (currencies, values) => {
+      const amount = 1n + currencies.get("meno.biggerBlocks") * 2n + currencies.get("meno.biggerBlocks1");
+      return { amount: Number(amount), explanation: "" };
+    }
+  ));
+  gameState.registerResolvedValue(new ResolvedValue(gameState, "meno.puzzleGenerationTime",
+    ["meno.biggerBlocks", "meno.biggerBlocks1"],
+    ["meno.digSpeedModifier"],
+    (currencies, values) => {
+      const amount = (30.0 +
+        currencies.getShort("meno.biggerBlocks") * 5.0 +
+        currencies.getShort("meno.biggerBlocks1") * 5.0
+      ) / values.get("meno.digSpeedModifier");
+      return { amount: Number(amount), explanation: "" };
+    }
+  ));
+  gameState.registerResolvedValue(new ResolvedValue(gameState, "meno.digSpeedModifier",
+    ["meno.digSpeed"],
+    [],
+    (currencies, values) => {
+      const amount = 1.0 + currencies.getShort("meno.digSpeed") * 0.4;
+      return { amount: Number(amount), explanation: "" };
+    }
+  ));
+  gameState.registerResolvedValue(new ResolvedValue(gameState, "meno.extraShinyPerDig",
+    ["meno.residualShiny"],
+    [],
+    (currencies, values) => {
+      const amount = currencies.getShort("meno.residualShiny");
+      return { amount: Number(amount), explanation: "" };
+    }
+  ));
+
   gameState.registerGenerator(new CurrencyGenerator(gameState, "meno.passiveMode",
     [],
     [{ currency: "meno.shiny", resolvedValue: "meno.shinyGenerator" }]
   ));
   gameState.getGenerator("meno.passiveMode").enabled = false;
 
-  
+  gameState.registerCurrency(new Currency(gameState, "meno.biggerBlocks")
+    .registerI18N({
+      interpolations: () => {
+        return {
+          rate: parseFloat((5.0 / gameState.getResolvedValue("meno.digSpeedModifier").resolve()).toFixed(2))
+        }
+      },
+      shopBoxClass: "minigame-generator"
+    })
+    .registerMaximumStock(6n)
+    .registerCostToPurchaseOne([
+      new Cost(gameState.getCurrency("meno.shiny"), (gameState) => {
+        return costFuncEx(2, 2000, gameState.getCurrency("meno.biggerBlocks").getNextPurchasedAmountShort(), 9.9);
+      })
+    ])
+    .registerCalculateIsRevealed(() => true)
+  );
+
+  gameState.registerCurrency(new Currency(gameState, "meno.biggerBlocks1")
+    .registerI18N({
+      interpolations: () => {
+        return {
+          rate: parseFloat((5.0 / gameState.getResolvedValue("meno.digSpeedModifier").resolve()).toFixed(2))
+        }
+      },
+      shopBoxClass: "minigame-generator"
+    })
+    .registerMaximumStock(10n)
+    .registerCostToPurchaseOne([
+      new Cost(gameState.getCurrency("meno.shiny"), (gameState) => {
+        return costFuncEx(4, 2000, gameState.getCurrency("meno.biggerBlocks1").getNextPurchasedAmountShort(), 9.9);
+      })
+    ])
+    .registerCalculateIsRevealed(() => gameState.getCurrency("meno.biggerBlocks").getCurrentAmount() >= 1n)
+  );
+
+  gameState.registerCurrency(new Currency(gameState, "meno.biggerBlocks2")
+    .registerI18N({
+      shopBoxClass: "minigame-generator"
+    })
+    .registerMaximumStock(5n)
+    .registerCostToPurchaseOne([
+      new Cost(gameState.getCurrency("meno.shiny"), (gameState) => {
+        return costFuncEx(50, 10, gameState.getCurrency("meno.biggerBlocks2").getNextPurchasedAmountShort(), 1);
+      })
+    ])
+    .registerCalculateIsRevealed(() => gameState.getCurrency("meno.biggerBlocks").getCurrentAmount() >= 6n)
+  );
+
+  gameState.registerCurrency(new Currency(gameState, "meno.digSpeed")
+    .registerI18N({
+      shopBoxClass: "minigame-generator"
+    })
+    .registerMaximumStock(10n)
+    .registerCostToPurchaseOne([
+      new Cost(gameState.getCurrency("meno.shiny"), (gameState) => {
+        return costFuncEx(1, 2000, gameState.getCurrency("meno.digSpeed").getNextPurchasedAmountShort(), 9.9);
+      })
+    ])
+    .registerCalculateIsRevealed(() => true)
+  );
+
+  gameState.registerCurrency(new Currency(gameState, "meno.residualShiny")
+    .registerI18N({
+      shopBoxClass: "minigame-generator"
+    })
+    .registerMaximumStock(10n)
+    .registerCostToPurchaseOne([
+      new Cost(gameState.getCurrency("meno.shiny"), (gameState) => {
+        return costFuncEx(100, 500, gameState.getCurrency("meno.residualShiny").getNextPurchasedAmountShort(), 9.9);
+      })
+    ])
+    .registerCalculateIsRevealed(() => gameState.getCurrency("meno.digSpeed").getCurrentAmount() >= 1n)
+  );
+
+  gameState.registerCurrency(new Currency(gameState, "meno.magnifyingGlass")
+    .registerI18N({
+      shopBoxClass: "minigame-buff"
+    })
+    .registerMaximumStock(9n)
+    .registerCostToPurchaseOne([
+      new Cost(gameState.getCurrency("meno.shiny"), (gameState) => {
+        return costFuncEx(1, 2000, gameState.getCurrency("meno.magnifyingGlass").getNextPurchasedAmountShort(), 9.9);
+      })
+    ])
+    .registerCalculateIsRevealed(() => true)
+  );
+
+  gameState.registerCurrency(new Currency(gameState, "meno.magnifyingGlass1")
+    .registerI18N({
+      shopBoxClass: "minigame-buff"
+    })
+    .registerMaximumStock(2n)
+    .registerCostToPurchaseOne([
+      new Cost(gameState.getCurrency("meno.shiny"), (gameState) => {
+        return costFuncEx(10, 100, gameState.getCurrency("meno.magnifyingGlass1").getNextPurchasedAmountShort(), 1);
+      })
+    ])
+    .registerCalculateIsRevealed(() => gameState.getCurrency("meno.magnifyingGlass").getCurrentAmount() >= 3n)
+  );
+
+  gameState.registerCurrency(new Currency(gameState, "meno.chisel")
+    .registerI18N({
+      shopBoxClass: "minigame-buff"
+    })
+    .registerMaximumStock(9n)
+    .registerCostToPurchaseOne([
+      new Cost(gameState.getCurrency("meno.shiny"), (gameState) => {
+        return costFuncEx(1, 2000, gameState.getCurrency("meno.chisel").getNextPurchasedAmountShort(), 9.9);
+      })
+    ])
+    .registerCalculateIsRevealed(() => true)
+  );
+  5
+  gameState.registerCurrency(new Currency(gameState, "meno.chisel1")
+    .registerI18N({
+      shopBoxClass: "minigame-buff"
+    })
+    .registerMaximumStock(4n)
+    .registerCostToPurchaseOne([
+      new Cost(gameState.getCurrency("meno.shiny"), (gameState) => {
+        return costFuncEx(10, 2000, gameState.getCurrency("meno.chisel1").getNextPurchasedAmountShort(), 3.9);
+      })
+    ])
+    .registerCalculateIsRevealed(() => gameState.getCurrency("meno.chisel").getCurrentAmount() >= 3n)
+  );
 
   gameState.registerCurrency(new Currency(gameState, "meno.t2Unlock")
     .registerI18N({
@@ -1568,8 +1745,8 @@ export const registerMenoT1 = (gameState: GameState) => {
     ])
     .registerCalculateIsRevealed(() => true)
     .registerOnAmountPurchased(() => {
-      gameState.getCurrency("meno.ippui").setRevealed();
-      gameState.getCurrency("meno.ippui").addAmount(1n);
+      //gameState.getCurrency("meno.ippui").setRevealed();
+      //gameState.getCurrency("meno.ippui").addAmount(1n);
     })
   );
 }

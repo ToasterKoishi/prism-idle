@@ -132,13 +132,13 @@ button.disabled {
 
 @keyframes logo-rotate {
   from {
-    opacity: 0.3;
+    opacity: 0.6;
     transform: rotateX(90deg) rotate(0deg);
     animation-timing-function: linear;
   }
 
   to {
-    opacity: 0.3;
+    opacity: 0.6;
     transform: rotateX(90deg) rotate(360deg);
     animation-timing-function: linear;
   }

@@ -8,7 +8,7 @@ export const SCENE_SIZE = vec2(960.0, 540.0);
 
 export const SORTED_CHARACTER_IDS = TOTER_DEBUG ?
   ["iku", "aoi", "meno", "rita", "luto", "shiki", "nia", "yura", "pina"] :
-  ["iku", "aoi", /*"meno", "rita", "luto", "shiki", "nia", "yura", "pina"*/];
+  ["iku", "aoi", "meno"/*, "rita", "luto", "shiki", "nia", "yura", "pina"*/];
 export const COLOR_SCHEMES = {
   "": {
     backgroundColor: "white",
